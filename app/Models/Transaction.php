@@ -7,11 +7,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Transaction extends Model
 {
-    protected $fillable = ['user_id', 'category_id', 'type', 'amount', 'description', 'date'];
+    protected $fillable = [
+        'user_id', 'category_id', 'type', 'amount',
+        'currency', 'exchange_rate', 'amount_gs',
+        'description', 'date',
+    ];
 
     protected $casts = [
         'date' => 'date',
         'amount' => 'integer',
+        'exchange_rate' => 'decimal:2',
+        'amount_gs' => 'integer',
     ];
 
     public function category(): BelongsTo

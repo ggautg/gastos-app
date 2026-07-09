@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transaction;
+use App\Services\ExchangeRateService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -21,8 +22,8 @@ class TransactionController extends Controller
             ->orderBy('date', 'desc')
             ->get();
 
-        $totalGastos = $transactions->where('type', 'gasto')->sum('amount');
-        $totalGanancias = $transactions->where('type', 'ganancia')->sum('amount');
+        $totalGastos = $transactions->where('type', 'gasto')->sum('amount_gs');
+        $totalGanancias = $transactions->where('type', 'ganancia')->sum('amount_gs');
 
         $gastosPorCategoria = $transactions
             ->where('type', 'gasto')
@@ -31,19 +32,18 @@ class TransactionController extends Controller
                 return [
                     'name' => $items->first()->category->name,
                     'color' => $items->first()->category->color,
-                    'total' => $items->sum('amount'),
+                    'total' => $items->sum('amount_gs'),
                 ];
             })
             ->values();
 
         $categoriasGasto = auth()->user()->categories()->where('type', 'gasto')->get();
         $categoriasConPresupuesto = $categoriasGasto->filter(fn ($cat) => $cat->budget !== null);
-
         $presupuestos = $categoriasConPresupuesto->map(function ($cat) use ($transactions) {
             $gastado = $transactions
                 ->where('type', 'gasto')
                 ->where('category_id', $cat->id)
-                ->sum('amount');
+                ->sum('amount_gs');
 
             return [
                 'name' => $cat->name,
@@ -54,16 +54,13 @@ class TransactionController extends Controller
             ];
         })->values();
 
-        // Armamos una fecha "ancla" con el mes/año que se está viendo,
-        // y le restamos 1 mes. Carbon se encarga de pasar de año automáticamente.
         $fechaAnterior = Carbon::createFromDate($year, $month, 1)->subMonth();
-
         $totalesMesAnterior = auth()->user()->transactions()
             ->whereMonth('date', $fechaAnterior->month)
             ->whereYear('date', $fechaAnterior->year)
             ->get()
             ->groupBy('type')
-            ->map(fn ($items) => $items->sum('amount'));
+            ->map(fn ($items) => $items->sum('amount_gs'));
 
         $gastosMesAnterior = $totalesMesAnterior->get('gasto', 0);
         $gananciasMesAnterior = $totalesMesAnterior->get('ganancia', 0);
@@ -86,32 +83,52 @@ class TransactionController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, ExchangeRateService $exchangeRateService)
     {
         $validated = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'type' => 'required|in:gasto,ganancia',
-            'amount' => 'required|integer|min:1',
+            'amount' => 'required|numeric|min:0.01',
+            'currency' => 'required|in:PYG,USD',
             'description' => 'nullable|string|max:255',
             'date' => 'required|date',
         ]);
+
+        if ($validated['currency'] === 'USD') {
+            $rate = $exchangeRateService->getUsdToGsRate();
+            $validated['exchange_rate'] = $rate;
+            $validated['amount_gs'] = round($validated['amount'] * $rate);
+        } else {
+            $validated['exchange_rate'] = null;
+            $validated['amount_gs'] = $validated['amount'];
+        }
 
         auth()->user()->transactions()->create($validated);
 
         return redirect()->back();
     }
 
-    public function update(Request $request, Transaction $transaction)
+    public function update(Request $request, Transaction $transaction, ExchangeRateService $exchangeRateService)
     {
         $this->authorize('update', $transaction);
 
         $validated = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'type' => 'required|in:gasto,ganancia',
-            'amount' => 'required|integer|min:1',
+            'amount' => 'required|numeric|min:0.01',
+            'currency' => 'required|in:PYG,USD',
             'description' => 'nullable|string|max:255',
             'date' => 'required|date',
         ]);
+
+        if ($validated['currency'] === 'USD') {
+            $rate = $exchangeRateService->getUsdToGsRate();
+            $validated['exchange_rate'] = $rate;
+            $validated['amount_gs'] = round($validated['amount'] * $rate);
+        } else {
+            $validated['exchange_rate'] = null;
+            $validated['amount_gs'] = $validated['amount'];
+        }
 
         $transaction->update($validated);
 

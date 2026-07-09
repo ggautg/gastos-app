@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\YearlySummaryController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -30,6 +31,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('transactions', TransactionController::class)
         ->except(['create', 'edit', 'show']);
+
+    Route::get('/summary/yearly', [YearlySummaryController::class, 'index'])->name('summary.yearly');
 });
 
 require __DIR__.'/auth.php';

@@ -35,10 +35,13 @@ const showingNavigationDropdown = ref(false);
                                     :active="route().current('categories.index')">
                                     Categorías
                                 </NavLink>
-                                
+
                                 <NavLink :href="route('transactions.index')"
                                     :active="route().current('transactions.index')">
                                     Movimientos
+                                </NavLink>
+                                <NavLink :href="route('summary.yearly')" :active="route().current('summary.yearly')">
+                                    Resumen anual
                                 </NavLink>
                             </div>
                         </div>

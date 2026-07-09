@@ -105,6 +105,7 @@ const form = useForm({
     category_id: '',
     type: 'gasto',
     amount: '',
+    currency: 'PYG',
     description: '',
     date: new Date().toISOString().slice(0, 10),
 });
@@ -150,20 +151,12 @@ const transaccionesFiltradas = computed(() => {
     return resultado;
 });
 
-function ordenar(campo) {
-    if (ordenarPor.value === campo) {
-        // Si ya estabas ordenando por este campo, invertimos la dirección
-        ordenAscendente.value = !ordenAscendente.value;
-    } else {
-        // Si es un campo nuevo, empezamos en ascendente
-        ordenarPor.value = campo;
-        ordenAscendente.value = true;
-    }
-}
+
 
 function openCreate() {
     editingId.value = null;
     form.reset();
+    form.currency = 'PYG';
     form.date = new Date().toISOString().slice(0, 10);
     showForm.value = true;
 }
@@ -173,8 +166,20 @@ function openEdit(t) {
     form.category_id = t.category_id;
     form.type = t.type;
     form.amount = t.amount;
+    form.currency = t.currency;
     form.description = t.description;
     form.date = t.date;
+    showForm.value = true;
+}
+
+function duplicar(t) {
+    editingId.value = null;
+    form.category_id = t.category_id;
+    form.type = t.type;
+    form.amount = t.amount;
+    form.currency = t.currency;
+    form.description = t.description;
+    form.date = new Date().toISOString().slice(0, 10);
     showForm.value = true;
 }
 
@@ -202,16 +207,6 @@ function remove(t) {
             onSuccess: () => mostrarToast('Movimiento eliminado', 'error'),
         });
     }
-}
-
-function duplicar(t) {
-    editingId.value = null;
-    form.category_id = t.category_id;
-    form.type = t.type;
-    form.amount = t.amount;
-    form.description = t.description;
-    form.date = new Date().toISOString().slice(0, 10);
-    showForm.value = true;
 }
 </script>
 
@@ -336,13 +331,14 @@ function duplicar(t) {
                                 </p>
                                 <p class="text-xs text-slate-400">
                                     {{ t.category.name }} · {{ t.date }}
+                                    <span v-if="t.currency === 'USD'">· US$ {{ t.amount }}</span>
                                 </p>
                             </div>
                         </div>
                         <div class="flex items-center gap-4">
                             <span class="font-semibold"
                                 :class="t.type === 'gasto' ? 'text-red-700' : 'text-emerald-700'">
-                                {{ t.type === 'gasto' ? '-' : '+' }}{{ formatGs(t.amount) }}
+                                {{ t.type === 'gasto' ? '-' : '+' }}{{ formatGs(t.amount_gs) }}
                             </span>
                             <div class="flex gap-2 text-sm">
                                 <button @click="duplicar(t)" class="text-slate-400 hover:text-teal-700"
@@ -413,6 +409,22 @@ function duplicar(t) {
                         <input v-model="form.amount" type="number" min="1"
                             class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600"
                             placeholder="Ej: 150000" />
+                        <p v-if="form.errors.amount" class="text-xs text-red-600 mt-1">{{ form.errors.amount }}</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-slate-600 mb-1">Monto</label>
+                        <div class="flex gap-2">
+                            <select v-model="form.currency"
+                                class="rounded-lg border-slate-300 text-sm focus:border-teal-600 focus:ring-teal-600">
+                                <option value="PYG">₲</option>
+                                <option value="USD">US$</option>
+                            </select>
+                            <input v-model="form.amount" type="number" :min="form.currency === 'USD' ? 0.01 : 1"
+                                :step="form.currency === 'USD' ? 0.01 : 1"
+                                class="flex-1 rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600"
+                                :placeholder="form.currency === 'USD' ? 'Ej: 49.99' : 'Ej: 150000'" />
+                        </div>
                         <p v-if="form.errors.amount" class="text-xs text-red-600 mt-1">{{ form.errors.amount }}</p>
                     </div>
 
