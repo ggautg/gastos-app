@@ -37,24 +37,22 @@ class TransactionController extends Controller
             ->values();
 
         $categoriasGasto = auth()->user()->categories()->where('type', 'gasto')->get();
+        $categoriasConPresupuesto = $categoriasGasto->filter(fn ($cat) => $cat->budget !== null);
 
-        $presupuestos = $categoriasGasto
-            ->filter(fn ($cat) => $cat->budget !== null)
-            ->map(function ($cat) use ($transactions) {
-                $gastado = $transactions
-                    ->where('type', 'gasto')
-                    ->where('category_id', $cat->id)
-                    ->sum('amount');
+        $presupuestos = $categoriasConPresupuesto->map(function ($cat) use ($transactions) {
+            $gastado = $transactions
+                ->where('type', 'gasto')
+                ->where('category_id', $cat->id)
+                ->sum('amount');
 
-                return [
-                    'name' => $cat->name,
-                    'color' => $cat->color,
-                    'budget' => $cat->budget,
-                    'gastado' => $gastado,
-                    'porcentaje' => $cat->budget > 0 ? round(($gastado / $cat->budget) * 100) : 0,
-                ];
-            })
-            ->values();
+            return [
+                'name' => $cat->name,
+                'color' => $cat->color,
+                'budget' => $cat->budget,
+                'gastado' => $gastado,
+                'porcentaje' => $cat->budget > 0 ? round(($gastado / $cat->budget) * 100) : 0,
+            ];
+        })->values();
 
         // Armamos una fecha "ancla" con el mes/año que se está viendo,
         // y le restamos 1 mes. Carbon se encarga de pasar de año automáticamente.
@@ -79,8 +77,8 @@ class TransactionController extends Controller
                 'ganancias' => $totalGanancias,
                 'balance' => $totalGanancias - $totalGastos,
             ],
-            'gastosPorCategoria' => $gastosPorCategoria, // para el gráfico de torta (todas las categorías gastadas)
-            'presupuestos' => $presupuestos,             // para las barras de progreso (solo las que tienen tope)
+            'gastosPorCategoria' => $gastosPorCategoria,
+            'presupuestos' => $presupuestos,
             'comparativa' => [
                 'gastos_anterior' => $gastosMesAnterior,
                 'ganancias_anterior' => $gananciasMesAnterior,

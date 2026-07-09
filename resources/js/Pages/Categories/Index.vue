@@ -37,19 +37,35 @@ function openEdit(category) {
 function submit() {
     if (editingId.value) {
         form.put(route('categories.update', editingId.value), {
-            onSuccess: () => (showForm.value = false),
+            onSuccess: () => (showForm.value = false,
+                mostrarToast('Categoría actualizada', 'success')
+            ),
         });
     } else {
         form.post(route('categories.store'), {
-            onSuccess: () => (showForm.value = false),
+            onSuccess: () => (showForm.value = false,
+                mostrarToast('Categoría creada', 'success')
+            ),
         });
     }
 }
 
 function remove(category) {
     if (confirm(`¿Borrar la categoría "${category.name}"?`)) {
-        form.delete(route('categories.destroy', category.id));
+        form.delete(route('categories.destroy', category.id), {
+            onSuccess: () => mostrarToast('Categoría eliminada', 'error'),
+        });
     }
+}
+
+const toast = ref(null);
+
+function mostrarToast(mensaje, tipo = 'success') {
+    toast.value = { mensaje, tipo };
+
+    setTimeout(() => {
+        toast.value = null;
+    }, 3000);
 }
 </script>
 
@@ -103,6 +119,16 @@ function remove(category) {
                 </div>
             </div>
         </div>
+
+         <Transition enter-active-class="transition ease-out duration-300" enter-from-class="opacity-0 translate-y-2"
+            enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-200"
+            leave-from-class="opacity-100" leave-to-class="opacity-0">
+            <div v-if="toast"
+                class="fixed bottom-6 right-6 px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium z-50"
+                :class="toast.tipo === 'success' ? 'bg-emerald-600' : 'bg-red-600'">
+                {{ toast.mensaje }}
+            </div>
+        </Transition>
 
         <!-- Modal simple -->
         <div v-if="showForm" class="fixed inset-0 bg-black/30 flex items-center justify-center px-4 z-50"
