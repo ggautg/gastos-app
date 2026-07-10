@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
@@ -16,6 +16,7 @@ const props = defineProps({
     gastosPorCategoria: Array,
     presupuestos: Array,
     comparativa: Object,
+    role: String,
 });
 
 const meses = [
@@ -25,6 +26,9 @@ const meses = [
 
 const selectedMonth = ref(props.filters.month);
 const selectedYear = ref(props.filters.year);
+
+const paginaActual = ref(1);
+const porPagina = 10;
 
 function goToMonth() {
     router.get(route('transactions.index'), {
@@ -118,6 +122,15 @@ const busqueda = ref('');
 const ordenarPor = ref('date');
 const ordenAscendente = ref(false);
 
+const totalPaginas = computed(() =>
+    Math.ceil(transaccionesFiltradas.value.length / porPagina)
+);
+
+const transaccionesPaginadas = computed(() => {
+    const inicio = (paginaActual.value - 1) * porPagina;
+    return transaccionesFiltradas.value.slice(inicio, inicio + porPagina);
+});
+
 const transaccionesFiltradas = computed(() => {
     let resultado = props.transactions;
 
@@ -183,6 +196,30 @@ function duplicar(t) {
     showForm.value = true;
 }
 
+function manejarAtajos(e) {
+    // Si el usuario está escribiendo en un input/select/textarea, no activamos atajos
+    const enCampoDeTexto = ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName);
+
+    if (e.key === 'Escape' && showForm.value) {
+        showForm.value = false;
+        return;
+    }
+
+    if (enCampoDeTexto) return;
+
+    if (e.key === 'n' || e.key === 'N') {
+        openCreate();
+    }
+}
+
+onMounted(() => {
+    window.addEventListener('keydown', manejarAtajos);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', manejarAtajos);
+});
+
 function submit() {
     if (editingId.value) {
         form.put(route('transactions.update', editingId.value), {
@@ -208,6 +245,10 @@ function remove(t) {
         });
     }
 }
+
+watch([busqueda, ordenarPor, ordenAscendente], () => {
+    paginaActual.value = 1;
+});
 </script>
 
 <template>
@@ -216,7 +257,7 @@ function remove(t) {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold text-slate-800">Gastos y Ganancias</h2>
+            <h2 class="text-xl font-semibold text-slate-800 dark:text-gray-200">Gastos y Ganancias</h2>
         </template>
 
         <div class="py-8">
@@ -224,23 +265,26 @@ function remove(t) {
 
                 <!-- Filtro de mes -->
                 <div class="flex items-center gap-3">
-                    <select v-model="selectedMonth" @change="goToMonth" class="rounded-lg border-slate-300 text-sm">
+                    <select v-model="selectedMonth" @change="goToMonth"
+                        class="rounded-lg border-slate-300 text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200">
                         <option v-for="(m, i) in meses" :key="i" :value="i + 1">{{ m }}</option>
                     </select>
-                    <select v-model="selectedYear" @change="goToMonth" class="rounded-lg border-slate-300 text-sm">
+                    <select v-model="selectedYear" @change="goToMonth"
+                        class="rounded-lg border-slate-300 text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200">
                         <option v-for="y in [2024, 2025, 2026, 2027]" :key="y" :value="y">{{ y }}</option>
                     </select>
                     <input v-model="busqueda" type="text" placeholder="Buscar por descripción o categoría..."
-                        class="flex-1 rounded-lg border-slate-300 text-sm focus:border-teal-600 focus:ring-teal-600" />
+                        class="flex-1 rounded-lg border-slate-300 text-sm focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200" />
                     <div class="flex items-center gap-2 text-sm">
-                        <span class="text-slate-500">Ordenar por:</span>
-                        <select v-model="ordenarPor" class="rounded-lg border-slate-300 text-sm">
+                        <span class="text-slate-500 dark:text-gray-400">Ordenar por:</span>
+                        <select v-model="ordenarPor"
+                            class="rounded-lg border-slate-300 text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200">
                             <option value="date">Fecha</option>
                             <option value="amount">Monto</option>
                             <option value="category">Categoría</option>
                         </select>
                         <button @click="ordenAscendente = !ordenAscendente"
-                            class="px-2 py-1 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50"
+                            class="px-2 py-1 rounded-lg border border-slate-300 text-slate-600 dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-slate-700"
                             :title="ordenAscendente ? 'Ascendente' : 'Descendente'">
                             {{ ordenAscendente ? '↑' : '↓' }}
                         </button>
@@ -249,7 +293,8 @@ function remove(t) {
 
                 <!-- Resumen -->
                 <div class="grid grid-cols-3 gap-4">
-                    <div class="bg-white rounded-xl border border-slate-200 p-4">
+                    <div
+                        class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
                         <p class="text-xs text-slate-500 mb-1">Ganancias</p>
                         <p class="text-lg font-semibold text-emerald-700">{{ formatGs(summary.ganancias) }}</p>
                         <p v-if="comparativa.ganancias_anterior > 0" class="text-xs mt-1"
@@ -261,7 +306,8 @@ function remove(t) {
                             vs. mes anterior
                         </p>
                     </div>
-                    <div class="bg-white rounded-xl border border-slate-200 p-4">
+                    <div
+                        class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
                         <p class="text-xs text-slate-500 mb-1">Gastos</p>
                         <p class="text-lg font-semibold text-red-700">{{ formatGs(summary.gastos) }}</p>
                         <p v-if="comparativa.gastos_anterior > 0" class="text-xs mt-1"
@@ -272,7 +318,8 @@ function remove(t) {
                             vs. mes anterior
                         </p>
                     </div>
-                    <div class="bg-white rounded-xl border border-slate-200 p-4">
+                    <div
+                        class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
                         <p class="text-xs text-slate-500 mb-1">Balance</p>
                         <p class="text-lg font-semibold"
                             :class="summary.balance >= 0 ? 'text-teal-700' : 'text-red-700'">
@@ -281,7 +328,8 @@ function remove(t) {
                     </div>
                 </div>
 
-                <div v-if="gastosPorCategoria.length > 0" class="bg-white rounded-xl border border-slate-200 p-4">
+                <div v-if="gastosPorCategoria.length > 0"
+                    class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
                     <p class="text-sm font-medium text-slate-600 mb-3">Gastos por categoría</p>
                     <div class="max-w-xs mx-auto">
                         <Pie :data="chartData" :options="chartOptions" />
@@ -311,25 +359,42 @@ function remove(t) {
                     </div>
                 </div>
 
-                <div class="flex justify-end">
-                    <button @click="openCreate"
+                <div class="flex justify-end items-center gap-3">
+                    <button v-if="role === 'owner'" @click="openCreate"
                         class="rounded-lg bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800 transition">
                         + Nuevo movimiento
                     </button>
+                    <a :href="route('transactions.export.excel', { month: selectedMonth, year: selectedYear })"
+                        class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                        ⬇ Excel
+                    </a>
+
+                    <a :href="route('transactions.export.pdf', { month: selectedMonth, year: selectedYear })"
+                        class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                        ⬇ PDF
+                    </a>
+                    <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                        Tip: presioná <kbd
+                            class="px-1 py-0.5 bg-slate-100 dark:bg-slate-700 rounded border border-slate-300 dark:border-slate-600 font-mono">N</kbd>
+                        para cargar rápido, <kbd
+                            class="px-1 py-0.5 bg-slate-100 dark:bg-slate-700 rounded border border-slate-300 dark:border-slate-600 font-mono">Esc</kbd>
+                        para cerrar
+                    </p>
                 </div>
 
                 <!-- Listado -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 divide-y divide-slate-100">
-                    <div v-for="t in transaccionesFiltradas" :key="t.id"
+                <div
+                    class="bg-white rounded-xl shadow-sm border border-slate-200 divide-y divide-slate-100 dark:bg-slate-800 dark:border-slate-700 dark:divide-slate-700">
+                    <div v-for="t in transaccionesPaginadas" :key="t.id"
                         class="flex items-center justify-between px-4 py-3">
                         <div class="flex items-center gap-3">
                             <span class="w-2.5 h-2.5 rounded-full"
                                 :style="{ backgroundColor: t.category.color }"></span>
                             <div>
-                                <p class="font-medium text-slate-800">
+                                <p class="font-medium text-slate-800 dark:text-gray-200">
                                     {{ t.description || t.category.name }}
                                 </p>
-                                <p class="text-xs text-slate-400">
+                                <p class="text-xs text-slate-400 dark:text-gray-400">
                                     {{ t.category.name }} · {{ t.date }}
                                     <span v-if="t.currency === 'USD'">· US$ {{ t.amount }}</span>
                                 </p>
@@ -337,22 +402,39 @@ function remove(t) {
                         </div>
                         <div class="flex items-center gap-4">
                             <span class="font-semibold"
-                                :class="t.type === 'gasto' ? 'text-red-700' : 'text-emerald-700'">
+                                :class="t.type === 'gasto' ? 'text-red-700 dark:text-red-500' : 'text-emerald-700 dark:text-emerald-500'">
                                 {{ t.type === 'gasto' ? '-' : '+' }}{{ formatGs(t.amount_gs) }}
                             </span>
                             <div class="flex gap-2 text-sm">
-                                <button @click="duplicar(t)" class="text-slate-400 hover:text-teal-700"
-                                    title="Duplicar">⎘</button>
-                                <button @click="openEdit(t)" class="text-slate-400 hover:text-slate-700">✎</button>
-                                <button @click="remove(t)" class="text-red-400 hover:text-red-700">✕</button>
+                                <div v-if="role === 'owner'" class="flex gap-2 text-sm">
+                                    <button @click="duplicar(t)" class="text-slate-400 hover:text-teal-700"
+                                        title="Duplicar">⎘</button>
+                                    <button @click="openEdit(t)" class="text-slate-400 hover:text-slate-700">✎</button>
+                                    <button @click="remove(t)" class="text-red-400 hover:text-red-700">✕</button>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <p v-if="transaccionesFiltradas.length === 0" class="px-4 py-6 text-center text-sm text-slate-400">
-                        {{ busqueda ? 'No se encontraron movimientos con ese criterio.' :
-                            'No hay movimientos cargados en este mes.' }}
+                        {{ busqueda ? 'No se encontraron movimientos con ese criterio.' : 'No hay movimientos cargados en este mes.' }}
                     </p>
+                </div>
+                <div v-if="totalPaginas > 1" class="flex items-center justify-between text-sm">
+                    <p class="text-slate-500 dark:text-slate-400">
+                        Página {{ paginaActual }} de {{ totalPaginas }}
+                        ({{ transaccionesFiltradas.length }} movimientos)
+                    </p>
+                    <div class="flex gap-2">
+                        <button @click="paginaActual--" :disabled="paginaActual === 1"
+                            class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700">
+                            ← Anterior
+                        </button>
+                        <button @click="paginaActual++" :disabled="paginaActual === totalPaginas"
+                            class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700">
+                            Siguiente →
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -367,10 +449,10 @@ function remove(t) {
             </div>
         </Transition>
         <!-- Modal -->
-        <div v-if="showForm" class="fixed inset-0 bg-black/30 flex items-center justify-center px-4 z-50"
+        <div v-if="showForm" class="fixed inset-0 bg-black/30 flex items-center justify-center px-4 z-50 "
             @click.self="showForm = false">
-            <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
-                <h3 class="text-lg font-semibold text-slate-800 mb-4">
+            <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm dark:bg-slate-800 dark:text-gray-200">
+                <h3 class="text-lg font-semibold text-slate-800 dark:text-gray-200 mb-4">
                     {{ editingId ? 'Editar movimiento' : 'Nuevo movimiento' }}
                 </h3>
 
@@ -378,22 +460,22 @@ function remove(t) {
                     <div class="flex gap-2">
                         <button type="button" @click="form.type = 'gasto'; form.category_id = ''"
                             class="flex-1 py-2 rounded-lg text-sm font-medium border" :class="form.type === 'gasto'
-                                ? 'bg-red-50 border-red-300 text-red-700'
-                                : 'border-slate-200 text-slate-500'">
+                                ? 'bg-red-50 border-red-300 text-red-700 dark:bg-red-900 dark:border-red-700 dark:text-red-500'
+                                : 'border-slate-200 text-slate-500 dark:border-slate-600 dark:text-gray-400'">
                             Gasto
                         </button>
                         <button type="button" @click="form.type = 'ganancia'; form.category_id = ''"
                             class="flex-1 py-2 rounded-lg text-sm font-medium border" :class="form.type === 'ganancia'
-                                ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
-                                : 'border-slate-200 text-slate-500'">
+                                ? 'bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-900 dark:border-emerald-700 dark:text-emerald-500'
+                                : 'border-slate-200 text-slate-500 dark:border-slate-600 dark:text-gray-400'">
                             Ganancia
                         </button>
                     </div>
 
                     <div>
-                        <label class="block text-sm text-slate-600 mb-1">Categoría</label>
+                        <label class="block text-sm text-slate-600 mb-1 dark:text-gray-400">Categoría</label>
                         <select v-model="form.category_id"
-                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600">
+                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200">
                             <option value="" disabled>Elegí una categoría</option>
                             <option v-for="c in filteredCategories" :key="c.id" :value="c.id">
                                 {{ c.name }}
@@ -405,45 +487,46 @@ function remove(t) {
                     </div>
 
                     <div>
-                        <label class="block text-sm text-slate-600 mb-1">Monto (₲)</label>
+                        <label class="block text-sm text-slate-600 mb-1 dark:text-gray-400">Monto (₲)</label>
                         <input v-model="form.amount" type="number" min="1"
-                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600"
+                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200"
                             placeholder="Ej: 150000" />
                         <p v-if="form.errors.amount" class="text-xs text-red-600 mt-1">{{ form.errors.amount }}</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm text-slate-600 mb-1">Monto</label>
+                        <label class="block text-sm text-slate-600 mb-1 dark:text-gray-400">Monto</label>
                         <div class="flex gap-2">
                             <select v-model="form.currency"
-                                class="rounded-lg border-slate-300 text-sm focus:border-teal-600 focus:ring-teal-600">
+                                class="rounded-lg border-slate-300 text-sm focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200">
                                 <option value="PYG">₲</option>
                                 <option value="USD">US$</option>
                             </select>
                             <input v-model="form.amount" type="number" :min="form.currency === 'USD' ? 0.01 : 1"
                                 :step="form.currency === 'USD' ? 0.01 : 1"
-                                class="flex-1 rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600"
+                                class="flex-1 rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200"
                                 :placeholder="form.currency === 'USD' ? 'Ej: 49.99' : 'Ej: 150000'" />
                         </div>
                         <p v-if="form.errors.amount" class="text-xs text-red-600 mt-1">{{ form.errors.amount }}</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm text-slate-600 mb-1">Descripción (opcional)</label>
+                        <label class="block text-sm text-slate-600 mb-1 dark:text-gray-400">Descripción
+                            (opcional)</label>
                         <input v-model="form.description" type="text"
-                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600"
+                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200"
                             placeholder="Ej: Supermercado" />
                     </div>
 
                     <div>
-                        <label class="block text-sm text-slate-600 mb-1">Fecha</label>
+                        <label class="block text-sm text-slate-600 mb-1 dark:text-gray-400">Fecha</label>
                         <input v-model="form.date" type="date"
-                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600" />
+                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200" />
                     </div>
 
                     <div class="flex justify-end gap-2 pt-2">
                         <button type="button" @click="showForm = false"
-                            class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800">
+                            class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200">
                             Cancelar
                         </button>
                         <button type="submit" :disabled="form.processing"

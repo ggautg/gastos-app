@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
-    protected $fillable = ['user_id', 'name', 'type', 'color', 'budget'];
+    protected $fillable = ['household_id', 'name', 'type', 'color', 'budget'];
 
-    public function user(): BelongsTo
+    public function household(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Household::class);
     }
 
     public function transactions(): HasMany

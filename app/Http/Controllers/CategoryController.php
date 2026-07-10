@@ -10,15 +10,20 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = auth()->user()->categories()->orderBy('name')->get();
+        $household = auth()->user()->currentHousehold();
+
+        $categories = $household->categories()->orderBy('name')->get();
 
         return Inertia::render('Categories/Index', [
             'categories' => $categories,
+            'role' => auth()->user()->households()->first()->pivot->role,
         ]);
     }
 
     public function store(Request $request)
     {
+        $this->authorizeViewerCannotEdit();
+
         $validated = $request->validate([
             'name' => 'required|string|max:50',
             'type' => 'required|in:gasto,ganancia',
@@ -26,14 +31,14 @@ class CategoryController extends Controller
             'budget' => 'nullable|integer|min:0',
         ]);
 
-        auth()->user()->categories()->create($validated);
+        auth()->user()->currentHousehold()->categories()->create($validated);
 
         return redirect()->back();
     }
 
     public function update(Request $request, Category $category)
     {
-        $this->authorize('update', $category);
+        $this->authorizeViewerCannotEdit();
 
         $validated = $request->validate([
             'name' => 'required|string|max:50',
@@ -49,10 +54,19 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        $this->authorize('delete', $category);
+        $this->authorizeViewerCannotEdit();
 
         $category->delete();
 
         return redirect()->back();
+    }
+
+    private function authorizeViewerCannotEdit(): void
+    {
+        $role = auth()->user()->households()->first()->pivot->role;
+
+        if ($role === 'viewer') {
+            abort(403, 'No tenés permiso para modificar datos en este household.');
+        }
     }
 }

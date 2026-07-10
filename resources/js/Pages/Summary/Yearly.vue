@@ -83,7 +83,7 @@ const totalAnual = computed(() => ({
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold text-slate-800">Resumen anual</h2>
+            <h2 class="text-xl font-semibold text-slate-800 dark:text-gray-200">Resumen anual</h2>
         </template>
 
         <div class="py-8">
@@ -92,30 +92,30 @@ const totalAnual = computed(() => ({
                 <div class="flex items-center gap-3">
                     <button
                         @click="irAAnio(year - 1)"
-                        class="px-3 py-1.5 rounded-lg border border-slate-300 text-sm hover:bg-slate-50"
+                        class="px-3 py-1.5 rounded-lg border border-slate-300 text-sm hover:bg-slate-50 dark:border-slate-600 dark:text-gray-400 dark:hover:bg-slate-700"
                     >
                         ← {{ year - 1 }}
                     </button>
-                    <span class="text-lg font-semibold text-slate-800">{{ year }}</span>
+                    <span class="text-lg font-semibold text-slate-800 dark:text-gray-200">{{ year }}</span>
                     <button
                         @click="irAAnio(year + 1)"
-                        class="px-3 py-1.5 rounded-lg border border-slate-300 text-sm hover:bg-slate-50"
+                        class="px-3 py-1.5 rounded-lg border border-slate-300 text-sm hover:bg-slate-50 dark:border-slate-600 dark:text-gray-400 dark:hover:bg-slate-700"
                     >
                         {{ year + 1 }} →
                     </button>
                 </div>
 
                 <div class="grid grid-cols-3 gap-4">
-                    <div class="bg-white rounded-xl border border-slate-200 p-4">
-                        <p class="text-xs text-slate-500 mb-1">Ganancias del año</p>
+                    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+                        <p class="text-xs text-slate-500 mb-1 dark:text-gray-400">Ganancias del año</p>
                         <p class="text-lg font-semibold text-emerald-700">{{ formatGs(totalAnual.ganancias) }}</p>
                     </div>
-                    <div class="bg-white rounded-xl border border-slate-200 p-4">
-                        <p class="text-xs text-slate-500 mb-1">Gastos del año</p>
+                    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+                        <p class="text-xs text-slate-500 mb-1 dark:text-gray-400">Gastos del año</p>
                         <p class="text-lg font-semibold text-red-700">{{ formatGs(totalAnual.gastos) }}</p>
                     </div>
-                    <div class="bg-white rounded-xl border border-slate-200 p-4">
-                        <p class="text-xs text-slate-500 mb-1">Balance del año</p>
+                    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+                        <p class="text-xs text-slate-500 mb-1 dark:text-gray-400">Balance del año</p>
                         <p
                             class="text-lg font-semibold"
                             :class="(totalAnual.ganancias - totalAnual.gastos) >= 0 ? 'text-teal-700' : 'text-red-700'"
@@ -125,7 +125,7 @@ const totalAnual = computed(() => ({
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl border border-slate-200 p-4">
+                <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
                     <Bar :data="chartData" :options="chartOptions" />
                 </div>
             </div>

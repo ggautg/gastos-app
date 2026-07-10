@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -9,21 +10,22 @@ class YearlySummaryController extends Controller
 {
     public function index(Request $request)
     {
+        $household = auth()->user()->currentHousehold();
         $year = $request->integer('year', now()->year);
 
-        $transacciones = auth()->user()->transactions()
+        $transacciones = Transaction::whereHas('category', function ($q) use ($household) {
+            $q->where('household_id', $household->id);
+        })
             ->whereYear('date', $year)
             ->get();
 
         $meses = collect(range(1, 12))->map(function ($mes) use ($transacciones) {
-            $delMes = $transacciones->filter(
-                fn ($t) => $t->date->month === $mes
-            );
+            $delMes = $transacciones->filter(fn ($t) => $t->date->month === $mes);
 
             return [
                 'mes' => $mes,
-                'ganancias' => $delMes->where('type', 'ganancia')->sum('amount'),
-                'gastos' => $delMes->where('type', 'gasto')->sum('amount'),
+                'ganancias' => $delMes->where('type', 'ganancia')->sum('amount_gs'),
+                'gastos' => $delMes->where('type', 'gasto')->sum('amount_gs'),
             ];
         });
 

@@ -6,6 +6,7 @@ import { Head } from '@inertiajs/vue3';
 
 const props = defineProps({
     categories: Array,
+    role: String,
 });
 
 const showForm = ref(false);
@@ -75,7 +76,7 @@ function mostrarToast(mensaje, tipo = 'success') {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold text-slate-800">Categorías</h2>
+            <h2 class="text-xl font-semibold text-slate-800 dark:text-gray-200">Categorías</h2>
         </template>
 
         <div class="py-8">
@@ -84,43 +85,45 @@ function mostrarToast(mensaje, tipo = 'success') {
                     <p class="text-sm text-slate-500">
                         Organizá tus gastos y ganancias por categoría.
                     </p>
-                    <button @click="openCreate"
+                    <button v-if="role === 'owner'" @click="openCreate"
                         class="rounded-lg bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800 transition">
                         + Nueva categoría
                     </button>
                 </div>
 
                 <!-- Lista -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 divide-y divide-slate-100">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 divide-y divide-slate-100 dark:bg-slate-800 dark:border-slate-700 dark:divide-slate-700">
                     <div v-for="category in categories" :key="category.id"
                         class="flex items-center justify-between px-4 py-3">
                         <div class="flex items-center gap-3">
                             <span class="w-3 h-3 rounded-full" :style="{ backgroundColor: category.color }"></span>
-                            <span class="font-medium text-slate-800">{{ category.name }}</span>
+                            <span class="font-medium text-slate-800 dark:text-gray-200">{{ category.name }}</span>
                             <span class="text-xs px-2 py-0.5 rounded-full" :class="category.type === 'gasto'
-                                ? 'bg-red-50 text-red-700'
-                                : 'bg-emerald-50 text-emerald-700'">
+                                ? 'bg-red-50 text-red-700 dark:bg-red-700 dark:text-red-50'
+                                : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-700 dark:text-emerald-50'">
                                 {{ category.type === 'gasto' ? 'Gasto' : 'Ganancia' }}
                             </span>
                         </div>
                         <div class="flex gap-3 text-sm">
-                            <button @click="openEdit(category)" class="text-slate-500 hover:text-slate-800">
-                                Editar
-                            </button>
-                            <button @click="remove(category)" class="text-red-500 hover:text-red-700">
-                                Borrar
-                            </button>
+                            <div v-if="role === 'owner'" class="flex gap-3 text-sm">
+                                <button @click="openEdit(category)" class="text-slate-500 hover:text-slate-800 dark:text-gray-200 dark:hover:text-gray-400">
+                                    Editar
+                                </button>
+                                <button @click="remove(category)" class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-600">
+                                    Borrar
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <p v-if="categories.length === 0" class="px-4 py-6 text-center text-sm text-slate-400">
+                    <p v-if="categories.length === 0" class="px-4 py-6 text-center text-sm text-slate-400 dark:text-gray-400">
                         Todavía no creaste ninguna categoría.
                     </p>
                 </div>
             </div>
         </div>
 
-         <Transition enter-active-class="transition ease-out duration-300" enter-from-class="opacity-0 translate-y-2"
+        <Transition enter-active-class="transition ease-out duration-300" enter-from-class="opacity-0 translate-y-2"
             enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-200"
             leave-from-class="opacity-100" leave-to-class="opacity-0">
             <div v-if="toast"
@@ -133,45 +136,45 @@ function mostrarToast(mensaje, tipo = 'success') {
         <!-- Modal simple -->
         <div v-if="showForm" class="fixed inset-0 bg-black/30 flex items-center justify-center px-4 z-50"
             @click.self="showForm = false">
-            <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
-                <h3 class="text-lg font-semibold text-slate-800 mb-4">
+            <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm dark:bg-slate-800 dark:text-gray-200">
+                <h3 class="text-lg font-semibold text-slate-800 dark:text-gray-200 mb-4">
                     {{ editingId ? 'Editar categoría' : 'Nueva categoría' }}
                 </h3>
 
                 <form @submit.prevent="submit" class="space-y-4">
                     <div>
-                        <label class="block text-sm text-slate-600 mb-1">Nombre</label>
+                        <label class="block text-sm text-slate-600 dark:text-gray-400 mb-1">Nombre</label>
                         <input v-model="form.name" type="text"
-                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600"
+                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200"
                             placeholder="Ej: Comida" />
                         <p v-if="form.errors.name" class="text-xs text-red-600 mt-1">{{ form.errors.name }}</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm text-slate-600 mb-1">Tipo</label>
+                        <label class="block text-sm text-slate-600 dark:text-gray-400 mb-1">Tipo</label>
                         <select v-model="form.type"
-                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600">
+                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200">
                             <option value="gasto">Gasto</option>
                             <option value="ganancia">Ganancia</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-sm text-slate-600 mb-1">Color</label>
-                        <input v-model="form.color" type="color" class="w-14 h-9 rounded border-slate-300" />
+                        <label class="block text-sm text-slate-600 dark:text-gray-400 mb-1">Color</label>
+                        <input v-model="form.color" type="color" class="w-14 h-9 rounded border-slate-300 dark:border-slate-600" />
                     </div>
                     <div v-if="form.type === 'gasto'">
-                        <label class="block text-sm text-slate-600 mb-1">
+                        <label class="block text-sm text-slate-600 dark:text-gray-400 mb-1">
                             Presupuesto mensual (₲) <span class="text-slate-400">— opcional</span>
                         </label>
                         <input v-model="form.budget" type="number" min="0"
-                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600"
+                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200"
                             placeholder="Ej: 500000" />
                     </div>
 
                     <div class="flex justify-end gap-2 pt-2">
                         <button type="button" @click="showForm = false"
-                            class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800">
+                            class="px-4 py-2 text-sm text-slate-600 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200">
                             Cancelar
                         </button>
                         <button type="submit" :disabled="form.processing"

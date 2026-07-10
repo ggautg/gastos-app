@@ -2,20 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TransactionsExport;
 use App\Models\Transaction;
 use App\Services\ExchangeRateService;
-use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TransactionController extends Controller
 {
     public function index(Request $request)
     {
+        $household = auth()->user()->currentHousehold();
+
         $month = $request->integer('month', now()->month);
         $year = $request->integer('year', now()->year);
 
-        $transactions = auth()->user()->transactions()
+        $transactions = Transaction::whereHas('category', function ($q) use ($household) {
+            $q->where('household_id', $household->id);
+        })
             ->with('category')
             ->whereMonth('date', $month)
             ->whereYear('date', $year)
@@ -37,7 +44,7 @@ class TransactionController extends Controller
             })
             ->values();
 
-        $categoriasGasto = auth()->user()->categories()->where('type', 'gasto')->get();
+        $categoriasGasto = $household->categories()->where('type', 'gasto')->get();
         $categoriasConPresupuesto = $categoriasGasto->filter(fn ($cat) => $cat->budget !== null);
         $presupuestos = $categoriasConPresupuesto->map(function ($cat) use ($transactions) {
             $gastado = $transactions
@@ -55,7 +62,9 @@ class TransactionController extends Controller
         })->values();
 
         $fechaAnterior = Carbon::createFromDate($year, $month, 1)->subMonth();
-        $totalesMesAnterior = auth()->user()->transactions()
+        $totalesMesAnterior = Transaction::whereHas('category', function ($q) use ($household) {
+            $q->where('household_id', $household->id);
+        })
             ->whereMonth('date', $fechaAnterior->month)
             ->whereYear('date', $fechaAnterior->year)
             ->get()
@@ -67,7 +76,7 @@ class TransactionController extends Controller
 
         return Inertia::render('Transactions/Index', [
             'transactions' => $transactions,
-            'categories' => auth()->user()->categories()->orderBy('name')->get(),
+            'categories' => $household->categories()->orderBy('name')->get(),
             'filters' => ['month' => $month, 'year' => $year],
             'summary' => [
                 'gastos' => $totalGastos,
@@ -80,11 +89,14 @@ class TransactionController extends Controller
                 'gastos_anterior' => $gastosMesAnterior,
                 'ganancias_anterior' => $gananciasMesAnterior,
             ],
+            'role' => auth()->user()->households()->first()->pivot->role,
         ]);
     }
 
     public function store(Request $request, ExchangeRateService $exchangeRateService)
     {
+        $this->authorizeViewerCannotEdit();
+
         $validated = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'type' => 'required|in:gasto,ganancia',
@@ -103,14 +115,16 @@ class TransactionController extends Controller
             $validated['amount_gs'] = $validated['amount'];
         }
 
-        auth()->user()->transactions()->create($validated);
+        $validated['user_id'] = auth()->id();
+
+        Transaction::create($validated);
 
         return redirect()->back();
     }
 
     public function update(Request $request, Transaction $transaction, ExchangeRateService $exchangeRateService)
     {
-        $this->authorize('update', $transaction);
+        $this->authorizeViewerCannotEdit();
 
         $validated = $request->validate([
             'category_id' => 'required|exists:categories,id',
@@ -137,10 +151,66 @@ class TransactionController extends Controller
 
     public function destroy(Transaction $transaction)
     {
-        $this->authorize('delete', $transaction);
+        $this->authorizeViewerCannotEdit();
 
         $transaction->delete();
 
         return redirect()->back();
+    }
+
+    private function authorizeViewerCannotEdit(): void
+    {
+        $role = auth()->user()->households()->first()->pivot->role;
+
+        if ($role === 'viewer') {
+            abort(403, 'No tenés permiso para modificar datos en este household.');
+        }
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $household = auth()->user()->currentHousehold();
+        $month = $request->integer('month', now()->month);
+        $year = $request->integer('year', now()->year);
+
+        $nombreArchivo = "movimientos_{$year}_{$month}.xlsx";
+
+        return Excel::download(
+            new TransactionsExport($household, $month, $year),
+            $nombreArchivo
+        );
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $household = auth()->user()->currentHousehold();
+        $month = $request->integer('month', now()->month);
+        $year = $request->integer('year', now()->year);
+
+        $transactions = Transaction::whereHas('category', function ($q) use ($household) {
+            $q->where('household_id', $household->id);
+        })
+            ->with('category')
+            ->whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->orderBy('date')
+            ->get();
+
+        $nombresMeses = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+        ];
+
+        $pdf = Pdf::loadView('pdf.monthly-summary', [
+            'household' => $household,
+            'transactions' => $transactions,
+            'month' => $month,
+            'year' => $year,
+            'nombreMes' => $nombresMeses[$month - 1],
+            'totalGastos' => $transactions->where('type', 'gasto')->sum('amount_gs'),
+            'totalGanancias' => $transactions->where('type', 'ganancia')->sum('amount_gs'),
+        ]);
+
+        return $pdf->download("resumen_{$year}_{$month}.pdf");
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\HouseholdController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\YearlySummaryController;
@@ -33,6 +34,13 @@ Route::middleware('auth')->group(function () {
         ->except(['create', 'edit', 'show']);
 
     Route::get('/summary/yearly', [YearlySummaryController::class, 'index'])->name('summary.yearly');
+
+    Route::get('/household', [HouseholdController::class, 'show'])->name('household.show');
+    Route::post('/household/join', [HouseholdController::class, 'join'])->name('household.join');
+
+    Route::get('/transactions/export/excel', [TransactionController::class, 'exportExcel'])->name('transactions.export.excel');
+
+    Route::get('/transactions/export/pdf', [TransactionController::class, 'exportPdf'])->name('transactions.export.pdf');
 });
 
 require __DIR__.'/auth.php';
