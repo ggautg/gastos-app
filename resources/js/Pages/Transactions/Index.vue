@@ -174,6 +174,14 @@ function openCreate() {
     showForm.value = true;
 }
 
+function formatFecha(fecha) {
+    return new Date(fecha).toLocaleDateString('es-PY', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    });
+}
+
 function openEdit(t) {
     editingId.value = t.id;
     form.category_id = t.category_id;
@@ -264,7 +272,7 @@ watch([busqueda, ordenarPor, ordenAscendente], () => {
             <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-6">
 
                 <!-- Filtro de mes -->
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 flex-wrap">
                     <select v-model="selectedMonth" @change="goToMonth"
                         class="rounded-lg border-slate-300 text-sm dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200">
                         <option v-for="(m, i) in meses" :key="i" :value="i + 1">{{ m }}</option>
@@ -395,7 +403,7 @@ watch([busqueda, ordenarPor, ordenAscendente], () => {
                                     {{ t.description || t.category.name }}
                                 </p>
                                 <p class="text-xs text-slate-400 dark:text-gray-400">
-                                    {{ t.category.name }} · {{ t.date }}
+                                  {{ t.category.name }} · {{ formatFecha(t.date) }}
                                     <span v-if="t.currency === 'USD'">· US$ {{ t.amount }}</span>
                                 </p>
                             </div>
@@ -486,13 +494,13 @@ watch([busqueda, ordenarPor, ordenAscendente], () => {
                         </p>
                     </div>
 
-                    <div>
+                    <!-- <div>
                         <label class="block text-sm text-slate-600 mb-1 dark:text-gray-400">Monto (₲)</label>
                         <input v-model="form.amount" type="number" min="1"
                             class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200"
                             placeholder="Ej: 150000" />
                         <p v-if="form.errors.amount" class="text-xs text-red-600 mt-1">{{ form.errors.amount }}</p>
-                    </div>
+                    </div> -->
 
                     <div>
                         <label class="block text-sm text-slate-600 mb-1 dark:text-gray-400">Monto</label>

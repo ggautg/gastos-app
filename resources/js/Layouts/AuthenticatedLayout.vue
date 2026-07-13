@@ -17,7 +17,7 @@ const { isDark, toggle } = useDarkMode();
 <template>
     <div>
         <div class="min-h-screen bg-gray-100 dark:bg-slate-900">
-           <nav class="bg-white border-b border-gray-100 dark:bg-slate-800 dark:border-slate-700">
+            <nav class="bg-white border-b border-gray-100 dark:bg-slate-800 dark:border-slate-700">
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 justify-between">
@@ -75,10 +75,10 @@ const { isDark, toggle } = useDarkMode();
 
                                     <template #content>
                                         <DropdownLink :href="route('profile.edit')">
-                                            Profile
+                                            Perfil
                                         </DropdownLink>
                                         <DropdownLink :href="route('logout')" method="post" as="button">
-                                            Log Out
+                                            Cerrar sesión
                                         </DropdownLink>
                                         <button @click="toggle"
                                             class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
@@ -125,6 +125,26 @@ const { isDark, toggle } = useDarkMode();
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                             Dashboard
                         </ResponsiveNavLink>
+
+                        <ResponsiveNavLink :href="route('categories.index')"
+                            :active="route().current('categories.index')">
+                            Categorías
+                        </ResponsiveNavLink>
+
+                        <ResponsiveNavLink :href="route('transactions.index')"
+                            :active="route().current('transactions.index')">
+                            Movimientos
+                        </ResponsiveNavLink>
+
+                        <ResponsiveNavLink :href="route('summary.yearly')"
+                            :active="route().current('summary.yearly')">
+                            Resumen anual
+                        </ResponsiveNavLink>
+
+                        <ResponsiveNavLink :href="route('household.show')"
+                            :active="route().current('household.show')">
+                            Cuenta compartida
+                        </ResponsiveNavLink>
                     </div>
 
                     <!-- Responsive Settings Options -->
@@ -140,10 +160,10 @@ const { isDark, toggle } = useDarkMode();
 
                         <div class="mt-3 space-y-1">
                             <ResponsiveNavLink :href="route('profile.edit')">
-                                Profile
+                                Perfil
                             </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('logout')" method="post" as="button">
-                                Log Out
+                                Cerrar sesión
                             </ResponsiveNavLink>
                         </div>
                     </div>
