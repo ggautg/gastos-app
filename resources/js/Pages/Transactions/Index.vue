@@ -5,6 +5,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { Pie } from 'vue-chartjs';
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale } from 'chart.js';
+import { Copy, Pencil, Trash2 } from 'lucide-vue-next';
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale);
 
@@ -63,6 +64,38 @@ const chartOptions = {
     },
 };
 
+const amountDisplay = computed({
+    get() {
+        if (form.amount === '' || form.amount === null) return '';
+
+        if (form.currency === 'USD') {
+            return formatMilesManual(form.amount);
+        }
+
+        return new Intl.NumberFormat('es-PY').format(form.amount);
+    },
+    set(valor) {
+        if (form.currency === 'USD') {
+            let limpio = valor.replace(/[^\d.]/g, '');
+
+            const partes = limpio.split('.');
+            if (partes.length > 2) {
+                limpio = partes[0] + '.' + partes.slice(1).join('');
+            }
+
+            const partesFinal = limpio.split('.');
+            if (partesFinal.length === 2 && partesFinal[1].length > 2) {
+                limpio = partesFinal[0] + '.' + partesFinal[1].slice(0, 2);
+            }
+
+            form.amount = limpio;
+        } else {
+            const limpio = valor.replace(/\D/g, '');
+            form.amount = limpio ? parseInt(limpio) : '';
+        }
+    },
+});
+
 const diferencias = computed(() => {
     const gastoAnt = props.comparativa.gastos_anterior;
     const gananciaAnt = props.comparativa.ganancias_anterior;
@@ -87,9 +120,16 @@ function formatGs(amount) {
     return '₲ ' + new Intl.NumberFormat('es-PY').format(amount);
 }
 
+function formatMilesManual(numStr) {
+    const [parteEntera, parteDecimal] = String(numStr).split('.');
+    const enteraFormateada = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return parteDecimal !== undefined ? `${enteraFormateada}.${parteDecimal}` : enteraFormateada;
+}
+
 const showForm = ref(false);
 const editingId = ref(null);
 const toast = ref(null);
+const transaccionAEliminar = ref(null);
 
 function mostrarToast(mensaje, tipo = 'success') {
     toast.value = { mensaje, tipo };
@@ -205,12 +245,17 @@ function duplicar(t) {
 }
 
 function manejarAtajos(e) {
-    // Si el usuario está escribiendo en un input/select/textarea, no activamos atajos
     const enCampoDeTexto = ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName);
 
-    if (e.key === 'Escape' && showForm.value) {
-        showForm.value = false;
-        return;
+    if (e.key === 'Escape') {
+        if (transaccionAEliminar.value) {
+            transaccionAEliminar.value = null;
+            return;
+        }
+        if (showForm.value) {
+            showForm.value = false;
+            return;
+        }
     }
 
     if (enCampoDeTexto) return;
@@ -246,12 +291,17 @@ function submit() {
     }
 }
 
-function remove(t) {
-    if (confirm('¿Borrar este movimiento?')) {
-        form.delete(route('transactions.destroy', t.id), {
-            onSuccess: () => mostrarToast('Movimiento eliminado', 'error'),
-        });
-    }
+function pedirConfirmacionBorrado(t) {
+    transaccionAEliminar.value = t;
+}
+
+function confirmarBorrado() {
+    form.delete(route('transactions.destroy', transaccionAEliminar.value.id), {
+        onSuccess: () => {
+            transaccionAEliminar.value = null;
+            mostrarToast('Movimiento eliminado', 'error');
+        },
+    });
 }
 
 watch([busqueda, ordenarPor, ordenAscendente], () => {
@@ -396,14 +446,19 @@ watch([busqueda, ordenarPor, ordenAscendente], () => {
                     <div v-for="t in transaccionesPaginadas" :key="t.id"
                         class="flex items-center justify-between px-4 py-3">
                         <div class="flex items-center gap-3">
-                            <span class="w-2.5 h-2.5 rounded-full"
-                                :style="{ backgroundColor: t.category.color }"></span>
+                            <span v-if="t.category.icon" class="text-lg">{{ t.category.icon }}</span>
                             <div>
-                                <p class="font-medium text-slate-800 dark:text-gray-200">
+                                <p class="font-medium text-slate-800 dark:text-slate-100">
                                     {{ t.description || t.category.name }}
                                 </p>
-                                <p class="text-xs text-slate-400 dark:text-gray-400">
-                                  {{ t.category.name }} · {{ formatFecha(t.date) }}
+                                <p class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+                                    <span class="px-1.5 py-0.5 rounded-full font-medium" :style="{
+                                        backgroundColor: t.category.color + '20',
+                                        color: t.category.color,
+                                    }">
+                                        {{ t.category.name }}
+                                    </span>
+                                    · {{ formatFecha(t.date) }}
                                     <span v-if="t.currency === 'USD'">· US$ {{ t.amount }}</span>
                                 </p>
                             </div>
@@ -414,18 +469,26 @@ watch([busqueda, ordenarPor, ordenAscendente], () => {
                                 {{ t.type === 'gasto' ? '-' : '+' }}{{ formatGs(t.amount_gs) }}
                             </span>
                             <div class="flex gap-2 text-sm">
-                                <div v-if="role === 'owner'" class="flex gap-2 text-sm">
-                                    <button @click="duplicar(t)" class="text-slate-400 hover:text-teal-700"
-                                        title="Duplicar">⎘</button>
-                                    <button @click="openEdit(t)" class="text-slate-400 hover:text-slate-700">✎</button>
-                                    <button @click="remove(t)" class="text-red-400 hover:text-red-700">✕</button>
+                                <div v-if="role === 'owner'" class="flex gap-1">
+                                    <button @click="duplicar(t)" title="Duplicar movimiento"
+                                        class="p-2 rounded-lg text-slate-400 hover:text-teal-700 hover:bg-teal-50 dark:hover:bg-teal-900/30 dark:hover:text-teal-400 transition">
+                                        <Copy class="w-4 h-4" />
+                                    </button>
+                                    <button @click="openEdit(t)" title="Editar movimiento"
+                                        class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 dark:hover:text-slate-200 transition">
+                                        <Pencil class="w-4 h-4" />
+                                    </button>
+                                    <button @click="pedirConfirmacionBorrado(t)" title="Eliminar movimiento"
+                                        class="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition">
+                                        <Trash2 class="w-4 h-4" />
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <p v-if="transaccionesFiltradas.length === 0" class="px-4 py-6 text-center text-sm text-slate-400">
-                        {{ busqueda ? 'No se encontraron movimientos con ese criterio.' : 'No hay movimientos cargados en este mes.' }}
+                        {{ busqueda ? 'No se encontraron movimientos' : 'No hay movimientos cargados ' }}
                     </p>
                 </div>
                 <div v-if="totalPaginas > 1" class="flex items-center justify-between text-sm">
@@ -486,7 +549,7 @@ watch([busqueda, ordenarPor, ordenAscendente], () => {
                             class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200">
                             <option value="" disabled>Elegí una categoría</option>
                             <option v-for="c in filteredCategories" :key="c.id" :value="c.id">
-                                {{ c.name }}
+                                {{ c.icon ? c.icon + ' ' : '' }}{{ c.name }}
                             </option>
                         </select>
                         <p v-if="form.errors.category_id" class="text-xs text-red-600 mt-1">
@@ -494,26 +557,17 @@ watch([busqueda, ordenarPor, ordenAscendente], () => {
                         </p>
                     </div>
 
-                    <!-- <div>
-                        <label class="block text-sm text-slate-600 mb-1 dark:text-gray-400">Monto (₲)</label>
-                        <input v-model="form.amount" type="number" min="1"
-                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200"
-                            placeholder="Ej: 150000" />
-                        <p v-if="form.errors.amount" class="text-xs text-red-600 mt-1">{{ form.errors.amount }}</p>
-                    </div> -->
-
                     <div>
                         <label class="block text-sm text-slate-600 mb-1 dark:text-gray-400">Monto</label>
                         <div class="flex gap-2">
-                            <select v-model="form.currency"
-                                class="rounded-lg border-slate-300 text-sm focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200">
+                            <select v-model="form.currency" @change="form.amount = ''"
+                                class="rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:border-teal-600 focus:ring-teal-600">
                                 <option value="PYG">₲</option>
                                 <option value="USD">US$</option>
                             </select>
-                            <input v-model="form.amount" type="number" :min="form.currency === 'USD' ? 0.01 : 1"
-                                :step="form.currency === 'USD' ? 0.01 : 1"
-                                class="flex-1 rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200"
-                                :placeholder="form.currency === 'USD' ? 'Ej: 49.99' : 'Ej: 150000'" />
+                            <input v-model="amountDisplay" type="text" inputmode="decimal"
+                                class="flex-1 rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-teal-600 focus:ring-teal-600"
+                                :placeholder="form.currency === 'USD' ? 'Ej: 49.99' : 'Ej: 150.000'" />
                         </div>
                         <p v-if="form.errors.amount" class="text-xs text-red-600 mt-1">{{ form.errors.amount }}</p>
                     </div>
@@ -543,6 +597,34 @@ watch([busqueda, ordenarPor, ordenAscendente], () => {
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <div v-if="transaccionAEliminar" class="fixed inset-0 bg-black/30 flex items-center justify-center px-4 z-50"
+            @click.self="transaccionAEliminar = null">
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 w-full max-w-sm">
+                <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">
+                    ¿Eliminar movimiento?
+                </h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">
+                    Vas a borrar
+                    <span class="font-medium">
+                        "{{ transaccionAEliminar.description || transaccionAEliminar.category.name }}"
+                    </span>
+                    del {{ formatFecha(transaccionAEliminar.date) }}.
+                    Esta acción no se puede deshacer.
+                </p>
+
+                <div class="flex justify-end gap-2">
+                    <button type="button" @click="transaccionAEliminar = null"
+                        class="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100">
+                        Cancelar
+                    </button>
+                    <button type="button" @click="confirmarBorrado" :disabled="form.processing"
+                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50">
+                        Eliminar
+                    </button>
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>

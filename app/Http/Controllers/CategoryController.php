@@ -29,6 +29,7 @@ class CategoryController extends Controller
             'type' => 'required|in:gasto,ganancia',
             'color' => 'nullable|string|max:7',
             'budget' => 'nullable|integer|min:0',
+            'icon' => 'nullable|string|max:10',
         ]);
 
         auth()->user()->currentHousehold()->categories()->create($validated);
@@ -45,6 +46,7 @@ class CategoryController extends Controller
             'type' => 'required|in:gasto,ganancia',
             'color' => 'nullable|string|max:7',
             'budget' => 'nullable|integer|min:0',
+            'icon' => 'nullable|string|max:10',
         ]);
 
         $category->update($validated);

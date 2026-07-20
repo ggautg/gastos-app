@@ -1,8 +1,10 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
+import EmojiPicker from 'vue3-emoji-picker';
+import 'vue3-emoji-picker/css';
 
 const props = defineProps({
     categories: Array,
@@ -17,6 +19,7 @@ const form = useForm({
     type: 'gasto',
     color: '#0F5257',
     budget: '',
+    icon: '',
 });
 
 function openCreate() {
@@ -32,7 +35,17 @@ function openEdit(category) {
     form.type = category.type;
     form.color = category.color;
     form.budget = category.budget ?? '';
+    form.icon = category.icon ?? '';
     showForm.value = true;
+}
+
+const showEmojiPicker = ref(false);
+
+const categoriaAEliminar = ref(null);
+
+function seleccionarEmoji(emoji) {
+    form.icon = emoji.i;
+    showEmojiPicker.value = false;
 }
 
 function submit() {
@@ -51,13 +64,29 @@ function submit() {
     }
 }
 
-function remove(category) {
-    if (confirm(`¿Borrar la categoría "${category.name}"?`)) {
-        form.delete(route('categories.destroy', category.id), {
-            onSuccess: () => mostrarToast('Categoría eliminada', 'error'),
-        });
-    }
+function pedirConfirmacionBorrado(category) {
+    categoriaAEliminar.value = category;
 }
+
+function confirmarBorrado() {
+    form.delete(route('categories.destroy', categoriaAEliminar.value.id), {
+        onSuccess: () => {
+            categoriaAEliminar.value = null;
+            mostrarToast('Categoría eliminada', 'error');
+        },
+    });
+}
+
+const budgetDisplay = computed({
+    get() {
+        if (!form.budget) return '';
+        return new Intl.NumberFormat('es-PY').format(form.budget);
+    },
+    set(valor) {
+        const limpio = valor.replace(/\D/g, '');
+        form.budget = limpio ? parseInt(limpio) : '';
+    },
+});
 
 const toast = ref(null);
 
@@ -68,6 +97,31 @@ function mostrarToast(mensaje, tipo = 'success') {
         toast.value = null;
     }, 3000);
 }
+
+function manejarEscape(e) {
+    if (e.key !== 'Escape') return;
+
+    if (categoriaAEliminar.value) {
+        categoriaAEliminar.value = null;
+        return;
+    }
+
+    if (showEmojiPicker.value) {
+        showEmojiPicker.value = false;
+        return;
+    }
+
+    if (showForm.value) {
+        showForm.value = false;
+    }
+}
+onMounted(() => {
+    window.addEventListener('keydown', manejarEscape);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', manejarEscape);
+});
 </script>
 
 <template>
@@ -92,10 +146,12 @@ function mostrarToast(mensaje, tipo = 'success') {
                 </div>
 
                 <!-- Lista -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 divide-y divide-slate-100 dark:bg-slate-800 dark:border-slate-700 dark:divide-slate-700">
+                <div
+                    class="bg-white rounded-xl shadow-sm border border-slate-200 divide-y divide-slate-100 dark:bg-slate-800 dark:border-slate-700 dark:divide-slate-700">
                     <div v-for="category in categories" :key="category.id"
                         class="flex items-center justify-between px-4 py-3">
                         <div class="flex items-center gap-3">
+                            <span v-if="category.icon" class="text-lg">{{ category.icon }}</span>
                             <span class="w-3 h-3 rounded-full" :style="{ backgroundColor: category.color }"></span>
                             <span class="font-medium text-slate-800 dark:text-gray-200">{{ category.name }}</span>
                             <span class="text-xs px-2 py-0.5 rounded-full" :class="category.type === 'gasto'
@@ -106,17 +162,20 @@ function mostrarToast(mensaje, tipo = 'success') {
                         </div>
                         <div class="flex gap-3 text-sm">
                             <div v-if="role === 'owner'" class="flex gap-3 text-sm">
-                                <button @click="openEdit(category)" class="text-slate-500 hover:text-slate-800 dark:text-gray-200 dark:hover:text-gray-400">
+                                <button @click="openEdit(category)"
+                                    class="text-slate-500 hover:text-slate-800 dark:text-gray-200 dark:hover:text-gray-400">
                                     Editar
                                 </button>
-                                <button @click="remove(category)" class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-600">
+                                <button @click="pedirConfirmacionBorrado(category)"
+                                    class="text-red-500 hover:text-red-700">
                                     Borrar
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <p v-if="categories.length === 0" class="px-4 py-6 text-center text-sm text-slate-400 dark:text-gray-400">
+                    <p v-if="categories.length === 0"
+                        class="px-4 py-6 text-center text-sm text-slate-400 dark:text-gray-400">
                         Todavía no creaste ninguna categoría.
                     </p>
                 </div>
@@ -160,16 +219,37 @@ function mostrarToast(mensaje, tipo = 'success') {
                     </div>
 
                     <div>
-                        <label class="block text-sm text-slate-600 dark:text-gray-400 mb-1">Color</label>
-                        <input v-model="form.color" type="color" class="w-14 h-9 rounded border-slate-300 dark:border-slate-600" />
+                        <label class="block text-sm text-slate-600 dark:text-slate-300 mb-1">
+                            Ícono <span class="text-slate-400">— opcional</span>
+                        </label>
+
+                        <div class="relative">
+                            <button type="button" @click="showEmojiPicker = !showEmojiPicker"
+                                class="w-full flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700">
+                                <span v-if="form.icon" class="text-lg">{{ form.icon }}</span>
+                                <span class="text-slate-500 dark:text-slate-400">
+                                    {{ form.icon ? 'Cambiar emoji' : 'Elegir emoji' }}
+                                </span>
+                            </button>
+
+                            <div v-if="showEmojiPicker" class="absolute z-50 mt-1">
+                                <EmojiPicker :native="true" @select="seleccionarEmoji" />
+                            </div>
+                        </div>
                     </div>
+
+                    <div>
+                        <label class="block text-sm text-slate-600 dark:text-gray-400 mb-1">Color</label>
+                        <input v-model="form.color" type="color"
+                            class="w-14 h-9 rounded border-slate-300 dark:border-slate-600" />
+                    </div>
+
                     <div v-if="form.type === 'gasto'">
                         <label class="block text-sm text-slate-600 dark:text-gray-400 mb-1">
                             Presupuesto mensual (₲) <span class="text-slate-400">— opcional</span>
                         </label>
-                        <input v-model="form.budget" type="number" min="0"
-                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200"
-                            placeholder="Ej: 500000" />
+                        <input v-model="budgetDisplay" type="text" inputmode="numeric" placeholder="Ej: 500.000"
+                            class="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-teal-600 focus:ring-teal-600" />
                     </div>
 
                     <div class="flex justify-end gap-2 pt-2">
@@ -183,6 +263,30 @@ function mostrarToast(mensaje, tipo = 'success') {
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <div v-if="categoriaAEliminar" class="fixed inset-0 bg-black/30 flex items-center justify-center px-4 z-50"
+            @click.self="categoriaAEliminar = null">
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 w-full max-w-sm">
+                <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">
+                    ¿Eliminar categoría?
+                </h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">
+                    Vas a borrar <span class="font-medium">"{{ categoriaAEliminar.name }}"</span>.
+                    Esta acción no se puede deshacer.
+                </p>
+
+                <div class="flex justify-end gap-2">
+                    <button type="button" @click="categoriaAEliminar = null"
+                        class="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100">
+                        Cancelar
+                    </button>
+                    <button type="button" @click="confirmarBorrado" :disabled="form.processing"
+                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50">
+                        Eliminar
+                    </button>
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>
