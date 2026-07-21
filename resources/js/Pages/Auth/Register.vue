@@ -20,78 +20,68 @@ const submit = () => {
     <Head title="Crear cuenta" />
 
     <GuestLayout>
-        <h1 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-1">
-            Creá tu cuenta
-        </h1>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">
-            Empezá a registrar tus finanzas en un minuto
-        </p>
+        <h1 class="cs-form-title">Creá tu cuenta</h1>
+        <p class="cs-form-subtitle">Empezá a registrar tus finanzas en un minuto</p>
 
-        <form @submit.prevent="submit" class="space-y-4">
-            <div>
-                <label class="block text-sm text-slate-600 dark:text-slate-300 mb-1">Nombre</label>
+        <form @submit.prevent="submit" class="cs-form">
+            <div class="cs-field">
+                <label class="cs-label">Nombre</label>
                 <input
                     v-model="form.name"
                     type="text"
                     required
                     autofocus
                     autocomplete="name"
-                    class="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-teal-600 focus:ring-teal-600"
+                    class="cs-input"
                 />
-                <p v-if="form.errors.name" class="text-xs text-red-600 mt-1">{{ form.errors.name }}</p>
+                <p v-if="form.errors.name" class="cs-error">{{ form.errors.name }}</p>
             </div>
 
-            <div>
-                <label class="block text-sm text-slate-600 dark:text-slate-300 mb-1">Email</label>
+            <div class="cs-field">
+                <label class="cs-label">Email</label>
                 <input
                     v-model="form.email"
                     type="email"
                     required
                     autocomplete="username"
-                    class="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-teal-600 focus:ring-teal-600"
+                    class="cs-input"
                 />
-                <p v-if="form.errors.email" class="text-xs text-red-600 mt-1">{{ form.errors.email }}</p>
+                <p v-if="form.errors.email" class="cs-error">{{ form.errors.email }}</p>
             </div>
 
-            <div>
-                <label class="block text-sm text-slate-600 dark:text-slate-300 mb-1">Contraseña</label>
+            <div class="cs-field">
+                <label class="cs-label">Contraseña</label>
                 <input
                     v-model="form.password"
                     type="password"
                     required
                     autocomplete="new-password"
-                    class="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-teal-600 focus:ring-teal-600"
+                    class="cs-input"
                 />
-                <p v-if="form.errors.password" class="text-xs text-red-600 mt-1">{{ form.errors.password }}</p>
+                <p v-if="form.errors.password" class="cs-error">{{ form.errors.password }}</p>
             </div>
 
-            <div>
-                <label class="block text-sm text-slate-600 dark:text-slate-300 mb-1">Confirmar contraseña</label>
+            <div class="cs-field">
+                <label class="cs-label">Confirmar contraseña</label>
                 <input
                     v-model="form.password_confirmation"
                     type="password"
                     required
                     autocomplete="new-password"
-                    class="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-teal-600 focus:ring-teal-600"
+                    class="cs-input"
                 />
-                <p v-if="form.errors.password_confirmation" class="text-xs text-red-600 mt-1">
+                <p v-if="form.errors.password_confirmation" class="cs-error">
                     {{ form.errors.password_confirmation }}
                 </p>
             </div>
 
-            <button
-                type="submit"
-                :disabled="form.processing"
-                class="w-full py-2.5 rounded-lg bg-teal-700 text-white font-medium hover:bg-teal-800 disabled:opacity-50 transition"
-            >
+            <button type="submit" :disabled="form.processing" class="cs-submit">
                 Crear cuenta
             </button>
 
-            <p class="text-center text-sm text-slate-500 dark:text-slate-400">
+            <p class="cs-switch">
                 ¿Ya tenés cuenta?
-                <Link :href="route('login')" class="text-teal-700 dark:text-teal-400 hover:underline font-medium">
-                    Iniciar sesión
-                </Link>
+                <Link :href="route('login')" class="cs-link cs-link-strong">Iniciar sesión</Link>
             </p>
         </form>
     </GuestLayout>

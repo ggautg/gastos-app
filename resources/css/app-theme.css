@@ -1,0 +1,23 @@
+:root {
+    --cs-teal: #0F5257;
+    --cs-teal-dark: #0A3A3E;
+    --cs-ink: #12231F;
+    --cs-paper: #EFF5F1;
+    --cs-paper-card: #FFFFFF;
+    --cs-gold: #C68A2E;
+    --cs-gold-light: #E8C773;
+}
+
+.dark {
+    --cs-paper: #0E1B18;
+    --cs-paper-card: #14231F;
+    --cs-ink: #E8F0EC;
+}
+
+.font-cs-display {
+    font-family: 'Fraunces', serif;
+}
+
+.font-cs-mono {
+    font-family: 'JetBrains Mono', monospace;
+}

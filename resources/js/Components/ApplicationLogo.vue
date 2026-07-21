@@ -1,8 +1,11 @@
 <template>
     <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-lg bg-teal-700 flex items-center justify-center text-white font-bold">
+        <div
+            class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-semibold"
+            style="background: var(--cs-teal); font-family: 'JetBrains Mono', monospace;"
+        >
             ₲
         </div>
-        <span class="font-semibold text-slate-800 dark:text-slate-100">CheSogue</span>
+        <span class="font-cs-display font-semibold" style="color: var(--cs-ink);">CheSogue</span>
     </div>
 </template>

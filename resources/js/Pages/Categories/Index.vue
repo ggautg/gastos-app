@@ -136,28 +136,39 @@ onUnmounted(() => {
         <div class="py-8">
             <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center mb-6">
-                    <p class="text-sm text-slate-500">
-                        Organizá tus gastos y ganancias por categoría.
-                    </p>
+                    <div>
+                        <h2 class="font-cs-display text-xl font-semibold" style="color: var(--cs-ink);">
+                            Categorías
+                        </h2>
+                        <p class="text-sm mt-1" style="color: color-mix(in srgb, var(--cs-ink) 55%, transparent);">
+                            Organizá tus gastos y ganancias.
+                        </p>
+                    </div>
                     <button v-if="role === 'owner'" @click="openCreate"
-                        class="rounded-lg bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800 transition">
+                        class="rounded-lg px-4 py-2 text-sm font-medium text-white transition"
+                        style="background: var(--cs-teal);" onmouseover="this.style.background='var(--cs-teal-dark)'"
+                        onmouseout="this.style.background='var(--cs-teal)'">
                         + Nueva categoría
                     </button>
                 </div>
 
                 <!-- Lista -->
-                <div
-                    class="bg-white rounded-xl shadow-sm border border-slate-200 divide-y divide-slate-100 dark:bg-slate-800 dark:border-slate-700 dark:divide-slate-700">
+                <div class="rounded-xl shadow-sm divide-y"
+                    style="background: var(--cs-paper-card); border: 1px solid color-mix(in srgb, var(--cs-ink) 12%, transparent);">
                     <div v-for="category in categories" :key="category.id"
                         class="flex items-center justify-between px-4 py-3">
                         <div class="flex items-center gap-3">
-                            <span v-if="category.icon" class="text-lg">{{ category.icon }}</span>
                             <span class="w-3 h-3 rounded-full" :style="{ backgroundColor: category.color }"></span>
-                            <span class="font-medium text-slate-800 dark:text-gray-200">{{ category.name }}</span>
-                            <span class="text-xs px-2 py-0.5 rounded-full" :class="category.type === 'gasto'
-                                ? 'bg-red-50 text-red-700 dark:bg-red-700 dark:text-red-50'
-                                : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-700 dark:text-emerald-50'">
+                            <span v-if="category.icon" class="text-lg">{{ category.icon }}</span>
+                            <span class="font-medium" style="color: var(--cs-ink);">{{ category.name }}</span>
+                            <span class="text-xs px-2 py-0.5 rounded-full font-medium" :style="category.type === 'gasto'
+                                ? { background: '#D85A3020', color: '#D85A30' }
+                                : { background: '#1D9E7520', color: '#1D9E75' }">
                                 {{ category.type === 'gasto' ? 'Gasto' : 'Ganancia' }}
+                            </span>
+                            <span v-if="category.budget" class="text-xs"
+                                style="font-family: 'JetBrains Mono', monospace; color: color-mix(in srgb, var(--cs-ink) 50%, transparent);">
+                                tope ₲{{ new Intl.NumberFormat('es-PY').format(category.budget) }}
                             </span>
                         </div>
                         <div class="flex gap-3 text-sm">
@@ -187,7 +198,7 @@ onUnmounted(() => {
             leave-from-class="opacity-100" leave-to-class="opacity-0">
             <div v-if="toast"
                 class="fixed bottom-6 right-6 px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium z-50"
-                :class="toast.tipo === 'success' ? 'bg-emerald-600' : 'bg-red-600'">
+               :style="toast.tipo === 'success' ? { background: 'var(--cs-teal)' } : { background: '#D85A30' }">
                 {{ toast.mensaje }}
             </div>
         </Transition>
@@ -195,17 +206,15 @@ onUnmounted(() => {
         <!-- Modal simple -->
         <div v-if="showForm" class="fixed inset-0 bg-black/30 flex items-center justify-center px-4 z-50"
             @click.self="showForm = false">
-            <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm dark:bg-slate-800 dark:text-gray-200">
-                <h3 class="text-lg font-semibold text-slate-800 dark:text-gray-200 mb-4">
+            <div class="rounded-xl shadow-lg p-6 w-full max-w-sm" style="background: var(--cs-paper-card);">
+                <h3 class="font-cs-display text-lg font-semibold mb-4" style="color: var(--cs-ink);">
                     {{ editingId ? 'Editar categoría' : 'Nueva categoría' }}
                 </h3>
 
                 <form @submit.prevent="submit" class="space-y-4">
                     <div>
-                        <label class="block text-sm text-slate-600 dark:text-gray-400 mb-1">Nombre</label>
-                        <input v-model="form.name" type="text"
-                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200"
-                            placeholder="Ej: Comida" />
+                        <label class="cs-label">Nombre</label>
+                        <input v-model="form.name" type="text" class="cs-input w-full" placeholder="Ej: Comida" />
                         <p v-if="form.errors.name" class="text-xs text-red-600 mt-1">{{ form.errors.name }}</p>
                     </div>
 
@@ -253,12 +262,12 @@ onUnmounted(() => {
                     </div>
 
                     <div class="flex justify-end gap-2 pt-2">
-                        <button type="button" @click="showForm = false"
-                            class="px-4 py-2 text-sm text-slate-600 dark:text-gray-400 hover:text-slate-800 dark:hover:text-gray-200">
+                        <button type="button" @click="showForm = false" class="px-4 py-2 text-sm"
+                            style="color: color-mix(in srgb, var(--cs-ink) 65%, transparent);">
                             Cancelar
                         </button>
-                        <button type="submit" :disabled="form.processing"
-                            class="px-4 py-2 text-sm font-medium text-white bg-teal-700 rounded-lg hover:bg-teal-800 disabled:opacity-50">
+                        <button type="submit" :disabled="form.processing" class="cs-submit"
+                            style="width: auto; padding: 0.55rem 1.1rem;">
                             Guardar
                         </button>
                     </div>

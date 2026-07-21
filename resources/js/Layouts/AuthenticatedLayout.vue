@@ -16,8 +16,8 @@ const { isDark, toggle } = useDarkMode();
 
 <template>
     <div>
-        <div class="min-h-screen bg-gray-100 dark:bg-slate-900">
-            <nav class="bg-white border-b border-gray-100 dark:bg-slate-800 dark:border-slate-700">
+        <div class="min-h-screen" style="background: var(--cs-paper);">
+          <nav class="border-b" style="background: var(--cs-paper-card); border-color: color-mix(in srgb, var(--cs-ink) 10%, transparent);">
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 justify-between">
