@@ -25,7 +25,12 @@ const form = useForm({
 function openCreate() {
     editingId.value = null;
     form.reset();
+    form.name = '';
+    form.type = 'gasto';
     form.color = '#0F5257';
+    form.budget = '';
+    form.icon = '';
+    showEmojiPicker.value = false;
     showForm.value = true;
 }
 

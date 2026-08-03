@@ -211,15 +211,16 @@ function openCreate() {
     form.reset();
     form.currency = 'PYG';
     form.date = new Date().toISOString().slice(0, 10);
+    form.category_id = null;
+    form.category_id = null
+    form.amount = null;
+    form.description =null;
     showForm.value = true;
 }
 
 function formatFecha(fecha) {
-    return new Date(fecha).toLocaleDateString('es-PY', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-    });
+    const [year, month, day] = fecha.split('T')[0].split('-');
+    return `${day}/${month}/${year}`;
 }
 
 function openEdit(t) {
@@ -229,7 +230,7 @@ function openEdit(t) {
     form.amount = t.amount;
     form.currency = t.currency;
     form.description = t.description;
-    form.date = t.date;
+    form.date = t.date.split('T')[0];
     showForm.value = true;
 }
 
@@ -431,13 +432,7 @@ watch([busqueda, ordenarPor, ordenAscendente], () => {
                         class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
                         ⬇ PDF
                     </a>
-                    <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                        Tip: presioná <kbd
-                            class="px-1 py-0.5 bg-slate-100 dark:bg-slate-700 rounded border border-slate-300 dark:border-slate-600 font-mono">N</kbd>
-                        para cargar rápido, <kbd
-                            class="px-1 py-0.5 bg-slate-100 dark:bg-slate-700 rounded border border-slate-300 dark:border-slate-600 font-mono">Esc</kbd>
-                        para cerrar
-                    </p>
+
                 </div>
 
                 <!-- Listado -->

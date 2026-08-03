@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Household;
+use App\Models\HouseholdUser;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -41,6 +43,18 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+        ]);
+
+        $household = Household::create(
+            [
+                'name' => 'Finanzas de ' . $user->name,
+            ]
+        );
+
+        $household_user = HouseholdUser::create([
+            'household_id' => $household->id,
+            'user_id' => $user->id,
+            'role' => 'owner',
         ]);
 
         event(new Registered($user));
