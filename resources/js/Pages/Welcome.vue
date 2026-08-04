@@ -91,7 +91,7 @@ const items = [
             </svg>
 
             <div class="cs-hero-content">
-                <p class="cs-eyebrow">Finanzas personales · Paraguay</p>
+                <p class="cs-eyebrow">Finanzas personales</p>
                 <h1 class="cs-headline">
                     Tus gastos y ganancias,<br />
                     tejidos en guaraníes.
@@ -131,7 +131,7 @@ const items = [
         </section>
 
         <footer class="cs-footer">
-            CheSogue · Hecho en Paraguay
+            CheSogue
         </footer>
     </div>
 </template>
