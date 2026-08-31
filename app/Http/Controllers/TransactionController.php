@@ -31,19 +31,18 @@ class TransactionController extends Controller
 
         $totalGastos = $transactions->where('type', 'gasto')->sum('amount_gs');
         $totalGanancias = $transactions->where('type', 'ganancia')->sum('amount_gs');
-
         $gastosPorCategoria = $transactions
             ->where('type', 'gasto')
             ->groupBy('category_id')
             ->map(function ($items) {
                 return [
+                    'id' => $items->first()->category_id,
                     'name' => $items->first()->category->name,
                     'color' => $items->first()->category->color,
                     'total' => $items->sum('amount_gs'),
                 ];
             })
             ->values();
-
         $categoriasGasto = $household->categories()->where('type', 'gasto')->get();
         $categoriasConPresupuesto = $categoriasGasto->filter(fn ($cat) => $cat->budget !== null);
         $presupuestos = $categoriasConPresupuesto->map(function ($cat) use ($transactions) {

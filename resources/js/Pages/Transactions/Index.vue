@@ -333,43 +333,31 @@ watch([busqueda, categoriaFiltro, ordenarPor, ordenAscendente, porPagina], () =>
 
         <div class="py-8">
             <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-6">
-              <div class="flex items-center gap-3 flex-wrap">
-    <select v-model="selectedMonth" @change="goToMonth" class="cs-input text-sm">
-        <option v-for="(m, i) in meses" :key="i" :value="i + 1">{{ m }}</option>
-    </select>
-    <select v-model="selectedYear" @change="goToMonth" class="cs-input text-sm">
-        <option v-for="y in [2024, 2025, 2026, 2027]" :key="y" :value="y">{{ y }}</option>
-    </select>
-    <input
-        v-model="busqueda"
-        type="text"
-        placeholder="Buscar por descripción o categoría..."
-        class="cs-input text-sm flex-1 min-w-[180px]"
-    />
-    <select v-model="categoriaFiltro" class="cs-input text-sm">
-        <option value="">Todas las categorías</option>
-        <option v-for="c in categories" :key="c.id" :value="c.id">
-            {{ c.icon ? c.icon + ' ' : '' }}{{ c.name }}
-        </option>
-    </select>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <select v-model="selectedMonth" @change="goToMonth" class="cs-input text-sm">
+                        <option v-for="(m, i) in meses" :key="i" :value="i + 1">{{ m }}</option>
+                    </select>
+                    <select v-model="selectedYear" @change="goToMonth" class="cs-input text-sm">
+                        <option v-for="y in [2024, 2025, 2026, 2027]" :key="y" :value="y">{{ y }}</option>
+                    </select>
+                    <input v-model="busqueda" type="text" placeholder="Buscar por descripción o categoría..."
+                        class="cs-input text-sm flex-1 min-w-[180px]" />
 
-    <div class="flex items-center gap-2 text-sm shrink-0">
-        <span style="color: color-mix(in srgb, var(--cs-ink) 55%, transparent);">Ordenar:</span>
-        <select v-model="ordenarPor" class="cs-input text-sm">
-            <option value="date">Fecha</option>
-            <option value="amount">Monto</option>
-            <option value="category">Categoría</option>
-        </select>
-        <button
-            @click="ordenAscendente = !ordenAscendente"
-            class="px-2 py-1.5 rounded-lg border text-sm"
-            style="border-color: color-mix(in srgb, var(--cs-ink) 18%, transparent);"
-            :title="ordenAscendente ? 'Ascendente' : 'Descendente'"
-        >
-            {{ ordenAscendente ? '↑' : '↓' }}
-        </button>
-    </div>
-</div>
+                    <div class="flex items-center gap-2 text-sm shrink-0">
+                        <span style="color: color-mix(in srgb, var(--cs-ink) 55%, transparent);">Ordenar:</span>
+                        <select v-model="ordenarPor" class="cs-input text-sm">
+                            <option value="date">Fecha</option>
+                            <option value="amount">Monto</option>
+                            <option value="category">Categoría</option>
+                        </select>
+                        <button @click="ordenAscendente = !ordenAscendente"
+                            class="px-2 py-1.5 rounded-lg border text-sm"
+                            style="border-color: color-mix(in srgb, var(--cs-ink) 18%, transparent);"
+                            :title="ordenAscendente ? 'Ascendente' : 'Descendente'">
+                            {{ ordenAscendente ? '↑' : '↓' }}
+                        </button>
+                    </div>
+                </div>
 
                 <!-- Resumen -->
                 <div class="grid grid-cols-3 gap-4">
@@ -425,8 +413,13 @@ watch([busqueda, categoriaFiltro, ordenarPor, ordenAscendente, porPagina], () =>
                 </p>
 
                 <div v-if="gastosPorCategoria.length > 0" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    <div v-for="cat in gastosPorCategoria" :key="cat.name" class="rounded-xl p-3 border"
-                        style="background: var(--cs-paper-card); border-color: color-mix(in srgb, var(--cs-ink) 12%, transparent);">
+                    <button v-for="cat in gastosPorCategoria" :key="cat.id" type="button"
+                        @click="categoriaFiltro = categoriaFiltro === cat.id ? '' : cat.id"
+                        class="rounded-xl p-3 border text-left transition" :style="{
+                            background: categoriaFiltro === cat.id ? cat.color + '15' : 'var(--cs-paper-card)',
+                            borderColor: categoriaFiltro === cat.id ? cat.color : 'color-mix(in srgb, var(--cs-ink) 12%, transparent)',
+                            borderWidth: categoriaFiltro === cat.id ? '2px' : '1px',
+                        }">
                         <div class="flex items-center gap-2 mb-1">
                             <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: cat.color }"></span>
                             <p class="text-xs font-medium truncate"
@@ -438,9 +431,8 @@ watch([busqueda, categoriaFiltro, ordenarPor, ordenAscendente, porPagina], () =>
                             style="font-family: 'JetBrains Mono', monospace; color: var(--cs-ink);">
                             {{ formatGs(cat.total) }}
                         </p>
-                    </div>
+                    </button>
                 </div>
-
                 <div v-if="presupuestos.length > 0" class="bg-white rounded-xl border border-slate-200 p-4 space-y-4">
                     <p class="text-sm font-medium text-slate-600">Presupuestos del mes</p>
 
