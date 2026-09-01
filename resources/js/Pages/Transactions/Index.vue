@@ -1,13 +1,17 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import { useForm, router } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { Pie } from 'vue-chartjs';
-import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale } from 'chart.js';
-import { Copy, Pencil, Trash2 } from 'lucide-vue-next';
 
-ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale);
+import FiltersBar from '@/Components/FiltersBar.vue';
+import SummaryCards from '@/Components/SummaryCards.vue';
+import CategoryChart from '@/Components/CategoryChart.vue';
+import BudgetProgress from '@/Components/BudgetProgress.vue';
+import CategoryTotals from '@/Components/CategoryTotals.vue';
+import TransactionList from '@/Components/TransactionList.vue';
+import TransactionModal from '@/Components/TransactionModal.vue';
+import DeleteModal from '@/Components/DeleteModal.vue';
 
 const props = defineProps({
     transactions: Array,
@@ -20,16 +24,15 @@ const props = defineProps({
     role: String,
 });
 
-const meses = [
-    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-];
-
+// --- Filtros ---
 const selectedMonth = ref(props.filters.month);
 const selectedYear = ref(props.filters.year);
-
-const paginaActual = ref(1);
+const busqueda = ref('');
+const categoriaFiltro = ref('');
+const ordenarPor = ref('date');
+const ordenAscendente = ref(false);
 const porPagina = ref(50);
+const paginaActual = ref(1);
 
 function goToMonth() {
     router.get(route('transactions.index'), {
@@ -37,140 +40,6 @@ function goToMonth() {
         year: selectedYear.value,
     }, { preserveState: true });
 }
-
-const chartData = computed(() => ({
-    labels: props.gastosPorCategoria.map(g => g.name),
-    datasets: [
-        {
-            data: props.gastosPorCategoria.map(g => g.total),
-            backgroundColor: props.gastosPorCategoria.map(g => g.color),
-            borderWidth: 0,
-        },
-    ],
-}));
-
-const chartOptions = {
-    responsive: true,
-    plugins: {
-        legend: {
-            position: 'bottom',
-            labels: { boxWidth: 12, padding: 16 },
-        },
-        tooltip: {
-            callbacks: {
-                label: (ctx) => `${ctx.label}: ₲ ${new Intl.NumberFormat('es-PY').format(ctx.raw)}`,
-            },
-        },
-    },
-};
-
-const amountDisplay = computed({
-    get() {
-        if (form.amount === '' || form.amount === null) return '';
-
-        if (form.currency === 'USD') {
-            return formatMilesManual(form.amount);
-        }
-
-        return new Intl.NumberFormat('es-PY').format(form.amount);
-    },
-    set(valor) {
-        if (form.currency === 'USD') {
-            let limpio = valor.replace(/[^\d.]/g, '');
-
-            const partes = limpio.split('.');
-            if (partes.length > 2) {
-                limpio = partes[0] + '.' + partes.slice(1).join('');
-            }
-
-            const partesFinal = limpio.split('.');
-            if (partesFinal.length === 2 && partesFinal[1].length > 2) {
-                limpio = partesFinal[0] + '.' + partesFinal[1].slice(0, 2);
-            }
-
-            form.amount = limpio;
-        } else {
-            const limpio = valor.replace(/\D/g, '');
-            form.amount = limpio ? parseInt(limpio) : '';
-        }
-    },
-});
-
-const diferencias = computed(() => {
-    const gastoAnt = props.comparativa.gastos_anterior;
-    const gananciaAnt = props.comparativa.ganancias_anterior;
-
-    return {
-        gasto: {
-            valor: props.summary.gastos - gastoAnt,
-            porcentaje: gastoAnt > 0
-                ? Math.round(((props.summary.gastos - gastoAnt) / gastoAnt) * 100)
-                : null,
-        },
-        ganancia: {
-            valor: props.summary.ganancias - gananciaAnt,
-            porcentaje: gananciaAnt > 0
-                ? Math.round(((props.summary.ganancias - gananciaAnt) / gananciaAnt) * 100)
-                : null,
-        },
-    };
-});
-
-function formatGs(amount) {
-    return '₲ ' + new Intl.NumberFormat('es-PY').format(amount);
-}
-
-function formatMilesManual(numStr) {
-    const [parteEntera, parteDecimal] = String(numStr).split('.');
-    const enteraFormateada = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    return parteDecimal !== undefined ? `${enteraFormateada}.${parteDecimal}` : enteraFormateada;
-}
-
-const showForm = ref(false);
-const editingId = ref(null);
-const toast = ref(null);
-const transaccionAEliminar = ref(null);
-
-function mostrarToast(mensaje, tipo = 'success') {
-    toast.value = { mensaje, tipo };
-
-    setTimeout(() => {
-        toast.value = null;
-    }, 3000);
-}
-
-function colorBarra(porcentaje) {
-    if (porcentaje >= 100) return 'bg-red-500';
-    if (porcentaje >= 80) return 'bg-amber-500';
-    return 'bg-emerald-500';
-}
-
-const form = useForm({
-    category_id: '',
-    type: 'gasto',
-    amount: '',
-    currency: 'PYG',
-    description: '',
-    date: new Date().toISOString().slice(0, 10),
-});
-
-const filteredCategories = computed(() =>
-    props.categories.filter(c => c.type === form.type)
-);
-
-const busqueda = ref('');
-const categoriaFiltro = ref('');
-const ordenarPor = ref('date');
-const ordenAscendente = ref(false);
-
-const totalPaginas = computed(() =>
-    Math.ceil(transaccionesFiltradas.value.length / porPagina.value)
-);
-
-const transaccionesPaginadas = computed(() => {
-    const inicio = (paginaActual.value - 1) * porPagina.value;
-    return transaccionesFiltradas.value.slice(inicio, inicio + porPagina.value);
-});
 
 const transaccionesFiltradas = computed(() => {
     let resultado = props.transactions;
@@ -186,20 +55,16 @@ const transaccionesFiltradas = computed(() => {
             t.category.name.toLowerCase().includes(termino)
         );
     }
+
     resultado = [...resultado].sort((a, b) => {
         let valorA, valorB;
-
-        if (ordenarPor.value === 'amount') {
-            valorA = a.amount;
-            valorB = b.amount;
-        } else if (ordenarPor.value === 'category') {
+        if (ordenarPor.value === 'category') {
             valorA = a.category.name;
             valorB = b.category.name;
         } else {
-            valorA = a.date;
-            valorB = b.date;
+            valorA = a[ordenarPor.value];
+            valorB = b[ordenarPor.value];
         }
-
         if (valorA < valorB) return ordenAscendente.value ? -1 : 1;
         if (valorA > valorB) return ordenAscendente.value ? 1 : -1;
         return 0;
@@ -208,53 +73,73 @@ const transaccionesFiltradas = computed(() => {
     return resultado;
 });
 
+const transaccionesPaginadas = computed(() => {
+    const inicio = (paginaActual.value - 1) * porPagina.value;
+    return transaccionesFiltradas.value.slice(inicio, inicio + porPagina.value);
+});
+
+const hayFiltroActivo = computed(() => !!busqueda.value || !!categoriaFiltro.value);
+
+watch([busqueda, categoriaFiltro, ordenarPor, ordenAscendente, porPagina], () => {
+    paginaActual.value = 1;
+});
+
+function toggleCategoriaFiltro(id) {
+    categoriaFiltro.value = categoriaFiltro.value === id ? '' : id;
+}
+
+// --- Modal de crear/editar ---
+const showForm = ref(false);
+const editingTransaction = ref(null);
+
 function openCreate() {
-    editingId.value = null;
-    form.reset();
-    form.currency = 'PYG';
-    form.date = new Date().toISOString().slice(0, 10);
-    form.category_id = null;
-    form.category_id = null
-    form.amount = null;
-    form.description = null;
+    editingTransaction.value = null;
     showForm.value = true;
 }
 
-function hoyLocal() {
-    const d = new Date();
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
-
-function formatFecha(fecha) {
-    const [year, month, day] = fecha.split('T')[0].split('-');
-    return `${day}/${month}/${year}`;
-}
-
 function openEdit(t) {
-    editingId.value = t.id;
-    form.category_id = t.category_id;
-    form.type = t.type;
-    form.amount = t.amount;
-    form.currency = t.currency;
-    form.description = t.description;
-    form.date = hoyLocal();
+    editingTransaction.value = t;
     showForm.value = true;
 }
 
 function duplicar(t) {
-    editingId.value = null;
-    form.category_id = t.category_id;
-    form.type = t.type;
-    form.amount = t.amount;
-    form.currency = t.currency;
-    form.description = t.description;
-    form.date = hoyLocal();
+    editingTransaction.value = { ...t, id: null }; // copia los datos, pero sin id → el modal lo trata como "nuevo"
     showForm.value = true;
 }
 
+function onSaved(mensaje) {
+    showForm.value = false;
+    mostrarToast(mensaje);
+}
+
+// --- Modal de borrado ---
+const transaccionAEliminar = ref(null);
+const eliminando = ref(false);
+
+function pedirConfirmacionBorrado(t) {
+    transaccionAEliminar.value = t;
+}
+
+function confirmarBorrado() {
+    eliminando.value = true;
+    router.delete(route('transactions.destroy', transaccionAEliminar.value.id), {
+        onSuccess: () => {
+            transaccionAEliminar.value = null;
+            mostrarToast('Movimiento eliminado', 'error');
+        },
+        onFinish: () => (eliminando.value = false),
+    });
+}
+
+// --- Toast ---
+const toast = ref(null);
+
+function mostrarToast(mensaje, tipo = 'success') {
+    toast.value = { mensaje, tipo };
+    setTimeout(() => (toast.value = null), 3000);
+}
+
+// --- Atajos de teclado ---
 function manejarAtajos(e) {
     const enCampoDeTexto = ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName);
 
@@ -271,55 +156,11 @@ function manejarAtajos(e) {
 
     if (enCampoDeTexto) return;
 
-    if (e.key === 'n' || e.key === 'N') {
-        openCreate();
-    }
+    if (e.key === 'n' || e.key === 'N') openCreate();
 }
 
-onMounted(() => {
-    window.addEventListener('keydown', manejarAtajos);
-});
-
-onUnmounted(() => {
-    window.removeEventListener('keydown', manejarAtajos);
-});
-
-function submit() {
-    if (editingId.value) {
-        form.put(route('transactions.update', editingId.value), {
-            onSuccess: () => {
-                showForm.value = false;
-                mostrarToast('Movimiento actualizado');
-            },
-        });
-    } else {
-        form.post(route('transactions.store'), {
-            onSuccess: () => {
-                showForm.value = false;
-                mostrarToast('Movimiento creado');
-            },
-        });
-    }
-}
-
-function pedirConfirmacionBorrado(t) {
-    transaccionAEliminar.value = t;
-}
-
-function confirmarBorrado() {
-    form.delete(route('transactions.destroy', transaccionAEliminar.value.id), {
-        onSuccess: () => {
-            transaccionAEliminar.value = null;
-            mostrarToast('Movimiento eliminado', 'error');
-        },
-    });
-}
-
-const mostrarGrafico = ref(false);
-
-watch([busqueda, categoriaFiltro, ordenarPor, ordenAscendente, porPagina], () => {
-    paginaActual.value = 1;
-});
+onMounted(() => window.addEventListener('keydown', manejarAtajos));
+onUnmounted(() => window.removeEventListener('keydown', manejarAtajos));
 </script>
 
 <template>
@@ -328,334 +169,65 @@ watch([busqueda, categoriaFiltro, ordenarPor, ordenAscendente, porPagina], () =>
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold text-slate-800 dark:text-gray-200">Gastos y Ganancias</h2>
+            <h2 class="font-cs-display text-xl font-semibold" style="color: var(--cs-ink);">
+                Gastos y Ganancias
+            </h2>
         </template>
 
         <div class="py-8">
             <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-6">
-                <div class="flex items-center gap-3 flex-wrap">
-                    <select v-model="selectedMonth" @change="goToMonth" class="cs-input text-sm">
-                        <option v-for="(m, i) in meses" :key="i" :value="i + 1">{{ m }}</option>
-                    </select>
-                    <select v-model="selectedYear" @change="goToMonth" class="cs-input text-sm">
-                        <option v-for="y in [2024, 2025, 2026, 2027]" :key="y" :value="y">{{ y }}</option>
-                    </select>
-                    <input v-model="busqueda" type="text" placeholder="Buscar por descripción o categoría..."
-                        class="cs-input text-sm flex-1 min-w-[180px]" />
 
-                    <div class="flex items-center gap-2 text-sm shrink-0">
-                        <span style="color: color-mix(in srgb, var(--cs-ink) 55%, transparent);">Ordenar:</span>
-                        <select v-model="ordenarPor" class="cs-input text-sm">
-                            <option value="date">Fecha</option>
-                            <option value="amount">Monto</option>
-                            <option value="category">Categoría</option>
-                        </select>
-                        <button @click="ordenAscendente = !ordenAscendente"
-                            class="px-2 py-1.5 rounded-lg border text-sm"
-                            style="border-color: color-mix(in srgb, var(--cs-ink) 18%, transparent);"
-                            :title="ordenAscendente ? 'Ascendente' : 'Descendente'">
-                            {{ ordenAscendente ? '↑' : '↓' }}
-                        </button>
-                    </div>
-                </div>
+                <SummaryCards :summary="summary" :comparativa="comparativa" />
 
-                <!-- Resumen -->
-                <div class="grid grid-cols-3 gap-4">
-                    <div
-                        class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-                        <p class="text-xs text-slate-500 mb-1">Ganancias</p>
-                        <p class="text-lg font-semibold text-emerald-700">{{ formatGs(summary.ganancias) }}</p>
-                        <p v-if="comparativa.ganancias_anterior > 0" class="text-xs mt-1"
-                            :class="diferencias.ganancia.valor >= 0 ? 'text-emerald-600' : 'text-red-500'">
-                            {{ diferencias.ganancia.valor >= 0 ? '↑' : '↓' }}
-                            {{ diferencias.ganancia.porcentaje !== null ? Math.abs(diferencias.ganancia.porcentaje) +
-                                '%' : ''
-                            }}
-                            vs. mes anterior
-                        </p>
-                    </div>
-                    <div
-                        class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-                        <p class="text-xs text-slate-500 mb-1">Gastos</p>
-                        <p class="text-lg font-semibold text-red-700">{{ formatGs(summary.gastos) }}</p>
-                        <p v-if="comparativa.gastos_anterior > 0" class="text-xs mt-1"
-                            :class="diferencias.gasto.valor <= 0 ? 'text-emerald-600' : 'text-red-500'">
-                            {{ diferencias.gasto.valor >= 0 ? '↑' : '↓' }}
-                            {{ diferencias.gasto.porcentaje !== null ? Math.abs(diferencias.gasto.porcentaje) + '%' : ''
-                            }}
-                            vs. mes anterior
-                        </p>
-                    </div>
-                    <div
-                        class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-                        <p class="text-xs text-slate-500 mb-1">Balance</p>
-                        <p class="text-lg font-semibold"
-                            :class="summary.balance >= 0 ? 'text-teal-700' : 'text-red-700'">
-                            {{ formatGs(summary.balance) }}
-                        </p>
-                    </div>
-                </div>
+                <CategoryChart :gastos-por-categoria="gastosPorCategoria" />
+                
+                <BudgetProgress :presupuestos="presupuestos" />
 
-                <div v-if="gastosPorCategoria.length > 0"
-                    class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-                    <button @click="mostrarGrafico = !mostrarGrafico"
-                        class="flex items-center justify-between w-full text-sm font-medium text-slate-600 dark:text-slate-300">
-                        <span>Gastos por categoría</span>
-                        <span class="text-xs text-slate-400">{{ mostrarGrafico ? 'Ocultar ▲' : 'Mostrar ▼' }}</span>
-                    </button>
+                <CategoryTotals :gastos-por-categoria="gastosPorCategoria" :categoria-filtro="categoriaFiltro"
+                    @toggle="toggleCategoriaFiltro" />
 
-                    <div v-if="mostrarGrafico" class="max-w-xs mx-auto mt-3">
-                        <Pie :data="chartData" :options="chartOptions" />
-                    </div>
-                </div>
-                <p v-else class="text-sm text-slate-400 text-center py-2">
-                    No hay gastos este mes para graficar.
-                </p>
-
-                <div v-if="gastosPorCategoria.length > 0" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    <button v-for="cat in gastosPorCategoria" :key="cat.id" type="button"
-                        @click="categoriaFiltro = categoriaFiltro === cat.id ? '' : cat.id"
-                        class="rounded-xl p-3 border text-left transition" :style="{
-                            background: categoriaFiltro === cat.id ? cat.color + '15' : 'var(--cs-paper-card)',
-                            borderColor: categoriaFiltro === cat.id ? cat.color : 'color-mix(in srgb, var(--cs-ink) 12%, transparent)',
-                            borderWidth: categoriaFiltro === cat.id ? '2px' : '1px',
-                        }">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: cat.color }"></span>
-                            <p class="text-xs font-medium truncate"
-                                style="color: color-mix(in srgb, var(--cs-ink) 70%, transparent);">
-                                {{ cat.name }}
-                            </p>
-                        </div>
-                        <p class="text-sm font-semibold"
-                            style="font-family: 'JetBrains Mono', monospace; color: var(--cs-ink);">
-                            {{ formatGs(cat.total) }}
-                        </p>
-                    </button>
-                </div>
-                <div v-if="presupuestos.length > 0" class="bg-white rounded-xl border border-slate-200 p-4 space-y-4">
-                    <p class="text-sm font-medium text-slate-600">Presupuestos del mes</p>
-
-                    <div v-for="p in presupuestos" :key="p.name">
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-slate-700 font-medium">{{ p.name }}</span>
-                            <span class="text-slate-500">
-                                {{ formatGs(p.gastado) }} / {{ formatGs(p.budget) }}
-                            </span>
-                        </div>
-                        <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                            <div class="h-full rounded-full transition-all" :class="colorBarra(p.porcentaje)"
-                                :style="{ width: Math.min(p.porcentaje, 100) + '%' }"></div>
-                        </div>
-                        <p v-if="p.porcentaje >= 100" class="text-xs text-red-600 mt-1">
-                            Te pasaste ₲{{ new Intl.NumberFormat('es-PY').format(p.gastado - p.budget) }}
-                        </p>
-                    </div>
-                </div>
-
-                <div class="flex justify-end items-center gap-3">
-                    <button v-if="role === 'owner'" @click="openCreate"
-                        class="rounded-lg bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800 transition">
+                <FiltersBar v-model:month="selectedMonth" v-model:year="selectedYear" v-model:busqueda="busqueda"
+                    v-model:categoriaFiltro="categoriaFiltro" v-model:ordenarPor="ordenarPor"
+                    v-model:ordenAscendente="ordenAscendente" :categories="categories" @change-month="goToMonth" />
+                <div class="flex justify-end gap-2">
+                    <button v-if="role === 'owner'" type="button" @click="openCreate" class="cs-submit"
+                        style="width: auto; padding: 0.6rem 1.1rem;">
                         + Nuevo movimiento
                     </button>
                     <a :href="route('transactions.export.excel', { month: selectedMonth, year: selectedYear })"
-                        class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                        class="px-3 py-2 rounded-lg border text-sm"
+                        style="border-color: color-mix(in srgb, var(--cs-ink) 18%, transparent); color: color-mix(in srgb, var(--cs-ink) 70%, transparent);">
                         ⬇ Excel
                     </a>
-
                     <a :href="route('transactions.export.pdf', { month: selectedMonth, year: selectedYear })"
-                        class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                        class="px-3 py-2 rounded-lg border text-sm"
+                        style="border-color: color-mix(in srgb, var(--cs-ink) 18%, transparent); color: color-mix(in srgb, var(--cs-ink) 70%, transparent);">
                         ⬇ PDF
                     </a>
-
                 </div>
 
-                <!-- Listado -->
-                <div
-                    class="bg-white rounded-xl shadow-sm border border-slate-200 divide-y divide-slate-100 dark:bg-slate-800 dark:border-slate-700 dark:divide-slate-700">
-                    <div v-for="t in transaccionesPaginadas" :key="t.id"
-                        class="flex items-center justify-between px-4 py-3">
-                        <div class="flex items-center gap-3">
-                            <span v-if="t.category.icon" class="text-lg">{{ t.category.icon }}</span>
-                            <div>
-                                <p class="font-medium text-slate-800 dark:text-slate-100">
-                                    {{ t.description || t.category.name }}
-                                </p>
-                                <p class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
-                                    <span class="px-1.5 py-0.5 rounded-full font-medium" :style="{
-                                        backgroundColor: t.category.color + '20',
-                                        color: t.category.color,
-                                    }">
-                                        {{ t.category.name }}
-                                    </span>
-                                    · {{ formatFecha(t.date) }}
-                                    <span v-if="t.currency === 'USD'">· US$ {{ t.amount }}</span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <span class="font-semibold"
-                                :class="t.type === 'gasto' ? 'text-red-700 dark:text-red-500' : 'text-emerald-700 dark:text-emerald-500'">
-                                {{ t.type === 'gasto' ? '-' : '+' }}{{ formatGs(t.amount_gs) }}
-                            </span>
-                            <div class="flex gap-2 text-sm">
-                                <div v-if="role === 'owner'" class="flex gap-1">
-                                    <button @click="duplicar(t)" title="Duplicar movimiento"
-                                        class="p-2 rounded-lg text-slate-400 hover:text-teal-700 hover:bg-teal-50 dark:hover:bg-teal-900/30 dark:hover:text-teal-400 transition">
-                                        <Copy class="w-4 h-4" />
-                                    </button>
-                                    <button @click="openEdit(t)" title="Editar movimiento"
-                                        class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 dark:hover:text-slate-200 transition">
-                                        <Pencil class="w-4 h-4" />
-                                    </button>
-                                    <button @click="pedirConfirmacionBorrado(t)" title="Eliminar movimiento"
-                                        class="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition">
-                                        <Trash2 class="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <p v-if="transaccionesFiltradas.length === 0" class="px-4 py-6 text-center text-sm text-slate-400">
-                        {{ busqueda ? 'No se encontraron movimientos' : 'No hay movimientos cargados ' }}
-                    </p>
-                </div>
-                <div v-if="totalPaginas > 1" class="flex items-center justify-between text-sm">
-                    <div class="flex items-center gap-2">
-                        <p class="text-slate-500 dark:text-slate-400">
-                            Página {{ paginaActual }} de {{ totalPaginas }}
-                            ({{ transaccionesFiltradas.length }} movimientos)
-                        </p>
-                        <select v-model="porPagina" class="cs-input text-xs py-1">
-                            <option :value="10">10 por página</option>
-                            <option :value="25">25 por página</option>
-                            <option :value="50">50 por página</option>
-                        </select>
-                    </div>
-                    <div class="flex gap-2">
-                        <!-- botones Anterior/Siguiente, sin cambios -->
-                    </div>
-                </div>
+                <TransactionList :transacciones="transaccionesPaginadas"
+                    :total-filtradas="transaccionesFiltradas.length" :hay-filtro-activo="hayFiltroActivo" :role="role"
+                    v-model:pagina-actual="paginaActual" v-model:por-pagina="porPagina" @duplicar="duplicar"
+                    @editar="openEdit" @eliminar="pedirConfirmacionBorrado" />
             </div>
         </div>
+
+        <TransactionModal :show="showForm" :editing-transaction="editingTransaction" :categories="categories"
+            @close="showForm = false" @saved="onSaved" />
+
+        <DeleteModal :show="!!transaccionAEliminar" title="¿Eliminar movimiento?"
+            :message="transaccionAEliminar ? `Vas a borrar &quot;${transaccionAEliminar.description || transaccionAEliminar.category.name}&quot;. Esta acción no se puede deshacer.` : ''"
+            :processing="eliminando" @cancel="transaccionAEliminar = null" @confirm="confirmarBorrado" />
 
         <Transition enter-active-class="transition ease-out duration-300" enter-from-class="opacity-0 translate-y-2"
             enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-200"
             leave-from-class="opacity-100" leave-to-class="opacity-0">
             <div v-if="toast"
                 class="fixed bottom-6 right-6 px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium z-50"
-                :class="toast.tipo === 'success' ? 'bg-emerald-600' : 'bg-red-600'">
+                :style="{ background: toast.tipo === 'success' ? 'var(--cs-teal)' : '#D85A30' }">
                 {{ toast.mensaje }}
             </div>
         </Transition>
-        <!-- Modal -->
-        <div v-if="showForm" class="fixed inset-0 bg-black/30 flex items-center justify-center px-4 z-50 "
-            @click.self="showForm = false">
-            <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm dark:bg-slate-800 dark:text-gray-200">
-                <h3 class="text-lg font-semibold text-slate-800 dark:text-gray-200 mb-4">
-                    {{ editingId ? 'Editar movimiento' : 'Nuevo movimiento' }}
-                </h3>
-
-                <form @submit.prevent="submit" class="space-y-4">
-                    <div class="flex gap-2">
-                        <button type="button" @click="form.type = 'gasto'; form.category_id = ''"
-                            class="flex-1 py-2 rounded-lg text-sm font-medium border" :class="form.type === 'gasto'
-                                ? 'bg-red-50 border-red-300 text-red-700 dark:bg-red-900 dark:border-red-700 dark:text-red-500'
-                                : 'border-slate-200 text-slate-500 dark:border-slate-600 dark:text-gray-400'">
-                            Gasto
-                        </button>
-                        <button type="button" @click="form.type = 'ganancia'; form.category_id = ''"
-                            class="flex-1 py-2 rounded-lg text-sm font-medium border" :class="form.type === 'ganancia'
-                                ? 'bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-900 dark:border-emerald-700 dark:text-emerald-500'
-                                : 'border-slate-200 text-slate-500 dark:border-slate-600 dark:text-gray-400'">
-                            Ganancia
-                        </button>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm text-slate-600 mb-1 dark:text-gray-400">Categoría</label>
-                        <select v-model="form.category_id"
-                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200">
-                            <option value="" disabled>Elegí una categoría</option>
-                            <option v-for="c in filteredCategories" :key="c.id" :value="c.id">
-                                {{ c.icon ? c.icon + ' ' : '' }}{{ c.name }}
-                            </option>
-                        </select>
-                        <p v-if="form.errors.category_id" class="text-xs text-red-600 mt-1">
-                            {{ form.errors.category_id }}
-                        </p>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm text-slate-600 mb-1 dark:text-gray-400">Monto</label>
-                        <div class="flex gap-2">
-                            <select v-model="form.currency" @change="form.amount = ''"
-                                class="rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:border-teal-600 focus:ring-teal-600">
-                                <option value="PYG">₲</option>
-                                <option value="USD">US$</option>
-                            </select>
-                            <input v-model="amountDisplay" type="text" inputmode="decimal"
-                                class="flex-1 rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-teal-600 focus:ring-teal-600"
-                                :placeholder="form.currency === 'USD' ? 'Ej: 49.99' : 'Ej: 150.000'" />
-                        </div>
-                        <p v-if="form.errors.amount" class="text-xs text-red-600 mt-1">{{ form.errors.amount }}</p>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm text-slate-600 mb-1 dark:text-gray-400">Descripción
-                            (opcional)</label>
-                        <input v-model="form.description" type="text"
-                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200"
-                            placeholder="Ej: Supermercado" />
-                    </div>
-
-                    <div>
-                        <label class="block text-sm text-slate-600 mb-1 dark:text-gray-400">Fecha</label>
-                        <input v-model="form.date" type="date"
-                            class="w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200" />
-                    </div>
-
-                    <div class="flex justify-end gap-2 pt-2">
-                        <button type="button" @click="showForm = false"
-                            class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200">
-                            Cancelar
-                        </button>
-                        <button type="submit" :disabled="form.processing"
-                            class="px-4 py-2 text-sm font-medium text-white bg-teal-700 rounded-lg hover:bg-teal-800 disabled:opacity-50">
-                            Guardar
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div v-if="transaccionAEliminar" class="fixed inset-0 bg-black/30 flex items-center justify-center px-4 z-50"
-            @click.self="transaccionAEliminar = null">
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 w-full max-w-sm">
-                <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">
-                    ¿Eliminar movimiento?
-                </h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">
-                    Vas a borrar
-                    <span class="font-medium">
-                        "{{ transaccionAEliminar.description || transaccionAEliminar.category.name }}"
-                    </span>
-                    del {{ formatFecha(transaccionAEliminar.date) }}.
-                    Esta acción no se puede deshacer.
-                </p>
-
-                <div class="flex justify-end gap-2">
-                    <button type="button" @click="transaccionAEliminar = null"
-                        class="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100">
-                        Cancelar
-                    </button>
-                    <button type="button" @click="confirmarBorrado" :disabled="form.processing"
-                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50">
-                        Eliminar
-                    </button>
-                </div>
-            </div>
-        </div>
     </AuthenticatedLayout>
 </template>

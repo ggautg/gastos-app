@@ -46,7 +46,7 @@ const chartOptions = {
                 {{ mostrar ? 'Ocultar ▲' : 'Mostrar ▼' }}
             </span>
         </button>
-        <div v-if="mostrar" class="max-w-[220px] mx-auto mt-4">
+        <div v-if="mostrar" class="max-w-[320px] mx-auto mt-4">
             <Pie :data="chartData" :options="chartOptions" />
         </div>
     </div>

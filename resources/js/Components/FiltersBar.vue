@@ -6,7 +6,6 @@ defineProps({
 const selectedMonth = defineModel('month');
 const selectedYear = defineModel('year');
 const busqueda = defineModel('busqueda');
-const categoriaFiltro = defineModel('categoriaFiltro');
 const ordenarPor = defineModel('ordenarPor');
 const ordenAscendente = defineModel('ordenAscendente');
 
@@ -32,12 +31,6 @@ const meses = [
             placeholder="Buscar por descripción o categoría..."
             class="cs-input text-sm flex-1 min-w-[180px]"
         />
-        <select v-model="categoriaFiltro" class="cs-input text-sm">
-            <option value="">Todas las categorías</option>
-            <option v-for="c in categories" :key="c.id" :value="c.id">
-                {{ c.icon ? c.icon + ' ' : '' }}{{ c.name }}
-            </option>
-        </select>
         <div class="flex items-center gap-2 text-sm shrink-0">
             <span style="color: color-mix(in srgb, var(--cs-ink) 55%, transparent);">Ordenar:</span>
             <select v-model="ordenarPor" class="cs-input text-sm">
