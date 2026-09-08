@@ -85,7 +85,7 @@ const amountDisplay = computed({
 });
 
 function submit() {
-    if (props.editingTransaction) {
+    if (props.editingTransaction && props.editingTransaction.id) {
         form.put(route('transactions.update', props.editingTransaction.id), {
             onSuccess: () => emit('saved', 'Movimiento actualizado'),
         });

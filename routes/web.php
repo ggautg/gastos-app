@@ -6,6 +6,7 @@ use App\Http\Controllers\HouseholdController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\YearlySummaryController;
+use App\Http\Controllers\WeeklySummaryController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -34,6 +35,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/transactions/export/excel', [TransactionController::class, 'exportExcel'])->name('transactions.export.excel');
 
     Route::get('/transactions/export/pdf', [TransactionController::class, 'exportPdf'])->name('transactions.export.pdf');
+
+    Route::get('/transactions/weekly', [WeeklySummaryController::class, 'index'])->name('transactions.weekly');
 });
 
 require __DIR__.'/auth.php';
