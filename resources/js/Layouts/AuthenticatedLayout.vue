@@ -17,7 +17,8 @@ const { isDark, toggle } = useDarkMode();
 <template>
     <div>
         <div class="min-h-screen" style="background: var(--cs-paper);">
-          <nav class="border-b" style="background: var(--cs-paper-card); border-color: color-mix(in srgb, var(--cs-ink) 10%, transparent);">
+            <nav class="border-b"
+                style="background: var(--cs-paper-card); border-color: color-mix(in srgb, var(--cs-ink) 10%, transparent);">
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 justify-between">
@@ -44,9 +45,16 @@ const { isDark, toggle } = useDarkMode();
                                     :active="route().current('transactions.index')">
                                     Movimientos
                                 </NavLink>
+
+                                <NavLink :href="route('transactions.weekly')"
+                                    :active="route().current('transactions.weekly')">
+                                    Semanal
+                                </NavLink>
+
                                 <NavLink :href="route('summary.yearly')" :active="route().current('summary.yearly')">
                                     Resumen anual
                                 </NavLink>
+
                                 <NavLink :href="route('household.show')" :active="route().current('household.show')">
                                     Cuenta compartida
                                 </NavLink>
@@ -136,13 +144,11 @@ const { isDark, toggle } = useDarkMode();
                             Movimientos
                         </ResponsiveNavLink>
 
-                        <ResponsiveNavLink :href="route('summary.yearly')"
-                            :active="route().current('summary.yearly')">
+                        <ResponsiveNavLink :href="route('summary.yearly')" :active="route().current('summary.yearly')">
                             Resumen anual
                         </ResponsiveNavLink>
 
-                        <ResponsiveNavLink :href="route('household.show')"
-                            :active="route().current('household.show')">
+                        <ResponsiveNavLink :href="route('household.show')" :active="route().current('household.show')">
                             Cuenta compartida
                         </ResponsiveNavLink>
                     </div>

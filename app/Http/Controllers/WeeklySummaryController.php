@@ -15,8 +15,23 @@ class WeeklySummaryController extends Controller
         $month = $request->integer('month', now()->month);
         $year = $request->integer('year', now()->year);
 
-        $transacciones = Transaction::whereHas('category', function ($q) use ($household) {
-                $q->where('household_id', $household->id);
+        $fechaAnterior = Carbon::createFromDate($year, $month, 1)->subMonth();
+
+        $bloques = $this->calcularBloques($household->id, $month, $year);
+        $bloquesMesAnterior = $this->calcularBloques($household->id, $fechaAnterior->month, $fechaAnterior->year);
+
+        return Inertia::render('Transactions/Weekly', [
+            'month' => $month,
+            'year' => $year,
+            'bloques' => $bloques,
+            'bloquesMesAnterior' => $bloquesMesAnterior,
+        ]);
+    }
+
+    private function calcularBloques(int $householdId, int $month, int $year): \Illuminate\Support\Collection
+    {
+        $transacciones = Transaction::whereHas('category', function ($q) use ($householdId) {
+                $q->where('household_id', $householdId);
             })
             ->whereMonth('date', $month)
             ->whereYear('date', $year)
@@ -43,9 +58,10 @@ class WeeklySummaryController extends Controller
             $diaInicio += 7;
         }
 
-        $bloques = $bloques->map(function ($bloque, $i) use ($bloques) {
+        return $bloques->map(function ($bloque, $i) use ($bloques) {
             $anterior = $i > 0 ? $bloques[$i - 1]['total'] : null;
 
+            $bloque['total_anterior'] = $anterior;
             $bloque['diferencia'] = $anterior !== null ? $bloque['total'] - $anterior : null;
             $bloque['porcentaje'] = ($anterior !== null && $anterior > 0)
                 ? round((($bloque['total'] - $anterior) / $anterior) * 100)
@@ -53,13 +69,5 @@ class WeeklySummaryController extends Controller
 
             return $bloque;
         });
-
-        dd($bloques);
-        
-        return Inertia::render('Transactions/Weekly', [
-            'month' => $month,
-            'year' => $year,
-            'bloques' => $bloques,
-        ]);
     }
 }
