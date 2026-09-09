@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 
 class WeeklySummaryController extends Controller
@@ -20,6 +21,16 @@ class WeeklySummaryController extends Controller
         $bloques = $this->calcularBloques($household->id, $month, $year);
         $bloquesMesAnterior = $this->calcularBloques($household->id, $fechaAnterior->month, $fechaAnterior->year);
 
+        $bloques = $bloques->map(function ($bloque, $i) use ($bloquesMesAnterior) {
+            $totalMesAnterior = $bloquesMesAnterior[$i]['total'] ?? null;
+
+            $bloque['porcentaje_vs_mes_anterior'] = ($totalMesAnterior !== null && $totalMesAnterior > 0)
+                ? round((($bloque['total'] - $totalMesAnterior) / $totalMesAnterior) * 100)
+                : null;
+
+            return $bloque;
+        });
+
         return Inertia::render('Transactions/Weekly', [
             'month' => $month,
             'year' => $year,
@@ -28,11 +39,11 @@ class WeeklySummaryController extends Controller
         ]);
     }
 
-    private function calcularBloques(int $householdId, int $month, int $year): \Illuminate\Support\Collection
+    private function calcularBloques(int $householdId, int $month, int $year): Collection
     {
         $transacciones = Transaction::whereHas('category', function ($q) use ($householdId) {
-                $q->where('household_id', $householdId);
-            })
+            $q->where('household_id', $householdId);
+        })
             ->whereMonth('date', $month)
             ->whereYear('date', $year)
             ->where('type', 'gasto')
