@@ -9,6 +9,7 @@ use App\Http\Controllers\YearlySummaryController;
 use App\Http\Controllers\WeeklySummaryController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\InsightsController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -37,6 +38,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/transactions/export/pdf', [TransactionController::class, 'exportPdf'])->name('transactions.export.pdf');
 
     Route::get('/transactions/weekly', [WeeklySummaryController::class, 'index'])->name('transactions.weekly');
+
+    Route::get('/insights', [InsightsController::class, 'index'])->name('insights.index');
 });
 
 require __DIR__.'/auth.php';

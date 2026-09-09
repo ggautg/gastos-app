@@ -46,6 +46,10 @@ const { isDark, toggle } = useDarkMode();
                                     Movimientos
                                 </NavLink>
 
+                                <NavLink :href="route('insights.index')" :active="route().current('insights.index')">
+                                    Resumen
+                                </NavLink>
+
                                 <NavLink :href="route('transactions.weekly')"
                                     :active="route().current('transactions.weekly')">
                                     Semanal
