@@ -41,10 +41,9 @@ function formatFecha(fecha) {
                         </p>
                         <p class="text-xs flex items-center gap-1.5 mt-0.5 flex-wrap" style="color: color-mix(in srgb, var(--cs-ink) 50%, transparent);">
                             <span class="px-1.5 py-0.5 rounded-full font-medium" :style="{ backgroundColor: t.category.color + '20', color: t.category.color }">
-                                {{ t.category.name }}
-                            </span>
-                            · {{ formatFecha(t.date) }}
-                            <span v-if="t.currency === 'USD'">· US$ {{ t.amount }}</span>
+        {{ t.category.name }}
+    </span>
+    · {{ formatFecha(t.date) }}
                         </p>
                     </div>
                 </div>

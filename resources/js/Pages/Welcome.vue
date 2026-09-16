@@ -37,7 +37,6 @@ onMounted(() => {
 
 const items = [
     { label: 'Movimientos ilimitados', detalle: 'Gastos y ganancias, sin límite mensual' },
-    { label: 'Multi-moneda', detalle: 'Guaraníes y dólares, con cotización automática' },
     { label: 'Presupuesto por categoría', detalle: 'Alertas cuando te acercás al tope' },
     { label: 'Cuenta compartida', detalle: 'Invitá a quien quieras, con roles' },
 ];

@@ -44,7 +44,7 @@ class TransactionController extends Controller
             })
             ->values();
         $categoriasGasto = $household->categories()->where('type', 'gasto')->get();
-        $categoriasConPresupuesto = $categoriasGasto->filter(fn ($cat) => $cat->budget !== null);
+        $categoriasConPresupuesto = $categoriasGasto->filter(fn($cat) => $cat->budget !== null);
         $presupuestos = $categoriasConPresupuesto->map(function ($cat) use ($transactions) {
             $gastado = $transactions
                 ->where('type', 'gasto')
@@ -68,7 +68,7 @@ class TransactionController extends Controller
             ->whereYear('date', $fechaAnterior->year)
             ->get()
             ->groupBy('type')
-            ->map(fn ($items) => $items->sum('amount_gs'));
+            ->map(fn($items) => $items->sum('amount_gs'));
 
         $gastosMesAnterior = $totalesMesAnterior->get('gasto', 0);
         $gananciasMesAnterior = $totalesMesAnterior->get('ganancia', 0);
@@ -92,28 +92,21 @@ class TransactionController extends Controller
         ]);
     }
 
-    public function store(Request $request, ExchangeRateService $exchangeRateService)
+    public function store(Request $request)
     {
         $this->authorizeViewerCannotEdit();
 
         $validated = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'type' => 'required|in:gasto,ganancia',
-            'amount' => 'required|numeric|min:0.01',
-            'currency' => 'required|in:PYG,USD',
+            'amount' => 'required|integer|min:1',
             'description' => 'nullable|string|max:255',
             'date' => 'required|date',
         ]);
 
-        if ($validated['currency'] === 'USD') {
-            $rate = $exchangeRateService->getUsdToGsRate();
-            $validated['exchange_rate'] = $rate;
-            $validated['amount_gs'] = round($validated['amount'] * $rate);
-        } else {
-            $validated['exchange_rate'] = null;
-            $validated['amount_gs'] = $validated['amount'];
-        }
-
+        $validated['currency'] = 'PYG';
+        $validated['exchange_rate'] = null;
+        $validated['amount_gs'] = $validated['amount'];
         $validated['user_id'] = auth()->id();
 
         Transaction::create($validated);
@@ -121,33 +114,26 @@ class TransactionController extends Controller
         return redirect()->back();
     }
 
-    public function update(Request $request, Transaction $transaction, ExchangeRateService $exchangeRateService)
+    public function update(Request $request, Transaction $transaction)
     {
         $this->authorizeViewerCannotEdit();
 
         $validated = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'type' => 'required|in:gasto,ganancia',
-            'amount' => 'required|numeric|min:0.01',
-            'currency' => 'required|in:PYG,USD',
+            'amount' => 'required|integer|min:1',
             'description' => 'nullable|string|max:255',
             'date' => 'required|date',
         ]);
 
-        if ($validated['currency'] === 'USD') {
-            $rate = $exchangeRateService->getUsdToGsRate();
-            $validated['exchange_rate'] = $rate;
-            $validated['amount_gs'] = round($validated['amount'] * $rate);
-        } else {
-            $validated['exchange_rate'] = null;
-            $validated['amount_gs'] = $validated['amount'];
-        }
+        $validated['currency'] = 'PYG';
+        $validated['exchange_rate'] = null;
+        $validated['amount_gs'] = $validated['amount'];
 
         $transaction->update($validated);
 
         return redirect()->back();
     }
-
     public function destroy(Transaction $transaction)
     {
         $this->authorizeViewerCannotEdit();
@@ -196,8 +182,18 @@ class TransactionController extends Controller
             ->get();
 
         $nombresMeses = [
-            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+            'Enero',
+            'Febrero',
+            'Marzo',
+            'Abril',
+            'Mayo',
+            'Junio',
+            'Julio',
+            'Agosto',
+            'Septiembre',
+            'Octubre',
+            'Noviembre',
+            'Diciembre',
         ];
 
         $pdf = Pdf::loadView('pdf.monthly-summary', [
