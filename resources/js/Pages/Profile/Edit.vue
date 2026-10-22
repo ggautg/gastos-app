@@ -16,24 +16,27 @@ defineProps({
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">Mi perfil</h2>
+            <div class="space-y-1.5">
+                <p class="cs-eyebrow">Cuenta</p>
+                <h2 class="cs-page-title">Mi perfil</h2>
+            </div>
         </template>
 
         <div class="py-8">
             <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 space-y-6">
 
-                <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+                <div class="cs-card p-6">
                     <UpdateProfileInformationForm
                         :must-verify-email="mustVerifyEmail"
                         :status="status"
                     />
                 </div>
 
-                <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+                <div class="cs-card p-6">
                     <UpdatePasswordForm />
                 </div>
 
-                <div class="bg-white dark:bg-slate-800 rounded-xl border border-red-200 dark:border-red-900 p-6">
+                <div class="cs-card p-6" style="border-color: color-mix(in srgb, var(--cs-terra) 32%, var(--cs-line));">
                     <DeleteUserForm />
                 </div>
             </div>

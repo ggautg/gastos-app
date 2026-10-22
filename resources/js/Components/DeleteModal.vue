@@ -1,4 +1,6 @@
 <script setup>
+import { useBackdropClose } from '@/Composables/useBackdropClose';
+
 defineProps({
     show: Boolean,
     title: {
@@ -10,31 +12,32 @@ defineProps({
 });
 
 const emit = defineEmits(['cancel', 'confirm']);
+
+const { onPointerDown, onClick: onBackdropClick } = useBackdropClose(() => emit('cancel'));
 </script>
 
 <template>
     <div
         v-if="show"
-        class="fixed inset-0 bg-black/30 flex items-center justify-center px-4 z-50"
-        @click.self="emit('cancel')"
+        class="cs-overlay fixed inset-0 z-50 flex items-center justify-center px-4"
+        @pointerdown="onPointerDown" @click="onBackdropClick"
     >
-        <div class="rounded-xl shadow-lg p-6 w-full max-w-sm" style="background: var(--cs-paper-card);">
-            <h3 class="font-cs-display text-lg font-semibold mb-2" style="color: var(--cs-ink);">
+        <div class="cs-panel w-full max-w-sm p-6">
+            <h3 class="cs-panel-title mb-2">
                 {{ title }}
             </h3>
-            <p class="text-sm mb-5" style="color: color-mix(in srgb, var(--cs-ink) 55%, transparent);">
+            <p class="mb-6 text-sm leading-relaxed" style="color: var(--cs-muted);">
                 {{ message }}
             </p>
             <div class="flex justify-end gap-2">
-                <button type="button" @click="emit('cancel')" class="px-4 py-2 text-sm" style="color: color-mix(in srgb, var(--cs-ink) 60%, transparent);">
+                <button type="button" @click="emit('cancel')" class="cs-btn cs-btn-ghost">
                     Cancelar
                 </button>
                 <button
                     type="button"
                     @click="emit('confirm')"
                     :disabled="processing"
-                    class="px-4 py-2 text-sm font-medium text-white rounded-lg disabled:opacity-50"
-                    style="background: #D85A30;"
+                    class="cs-btn cs-btn-danger"
                 >
                     Eliminar
                 </button>

@@ -1,6 +1,7 @@
 <script setup>
 import { nextTick, ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
+import { useBackdropClose } from '@/Composables/useBackdropClose';
 
 const confirmingUserDeletion = ref(false);
 const passwordInput = ref(null);
@@ -27,34 +28,37 @@ const closeModal = () => {
     confirmingUserDeletion.value = false;
     form.reset();
 };
+
+const { onPointerDown, onClick: onBackdropClick } = useBackdropClose(closeModal);
 </script>
 
 <template>
     <section>
         <header class="mb-4">
-            <h2 class="text-lg font-medium text-red-700 dark:text-red-400">Eliminar cuenta</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400">
+            <h2 class="cs-section-title" style="color: var(--cs-terra);">Eliminar cuenta</h2>
+            <p class="mt-1 text-sm leading-relaxed" style="color: var(--cs-muted);">
                 Una vez que borres tu cuenta, todos tus datos se pierden permanentemente. Descargá cualquier información que quieras conservar antes de continuar.
             </p>
         </header>
 
         <button
+            type="button"
             @click="confirmUserDeletion"
-            class="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700"
+            class="cs-btn cs-btn-danger"
         >
             Eliminar cuenta
         </button>
 
         <div
             v-if="confirmingUserDeletion"
-            class="fixed inset-0 bg-black/30 flex items-center justify-center px-4 z-50"
-            @click.self="closeModal"
+            class="cs-overlay fixed inset-0 z-50 flex items-center justify-center px-4"
+            @pointerdown="onPointerDown" @click="onBackdropClick"
         >
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 w-full max-w-md">
-                <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">
+            <div class="cs-panel w-full max-w-md p-6">
+                <h3 class="cs-panel-title mb-2">
                     ¿Seguro que querés eliminar tu cuenta?
                 </h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                <p class="mb-4 text-sm leading-relaxed" style="color: var(--cs-muted);">
                     Esta acción no se puede deshacer. Ingresá tu contraseña para confirmar.
                 </p>
 
@@ -64,22 +68,22 @@ const closeModal = () => {
                         v-model="form.password"
                         type="password"
                         placeholder="Contraseña"
-                        class="w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-red-600 focus:ring-red-600"
+                        class="cs-input"
                     />
-                    <p v-if="form.errors.password" class="text-xs text-red-600 mt-1">{{ form.errors.password }}</p>
+                    <p v-if="form.errors.password" class="cs-error">{{ form.errors.password }}</p>
 
-                    <div class="flex justify-end gap-2 mt-4">
+                    <div class="mt-5 flex justify-end gap-2">
                         <button
                             type="button"
                             @click="closeModal"
-                            class="px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100"
+                            class="cs-btn cs-btn-ghost"
                         >
                             Cancelar
                         </button>
                         <button
                             type="submit"
                             :disabled="form.processing"
-                            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50"
+                            class="cs-btn cs-btn-danger"
                         >
                             Eliminar cuenta
                         </button>

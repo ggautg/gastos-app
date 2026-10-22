@@ -40,14 +40,14 @@ const chartData = computed(() => ({
         {
             label: 'Ganancias',
             data: props.meses.map(m => m.ganancias),
-            backgroundColor: '#10b981',
-            borderRadius: 4,
+            backgroundColor: '#2e9488',
+            borderRadius: 6,
         },
         {
             label: 'Gastos',
             data: props.meses.map(m => m.gastos),
-            backgroundColor: '#ef4444',
-            borderRadius: 4,
+            backgroundColor: '#c0522d',
+            borderRadius: 6,
         },
     ],
 }));
@@ -55,7 +55,16 @@ const chartData = computed(() => ({
 const chartOptions = {
     responsive: true,
     plugins: {
-        legend: { position: 'top' },
+        legend: {
+            position: 'top',
+            labels: {
+                boxWidth: 10,
+                boxHeight: 10,
+                usePointStyle: true,
+                font: { size: 11, family: "'Instrument Sans Variable', sans-serif" },
+                color: 'rgba(128, 140, 134, 0.95)',
+            },
+        },
         tooltip: {
             callbacks: {
                 label: (ctx) =>
@@ -64,8 +73,19 @@ const chartOptions = {
         },
     },
     scales: {
-        y: {
+        x: {
+            grid: { display: false },
             ticks: {
+                font: { size: 10, family: "'Instrument Sans Variable', sans-serif" },
+                color: 'rgba(128, 140, 134, 0.9)',
+            },
+        },
+        y: {
+            grid: { color: 'rgba(128, 140, 134, 0.14)' },
+            border: { display: false },
+            ticks: {
+                font: { size: 10, family: "'JetBrains Mono Variable', monospace" },
+                color: 'rgba(128, 140, 134, 0.9)',
                 callback: (value) => new Intl.NumberFormat('es-PY', { notation: 'compact' }).format(value),
             },
         },
@@ -83,7 +103,10 @@ const totalAnual = computed(() => ({
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold text-slate-800 dark:text-gray-200">Resumen anual</h2>
+            <div class="space-y-1.5">
+                <p class="cs-eyebrow">Balance</p>
+                <h2 class="cs-page-title">Resumen anual</h2>
+            </div>
         </template>
 
         <div class="py-8">
@@ -92,40 +115,40 @@ const totalAnual = computed(() => ({
                 <div class="flex items-center gap-3">
                     <button
                         @click="irAAnio(year - 1)"
-                        class="px-3 py-1.5 rounded-lg border border-slate-300 text-sm hover:bg-slate-50 dark:border-slate-600 dark:text-gray-400 dark:hover:bg-slate-700"
+                        class="cs-btn cs-btn-ghost cs-btn-sm"
                     >
                         ← {{ year - 1 }}
                     </button>
-                    <span class="text-lg font-semibold text-slate-800 dark:text-gray-200">{{ year }}</span>
+                    <span class="cs-amount text-xl" style="color: var(--cs-ink);">{{ year }}</span>
                     <button
                         @click="irAAnio(year + 1)"
-                        class="px-3 py-1.5 rounded-lg border border-slate-300 text-sm hover:bg-slate-50 dark:border-slate-600 dark:text-gray-400 dark:hover:bg-slate-700"
+                        class="cs-btn cs-btn-ghost cs-btn-sm"
                     >
                         {{ year + 1 }} →
                     </button>
                 </div>
 
-                <div class="grid grid-cols-3 gap-4">
-                    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-                        <p class="text-xs text-slate-500 mb-1 dark:text-gray-400">Ganancias del año</p>
-                        <p class="text-lg font-semibold text-emerald-700">{{ formatGs(totalAnual.ganancias) }}</p>
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <div class="cs-kpi">
+                        <p class="cs-kpi-label">Ganancias del año</p>
+                        <p class="cs-kpi-value" style="color: var(--cs-emerald);">{{ formatGs(totalAnual.ganancias) }}</p>
                     </div>
-                    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-                        <p class="text-xs text-slate-500 mb-1 dark:text-gray-400">Gastos del año</p>
-                        <p class="text-lg font-semibold text-red-700">{{ formatGs(totalAnual.gastos) }}</p>
+                    <div class="cs-kpi">
+                        <p class="cs-kpi-label">Gastos del año</p>
+                        <p class="cs-kpi-value" style="color: var(--cs-terra);">{{ formatGs(totalAnual.gastos) }}</p>
                     </div>
-                    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
-                        <p class="text-xs text-slate-500 mb-1 dark:text-gray-400">Balance del año</p>
+                    <div class="cs-kpi">
+                        <p class="cs-kpi-label">Balance del año</p>
                         <p
-                            class="text-lg font-semibold"
-                            :class="(totalAnual.ganancias - totalAnual.gastos) >= 0 ? 'text-teal-700' : 'text-red-700'"
+                            class="cs-kpi-value"
+                            :style="{ color: (totalAnual.ganancias - totalAnual.gastos) >= 0 ? 'var(--cs-teal)' : 'var(--cs-terra)' }"
                         >
                             {{ formatGs(totalAnual.ganancias - totalAnual.gastos) }}
                         </p>
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+                <div class="cs-card p-5">
                     <Bar :data="chartData" :options="chartOptions" />
                 </div>
             </div>

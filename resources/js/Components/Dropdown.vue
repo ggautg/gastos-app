@@ -12,7 +12,7 @@ const props = defineProps({
     },
     contentClasses: {
         type: String,
-        default: 'py-1 bg-white',
+        default: 'py-1',
     },
 });
 
@@ -53,7 +53,7 @@ const open = ref(false);
         <!-- Full Screen Dropdown Overlay -->
         <div
             v-show="open"
-            class="fixed inset-0 z-40 dark"
+            class="fixed inset-0 z-40"
             @click="open = false"
         ></div>
 
@@ -67,15 +67,12 @@ const open = ref(false);
         >
             <div
                 v-show="open"
-                class="absolute z-50 mt-2 rounded-md shadow-lg dark:bg-slate-800"
+                class="cs-dropdown absolute z-50 mt-2"
                 :class="[widthClass, alignmentClasses]"
                 style="display: none"
                 @click="open = false"
             >
-                <div
-                    class="rounded-md ring-1 ring-black ring-opacity-5 dark:bg-slate-800"
-                    :class="contentClasses"
-                >
+                <div :class="contentClasses">
                     <slot name="content" />
                 </div>
             </div>

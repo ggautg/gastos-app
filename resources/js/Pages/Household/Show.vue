@@ -34,30 +34,46 @@ function unirse() {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="text-xl font-semibold text-slate-800 dark:text-gray-200">Cuenta compartida</h2>
+            <div class="space-y-1.5">
+                <p class="cs-eyebrow">Hogar</p>
+                <h2 class="cs-page-title">Cuenta compartida</h2>
+            </div>
         </template>
 
         <div class="py-8">
             <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 space-y-6">
 
                 <!-- Info del household actual -->
-                <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
-                    <h3 class="font-semibold text-slate-800 dark:text-gray-200 mb-1">{{ household.name }}</h3>
-                    <p class="text-sm text-slate-500 dark:text-gray-400 mb-4">
-                        Tu rol acá: <span class="font-medium">{{ role === 'owner' ? 'Dueño' : 'Invitado (solo lectura)' }}</span>
-                    </p>
+                <div class="cs-card p-5">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h3 class="cs-section-title">{{ household.name }}</h3>
+                            <p class="mt-1 text-sm" style="color: var(--cs-muted);">
+                                Tu rol acá:
+                                <span class="font-semibold" style="color: var(--cs-ink);">{{ role === 'owner' ? 'Dueño' : 'Invitado (solo lectura)' }}</span>
+                            </p>
+                        </div>
+                        <span class="cs-badge" :style="role === 'owner'
+                            ? { background: 'color-mix(in srgb, var(--cs-teal) 12%, transparent)', color: 'var(--cs-teal)' }
+                            : { background: 'color-mix(in srgb, var(--cs-ink) 7%, transparent)', color: 'var(--cs-muted)' }">
+                            {{ role === 'owner' ? 'Owner' : 'Guest' }}
+                        </span>
+                    </div>
 
-                    <div v-if="role === 'owner'">
-                        <p class="text-sm text-slate-600 dark:text-gray-400 mb-2">
+                    <div v-if="role === 'owner'" class="mt-4">
+                        <p class="mb-2 text-sm" style="color: var(--cs-muted);">
                             Compartí este código para que alguien se sume a ver tus finanzas:
                         </p>
                         <div class="flex items-center gap-2">
-                            <code class="flex-1 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-lg font-mono tracking-widest text-center">
+                            <code
+                                class="cs-amount flex-1 rounded-xl border px-3 py-2.5 text-center text-lg tracking-[0.22em]"
+                                style="border-color: var(--cs-line-strong); background: color-mix(in srgb, var(--cs-ink) 3%, transparent); color: var(--cs-ink);"
+                            >
                                 {{ household.invite_code }}
                             </code>
                             <button
                                 @click="copiarCodigo"
-                                class="px-3 py-2 rounded-lg bg-teal-700 text-white text-sm hover:bg-teal-800"
+                                class="cs-btn cs-btn-primary"
                             >
                                 {{ copiado ? '¡Copiado!' : 'Copiar' }}
                             </button>
@@ -66,14 +82,19 @@ function unirse() {
                 </div>
 
                 <!-- Miembros -->
-                <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
-                    <h3 class="font-semibold text-slate-800 dark:text-gray-200 mb-3">Miembros</h3>
-                    <ul class="divide-y divide-slate-100 dark:divide-slate-700">
-                        <li v-for="m in members" :key="m.id" class="py-2 flex justify-between items-center text-sm">
-                            <span class="text-slate-700 dark:text-gray-200">{{ m.name }} <span class="text-slate-400 dark:text-gray-400">({{ m.email }})</span></span>
+                <div class="cs-card p-5">
+                    <h3 class="cs-section-title mb-3">Miembros</h3>
+                    <ul class="cs-list">
+                        <li v-for="m in members" :key="m.id" class="cs-list-row">
+                            <span class="min-w-0 truncate text-sm" style="color: var(--cs-ink-soft);">
+                                {{ m.name }}
+                                <span class="text-xs" style="color: var(--cs-faint);">({{ m.email }})</span>
+                            </span>
                             <span
-                                class="text-xs px-2 py-0.5 rounded-full"
-                                :class="m.pivot?.role === 'owner' ? 'bg-teal-50 text-teal-700 dark:bg-teal-900 dark:text-teal-500' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-gray-400'"
+                                class="cs-badge"
+                                :style="m.pivot?.role === 'owner'
+                                    ? { background: 'color-mix(in srgb, var(--cs-teal) 12%, transparent)', color: 'var(--cs-teal)' }
+                                    : { background: 'color-mix(in srgb, var(--cs-ink) 7%, transparent)', color: 'var(--cs-muted)' }"
                             >
                                 {{ m.pivot?.role === 'owner' ? 'Dueño' : 'Invitado' }}
                             </span>
@@ -82,9 +103,9 @@ function unirse() {
                 </div>
 
                 <!-- Unirse a otro household -->
-                <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
-                    <h3 class="font-semibold text-slate-800 dark:text-gray-200 mb-2">¿Te invitaron?</h3>
-                    <p class="text-sm text-slate-500 dark:text-gray-400 mb-3">
+                <div class="cs-card p-5">
+                    <h3 class="cs-section-title mb-1">¿Te invitaron?</h3>
+                    <p class="mb-3 text-sm leading-relaxed" style="color: var(--cs-muted);">
                         Ingresá el código que te compartieron. Vas a dejar de ver tus datos actuales y vas a pasar a ver los del household al que te unís, como invitado de solo lectura.
                     </p>
                     <form @submit.prevent="unirse" class="flex gap-2">
@@ -92,17 +113,17 @@ function unirse() {
                             v-model="joinForm.invite_code"
                             type="text"
                             placeholder="Ej: X7K2P9QM"
-                            class="flex-1 rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-200 uppercase focus:border-teal-600 focus:ring-teal-600"
+                            class="cs-input flex-1 uppercase tracking-widest"
                         />
                         <button
                             type="submit"
                             :disabled="joinForm.processing"
-                            class="px-4 py-2 rounded-lg bg-slate-800 text-white text-sm hover:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-slate-700 dark:hover:bg-slate-600"
+                            class="cs-btn cs-btn-primary"
                         >
                             Unirme
                         </button>
                     </form>
-                    <p v-if="joinForm.errors.invite_code" class="text-xs text-red-600 mt-2">
+                    <p v-if="joinForm.errors.invite_code" class="cs-error">
                         {{ joinForm.errors.invite_code }}
                     </p>
                 </div>

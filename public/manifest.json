@@ -4,8 +4,8 @@
     "description": "Registrá tus gastos y ganancias en guaraníes",
     "start_url": "/dashboard",
     "display": "standalone",
-    "background_color": "#f8fafc",
-    "theme_color": "#0F5257",
+    "background_color": "#f1f4ee",
+    "theme_color": "#0e4f49",
     "icons": [
         {
             "src": "/icon-192.png",

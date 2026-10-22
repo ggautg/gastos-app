@@ -18,11 +18,11 @@ const meses = [
 </script>
 
 <template>
-    <div class="flex items-center gap-3">
-        <select v-model="month" @change="emit('change')" class="cs-input text-sm">
+    <div class="cs-toolbar w-fit">
+        <select v-model="month" @change="emit('change')" class="cs-input w-auto text-sm">
             <option v-for="(m, i) in meses" :key="i" :value="i + 1">{{ m }}</option>
         </select>
-        <select v-model="year" @change="emit('change')" class="cs-input text-sm">
+        <select v-model="year" @change="emit('change')" class="cs-input w-auto text-sm">
             <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
         </select>
     </div>

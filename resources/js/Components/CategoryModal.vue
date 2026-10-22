@@ -2,6 +2,7 @@
 import { computed, watch, ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import EmojiPickerButton from './EmojiPickerButton.vue';
+import { useBackdropClose } from '@/Composables/useBackdropClose';
 
 const props = defineProps({
     show: Boolean,
@@ -11,6 +12,12 @@ const props = defineProps({
 const emit = defineEmits(['close', 'saved']);
 
 const showEmojiPicker = ref(false);
+
+const { onPointerDown, onClick: onBackdropClick } = useBackdropClose(() => {
+    if (!showEmojiPicker.value) {
+        emit('close');
+    }
+});
 
 const form = useForm({
     name: '',
@@ -71,11 +78,11 @@ function submit() {
 <template>
     <div
         v-if="show"
-        class="fixed inset-0 bg-black/30 flex items-center justify-center px-4 z-50"
-        @click.self="!showEmojiPicker && emit('close')"
+        class="cs-overlay fixed inset-0 z-50 flex items-center justify-center px-4"
+        @pointerdown="onPointerDown" @click="onBackdropClick"
     >
-        <div class="rounded-xl shadow-lg p-6 w-full max-w-sm" style="background: var(--cs-paper-card);">
-            <h3 class="font-cs-display text-lg font-semibold mb-4" style="color: var(--cs-ink);">
+        <div class="cs-panel w-full max-w-sm p-6">
+            <h3 class="cs-panel-title mb-5">
                 {{ editingCategory ? 'Editar categoría' : 'Nueva categoría' }}
             </h3>
 
@@ -101,7 +108,8 @@ function submit() {
 
                 <div>
                     <label class="cs-label">Color</label>
-                    <input v-model="form.color" type="color" class="w-14 h-9 rounded border-slate-300 dark:border-slate-600" />
+                    <input v-model="form.color" type="color" class="h-9 w-14 cursor-pointer rounded-lg border p-1"
+                        style="border-color: var(--cs-line-strong); background: var(--cs-paper-card);" />
                 </div>
 
                 <div v-if="form.type === 'gasto'">
@@ -110,10 +118,9 @@ function submit() {
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" @click="emit('close')" class="px-4 py-2 text-sm" style="color: color-mix(in srgb, var(--cs-ink) 65%, transparent);">
-                        Cancelar
-                    </button>
-                    <button type="submit" :disabled="form.processing" class="cs-submit" style="width: auto; padding: 0.55rem 1.1rem;">
+                    <button type="button" @click="emit('close')" class="cs-btn cs-btn-ghost">Cancelar</button>
+                    <button type="submit" :disabled="form.processing" class="cs-submit"
+                        style="width: auto; padding: 0.62rem 1.15rem;">
                         Guardar
                     </button>
                 </div>

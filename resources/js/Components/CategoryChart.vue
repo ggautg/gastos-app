@@ -23,7 +23,15 @@ const chartData = computed(() => ({
 const chartOptions = {
     responsive: true,
     plugins: {
-        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12, font: { size: 11 } } },
+        legend: {
+            position: 'bottom',
+            labels: {
+                boxWidth: 12,
+                padding: 12,
+                font: { size: 11, family: "'Instrument Sans Variable', sans-serif" },
+                color: 'rgba(128, 140, 134, 0.9)',
+            },
+        },
         tooltip: {
             callbacks: {
                 label: (ctx) => `${ctx.label}: ₲ ${new Intl.NumberFormat('es-PY').format(ctx.raw)}`,
@@ -34,19 +42,18 @@ const chartOptions = {
 </script>
 
 <template>
-    <div v-if="gastosPorCategoria.length > 0" class="rounded-xl border p-5" style="background: var(--cs-paper-card); border-color: color-mix(in srgb, var(--cs-ink) 12%, transparent);">
+    <div v-if="gastosPorCategoria.length > 0" class="cs-card p-5">
         <button
             type="button"
             @click="mostrar = !mostrar"
-            class="flex items-center justify-between w-full text-sm font-medium"
-            style="color: color-mix(in srgb, var(--cs-ink) 70%, transparent);"
+            class="flex w-full items-center justify-between gap-3 text-left"
         >
-            <span>Gastos por categoría</span>
-            <span class="text-xs" style="color: color-mix(in srgb, var(--cs-ink) 40%, transparent);">
-                {{ mostrar ? 'Ocultar ▲' : 'Mostrar ▼' }}
+            <span class="cs-section-title">Gastos por categoría</span>
+            <span class="cs-btn cs-btn-ghost cs-btn-sm">
+                {{ mostrar ? 'Ocultar' : 'Mostrar' }}
             </span>
         </button>
-        <div v-if="mostrar" class="max-w-[320px] mx-auto mt-4">
+        <div v-if="mostrar" class="mx-auto mt-4 max-w-[320px]">
             <Pie :data="chartData" :options="chartOptions" />
         </div>
     </div>

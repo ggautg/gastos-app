@@ -1,6 +1,7 @@
 <script setup>
 import { computed, watch } from 'vue';
 import { useForm } from '@inertiajs/vue3';
+import { useBackdropClose } from '@/Composables/useBackdropClose';
 
 const props = defineProps({
     show: Boolean,
@@ -9,6 +10,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close', 'saved']);
+
+const { onPointerDown, onClick: onBackdropClick } = useBackdropClose(() => emit('close'));
 
 function hoyLocal() {
     const d = new Date();
@@ -82,27 +85,25 @@ function submit() {
 </script>
 
 <template>
-    <div v-if="show" class="fixed inset-0 bg-black/30 flex items-center justify-center px-4 z-50"
-        @click.self="emit('close')">
-        <div class="rounded-xl shadow-lg p-6 w-full max-w-sm" style="background: var(--cs-paper-card);">
-            <h3 class="font-cs-display text-lg font-semibold mb-4" style="color: var(--cs-ink);">
+    <div v-if="show" class="cs-overlay fixed inset-0 z-50 flex items-center justify-center px-4"
+        @pointerdown="onPointerDown" @click="onBackdropClick">
+        <div class="cs-panel w-full max-w-sm p-6">
+            <h3 class="cs-panel-title mb-5">
                 {{ editingTransaction ? 'Editar movimiento' : 'Nuevo movimiento' }}
             </h3>
 
             <form @submit.prevent="submit" class="space-y-4">
-                <div class="flex gap-2">
+                <div class="cs-segment">
                     <button type="button" @click="form.type = 'gasto'; form.category_id = ''"
-                        class="flex-1 py-2 rounded-lg text-sm font-medium border"
-                        :style="form.type === 'gasto'
-                            ? { background: '#D85A3015', borderColor: '#D85A30', color: '#D85A30' }
-                            : { borderColor: 'color-mix(in srgb, var(--cs-ink) 18%, transparent)', color: 'color-mix(in srgb, var(--cs-ink) 55%, transparent)' }">
+                        class="cs-segment-btn"
+                        :class="{ 'is-active': form.type === 'gasto' }"
+                        style="--seg-accent: var(--cs-terra);">
                         Gasto
                     </button>
                     <button type="button" @click="form.type = 'ganancia'; form.category_id = ''"
-                        class="flex-1 py-2 rounded-lg text-sm font-medium border"
-                        :style="form.type === 'ganancia'
-                            ? { background: '#1D9E7515', borderColor: '#1D9E75', color: '#1D9E75' }
-                            : { borderColor: 'color-mix(in srgb, var(--cs-ink) 18%, transparent)', color: 'color-mix(in srgb, var(--cs-ink) 55%, transparent)' }">
+                        class="cs-segment-btn"
+                        :class="{ 'is-active': form.type === 'ganancia' }"
+                        style="--seg-accent: var(--cs-emerald);">
                         Ganancia
                     </button>
                 </div>
@@ -136,12 +137,11 @@ function submit() {
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" @click="emit('close')" class="px-4 py-2 text-sm"
-                        style="color: color-mix(in srgb, var(--cs-ink) 60%, transparent);">
+                    <button type="button" @click="emit('close')" class="cs-btn cs-btn-ghost">
                         Cancelar
                     </button>
                     <button type="submit" :disabled="form.processing" class="cs-submit"
-                        style="width: auto; padding: 0.55rem 1.1rem;">
+                        style="width: auto; padding: 0.62rem 1.15rem;">
                         Guardar
                     </button>
                 </div>

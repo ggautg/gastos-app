@@ -8,28 +8,41 @@ function formatGs(amount) {
 }
 
 function colorBarra(porcentaje) {
-    if (porcentaje >= 100) return '#D85A30';
-    if (porcentaje >= 80) return '#C68A2E';
-    return '#1D9E75';
+    if (porcentaje >= 100) return 'var(--cs-terra)';
+    if (porcentaje >= 80) return 'var(--cs-gold)';
+    return 'var(--cs-emerald)';
 }
 </script>
 
 <template>
-    <div v-if="presupuestos.length > 0" class="rounded-xl border p-5 space-y-3" style="background: var(--cs-paper-card); border-color: color-mix(in srgb, var(--cs-ink) 12%, transparent);">
-        <p class="text-sm font-medium" style="color: color-mix(in srgb, var(--cs-ink) 70%, transparent);">Presupuestos del mes</p>
+    <div v-if="presupuestos.length > 0" class="cs-card space-y-4 p-5">
+        <div class="flex items-center justify-between gap-3">
+            <p class="cs-section-title">Presupuestos del mes</p>
+            <span class="cs-badge" style="background: color-mix(in srgb, var(--cs-gold) 14%, transparent); color: var(--cs-gold);">
+                {{ presupuestos.length }} activos
+            </span>
+        </div>
+
         <div v-for="p in presupuestos" :key="p.name">
-            <div class="flex justify-between text-xs mb-1">
-                <span class="font-medium" style="color: var(--cs-ink);">{{ p.name }}</span>
-                <span style="color: color-mix(in srgb, var(--cs-ink) 50%, transparent);">
-                    {{ formatGs(p.gastado) }} / {{ formatGs(p.budget) }}
+            <div class="mb-1.5 flex items-baseline justify-between gap-3 text-xs">
+                <span class="font-semibold" style="color: var(--cs-ink);">{{ p.name }}</span>
+                <span class="cs-amount" style="color: var(--cs-faint); font-weight: 500;">
+                    {{ formatGs(p.gastado) }} <span class="opacity-60">/</span> {{ formatGs(p.budget) }}
                 </span>
             </div>
-            <div class="w-full h-2 rounded-full overflow-hidden" style="background: color-mix(in srgb, var(--cs-ink) 8%, transparent);">
-                <div class="h-full rounded-full transition-all" :style="{ width: Math.min(p.porcentaje, 100) + '%', background: colorBarra(p.porcentaje) }"></div>
+            <div class="cs-progress" :style="{ color: colorBarra(p.porcentaje) }">
+                <div
+                    class="cs-progress-bar"
+                    :style="{ width: Math.min(p.porcentaje, 100) + '%', background: colorBarra(p.porcentaje) }"
+                ></div>
             </div>
-            <p v-if="p.porcentaje >= 100" class="text-xs mt-1" style="color: #D85A30;">
-                Te pasaste ₲{{ new Intl.NumberFormat('es-PY').format(p.gastado - p.budget) }}
-            </p>
+            <div class="mt-1 flex items-center justify-between gap-3 text-xs">
+                <p v-if="p.porcentaje >= 100" style="color: var(--cs-terra);">
+                    Te pasaste ₲{{ new Intl.NumberFormat('es-PY').format(p.gastado - p.budget) }}
+                </p>
+                <p v-else class="cs-faint">Disponible ₲{{ new Intl.NumberFormat('es-PY').format(p.budget - p.gastado) }}</p>
+                <span class="cs-amount" :style="{ color: colorBarra(p.porcentaje) }">{{ p.porcentaje }}%</span>
+            </div>
         </div>
     </div>
 </template>

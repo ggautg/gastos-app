@@ -169,9 +169,10 @@ onUnmounted(() => window.removeEventListener('keydown', manejarAtajos));
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-cs-display text-xl font-semibold" style="color: var(--cs-ink);">
-                Gastos y Ganancias
-            </h2>
+            <div class="space-y-1.5">
+                <p class="cs-eyebrow">Registro</p>
+                <h2 class="cs-page-title">Gastos y ganancias</h2>
+            </div>
         </template>
 
         <div class="py-8">
@@ -189,20 +190,17 @@ onUnmounted(() => window.removeEventListener('keydown', manejarAtajos));
                 <FiltersBar v-model:month="selectedMonth" v-model:year="selectedYear" v-model:busqueda="busqueda"
                     v-model:categoriaFiltro="categoriaFiltro" v-model:ordenarPor="ordenarPor"
                     v-model:ordenAscendente="ordenAscendente" :categories="categories" @change-month="goToMonth" />
-                <div class="flex justify-end gap-2">
-                    <button v-if="role === 'owner'" type="button" @click="openCreate" class="cs-submit"
-                        style="width: auto; padding: 0.6rem 1.1rem;">
+                <div class="flex flex-wrap items-center justify-end gap-2">
+                    <button v-if="role === 'owner'" type="button" @click="openCreate" class="cs-btn cs-btn-primary">
                         + Nuevo movimiento
                     </button>
                     <a :href="route('transactions.export.excel', { month: selectedMonth, year: selectedYear })"
-                        class="px-3 py-2 rounded-lg border text-sm"
-                        style="border-color: color-mix(in srgb, var(--cs-ink) 18%, transparent); color: color-mix(in srgb, var(--cs-ink) 70%, transparent);">
-                        ⬇ Excel
+                        class="cs-btn cs-btn-ghost cs-btn-sm">
+                        ↓ Excel
                     </a>
                     <a :href="route('transactions.export.pdf', { month: selectedMonth, year: selectedYear })"
-                        class="px-3 py-2 rounded-lg border text-sm"
-                        style="border-color: color-mix(in srgb, var(--cs-ink) 18%, transparent); color: color-mix(in srgb, var(--cs-ink) 70%, transparent);">
-                        ⬇ PDF
+                        class="cs-btn cs-btn-ghost cs-btn-sm">
+                        ↓ PDF
                     </a>
                 </div>
 
@@ -224,8 +222,8 @@ onUnmounted(() => window.removeEventListener('keydown', manejarAtajos));
             enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-200"
             leave-from-class="opacity-100" leave-to-class="opacity-0">
             <div v-if="toast"
-                class="fixed bottom-6 right-6 px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium z-50"
-                :style="{ background: toast.tipo === 'success' ? 'var(--cs-teal)' : '#D85A30' }">
+                class="cs-toast"
+                :class="toast.tipo === 'success' ? '' : 'cs-toast-error'">
                 {{ toast.mensaje }}
             </div>
         </Transition>

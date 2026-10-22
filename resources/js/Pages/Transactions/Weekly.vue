@@ -29,9 +29,10 @@ function goToMonth() {
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-cs-display text-xl font-semibold" style="color: var(--cs-ink);">
-                Comparativa semanal
-            </h2>
+            <div class="space-y-1.5">
+                <p class="cs-eyebrow">Comparativa</p>
+                <h2 class="cs-page-title">Semanal</h2>
+            </div>
         </template>
 
         <div class="py-8">

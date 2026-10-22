@@ -72,18 +72,19 @@ onUnmounted(() => window.removeEventListener('keydown', manejarEscape));
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-cs-display text-xl font-semibold" style="color: var(--cs-ink);">Categorías</h2>
+            <div class="space-y-1.5">
+                <p class="cs-eyebrow">Organización</p>
+                <h2 class="cs-page-title">Categorías</h2>
+            </div>
         </template>
 
         <div class="py-8">
             <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center mb-6">
-                    <p class="text-sm" style="color: color-mix(in srgb, var(--cs-ink) 55%, transparent);">
+                <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+                    <p class="text-sm cs-muted">
                         Organizá tus gastos y ganancias.
                     </p>
-                    <button v-if="role === 'owner'" @click="openCreate"
-                        class="rounded-lg px-4 py-2 text-sm font-medium text-white transition"
-                        style="background: var(--cs-teal);">
+                    <button v-if="role === 'owner'" @click="openCreate" class="cs-btn cs-btn-primary">
                         + Nueva categoría
                     </button>
                 </div>
@@ -104,8 +105,8 @@ onUnmounted(() => window.removeEventListener('keydown', manejarEscape));
             enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-200"
             leave-from-class="opacity-100" leave-to-class="opacity-0">
             <div v-if="toast"
-                class="fixed bottom-6 right-6 px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium z-50"
-                :style="{ background: toast.tipo === 'success' ? 'var(--cs-teal)' : '#D85A30' }">
+                class="cs-toast"
+                :class="toast.tipo === 'success' ? '' : 'cs-toast-error'">
                 {{ toast.mensaje }}
             </div>
         </Transition>

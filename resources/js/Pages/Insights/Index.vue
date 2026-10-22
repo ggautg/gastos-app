@@ -33,7 +33,7 @@ function fraseCategoria(c) {
 }
 
 function colorPorcentaje(porcentaje) {
-    return porcentaje >= 0 ? '#D85A30' : '#1D9E75';
+    return porcentaje >= 0 ? 'var(--cs-terra)' : 'var(--cs-emerald)';
 }
 
 const masSubio = props.comparaciones.find(c => c.porcentaje > 0);
@@ -45,13 +45,14 @@ const masBajo = props.comparaciones.find(c => c.porcentaje < 0);
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-cs-display text-xl font-semibold" style="color: var(--cs-ink);">
-                Resumen del mes
-            </h2>
+            <div class="space-y-1.5">
+                <p class="cs-eyebrow">Análisis</p>
+                <h2 class="cs-page-title">Resumen</h2>
+            </div>
         </template>
 
         <div class="py-8">
-            <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 space-y-6">
+            <div class="mx-auto max-w-2xl space-y-5 px-4 sm:px-6 lg:px-8">
 
                 <MonthYearSelector
                     v-model:month="selectedMonth"
@@ -61,23 +62,20 @@ const masBajo = props.comparaciones.find(c => c.porcentaje < 0);
 
                 <div
                     v-if="totalAnterior === 0"
-                    class="rounded-xl border p-6 text-center"
-                    style="background: var(--cs-paper-card); border-color: color-mix(in srgb, var(--cs-ink) 12%, transparent);"
+                    class="cs-card p-8 text-center"
                 >
-                    <p class="text-sm" style="color: color-mix(in srgb, var(--cs-ink) 55%, transparent);">
+                    <p class="cs-empty">
                         Todavía no tenés suficiente historial para comparar este mes con el anterior.
-                        Volvé a mirar acá el próximo mes. 📊
+                        Volvé a mirar acá el próximo mes.
                     </p>
                 </div>
 
                 <template v-else>
-                    <div
-                        class="rounded-xl border p-6"
-                        style="background: var(--cs-paper-card); border-color: color-mix(in srgb, var(--cs-ink) 12%, transparent);"
-                    >
-                        <p class="font-cs-display text-lg" style="color: var(--cs-ink);">
+                    <div class="cs-card p-6">
+                        <p class="cs-eyebrow mb-3">Comparativa mensual</p>
+                        <p class="font-cs-display text-[1.35rem] leading-relaxed" style="color: var(--cs-ink); font-variation-settings: 'opsz' 40, 'SOFT' 28;">
                             Gastaste
-                            <span style="font-family: 'JetBrains Mono', monospace;" :style="{ color: colorPorcentaje(totalActual - totalAnterior) }">
+                            <span class="cs-amount" :style="{ color: colorPorcentaje(totalActual - totalAnterior) }">
                                 {{ formatGs(totalActual) }}
                             </span>
                             este mes,
@@ -85,7 +83,7 @@ const masBajo = props.comparaciones.find(c => c.porcentaje < 0);
                                 un poco más que los {{ formatGs(totalAnterior) }} del mes pasado.
                             </span>
                             <span v-else-if="totalActual < totalAnterior">
-                                menos que los {{ formatGs(totalAnterior) }} del mes pasado. 🎉
+                                menos que los {{ formatGs(totalAnterior) }} del mes pasado.
                             </span>
                             <span v-else>
                                 exactamente igual que el mes pasado.
@@ -93,51 +91,40 @@ const masBajo = props.comparaciones.find(c => c.porcentaje < 0);
                         </p>
                     </div>
 
-                    <div v-if="comparaciones.length === 0" class="rounded-xl border p-6 text-center" style="background: var(--cs-paper-card); border-color: color-mix(in srgb, var(--cs-ink) 12%, transparent);">
-                        <p class="text-sm" style="color: color-mix(in srgb, var(--cs-ink) 55%, transparent);">
+                    <div v-if="comparaciones.length === 0" class="cs-card p-8 text-center">
+                        <p class="cs-empty">
                             No hay categorías con gasto en ambos meses para comparar en detalle.
                         </p>
                     </div>
 
                     <div v-else class="space-y-3">
-                        <div
-                            v-if="masSubio"
-                            class="rounded-xl border p-5"
-                            style="background: var(--cs-paper-card); border-color: color-mix(in srgb, var(--cs-ink) 12%, transparent);"
-                        >
-                            <p class="text-xs mb-1" style="color: color-mix(in srgb, var(--cs-ink) 50%, transparent);">Lo que más subió</p>
-                            <p style="color: var(--cs-ink);">
-                                {{ fraseCategoria(masSubio) }}
-                                <span style="color: color-mix(in srgb, var(--cs-ink) 50%, transparent);">
-                                    ({{ formatGs(masSubio.anterior) }} → {{ formatGs(masSubio.actual) }})
-                                </span>
-                            </p>
+                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <div v-if="masSubio" class="cs-card p-5">
+                                <p class="cs-kpi-label mb-1.5">Lo que más subió</p>
+                                <p class="text-sm leading-relaxed" style="color: var(--cs-ink-soft);">
+                                    {{ fraseCategoria(masSubio) }}
+                                    <span class="cs-amount block text-xs" style="color: var(--cs-faint);">
+                                        {{ formatGs(masSubio.anterior) }} → {{ formatGs(masSubio.actual) }}
+                                    </span>
+                                </p>
+                            </div>
+
+                            <div v-if="masBajo" class="cs-card p-5">
+                                <p class="cs-kpi-label mb-1.5">Lo que más bajó</p>
+                                <p class="text-sm leading-relaxed" style="color: var(--cs-ink-soft);">
+                                    {{ fraseCategoria(masBajo) }}
+                                    <span class="cs-amount block text-xs" style="color: var(--cs-faint);">
+                                        {{ formatGs(masBajo.anterior) }} → {{ formatGs(masBajo.actual) }}
+                                    </span>
+                                </p>
+                            </div>
                         </div>
 
-                        <div
-                            v-if="masBajo"
-                            class="rounded-xl border p-5"
-                            style="background: var(--cs-paper-card); border-color: color-mix(in srgb, var(--cs-ink) 12%, transparent);"
-                        >
-                            <p class="text-xs mb-1" style="color: color-mix(in srgb, var(--cs-ink) 50%, transparent);">Lo que más bajó</p>
-                            <p style="color: var(--cs-ink);">
-                                {{ fraseCategoria(masBajo) }}
-                                <span style="color: color-mix(in srgb, var(--cs-ink) 50%, transparent);">
-                                    ({{ formatGs(masBajo.anterior) }} → {{ formatGs(masBajo.actual) }})
-                                </span>
-                            </p>
-                        </div>
-
-                        <div
-                            class="rounded-xl border p-5"
-                            style="background: var(--cs-paper-card); border-color: color-mix(in srgb, var(--cs-ink) 12%, transparent);"
-                        >
-                            <p class="text-sm font-medium mb-3" style="color: color-mix(in srgb, var(--cs-ink) 70%, transparent);">
-                                Detalle por categoría
-                            </p>
-                            <div v-for="c in comparaciones" :key="c.nombre" class="flex justify-between text-sm py-1.5">
-                                <span style="color: var(--cs-ink);">{{ c.nombre }}</span>
-                                <span :style="{ color: colorPorcentaje(c.porcentaje) }">
+                        <div class="cs-card p-5">
+                            <p class="cs-section-title mb-2">Detalle por categoría</p>
+                            <div v-for="c in comparaciones" :key="c.nombre" class="flex items-center justify-between gap-3 border-t py-2.5 text-sm first:border-t-0" style="border-color: var(--cs-line);">
+                                <span style="color: var(--cs-ink-soft);">{{ c.nombre }}</span>
+                                <span class="cs-amount text-xs" :style="{ color: colorPorcentaje(c.porcentaje) }">
                                     {{ c.porcentaje >= 0 ? '↑' : '↓' }} {{ Math.abs(c.porcentaje) }}%
                                 </span>
                             </div>
