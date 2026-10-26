@@ -1,4 +1,15 @@
-:root {
+/* ==========================================================================
+   Temas — un preset por cada "data-theme" del <html>
+   --------------------------------------------------------------------------
+   bosque    · preset original (por defecto)
+   noche     · modo oscuro original (también responde a la clase .dark)
+   mandioca  · crema cálida, mandioca tostada y oliva
+   terere    · verde yerba fresco, guampa y sol de invierno
+   verano    · cielo paraguayo, sol pleno y tierra colorada
+   ========================================================================== */
+
+:root,
+[data-theme='bosque'] {
     color-scheme: light;
 
     /* ---- Marca ---------------------------------------------------------- */
@@ -17,6 +28,7 @@
     --cs-ink: #0f1e19;
     --cs-ink-soft: #2a3a34;
     --cs-muted: color-mix(in srgb, var(--cs-ink) 56%, transparent);
+    --cs-muted-strong: color-mix(in srgb, var(--cs-ink) 70%, transparent);
     --cs-faint: color-mix(in srgb, var(--cs-ink) 38%, transparent);
     --cs-line: color-mix(in srgb, var(--cs-ink) 9%, transparent);
     --cs-line-strong: color-mix(in srgb, var(--cs-ink) 16%, transparent);
@@ -37,17 +49,20 @@
     --cs-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 
     /* ---- Elevación ------------------------------------------------------ */
-    --cs-shadow-xs: 0 1px 2px rgba(10, 28, 23, 0.06);
-    --cs-shadow-sm: 0 1px 2px rgba(10, 28, 23, 0.05),
-        0 6px 16px -12px rgba(10, 28, 23, 0.35);
-    --cs-shadow-md: 0 2px 4px rgba(10, 28, 23, 0.04),
-        0 18px 40px -26px rgba(10, 28, 23, 0.45);
-    --cs-shadow-lg: 0 8px 24px -18px rgba(10, 28, 23, 0.35),
-        0 40px 80px -48px rgba(10, 28, 23, 0.55);
+    --cs-shadow-rgb: 10 28 23;
+    --cs-shadow-xs: 0 1px 2px rgb(var(--cs-shadow-rgb) / 0.06);
+    --cs-shadow-sm: 0 1px 2px rgb(var(--cs-shadow-rgb) / 0.05),
+        0 6px 16px -12px rgb(var(--cs-shadow-rgb) / 0.35);
+    --cs-shadow-md: 0 2px 4px rgb(var(--cs-shadow-rgb) / 0.04),
+        0 18px 40px -26px rgb(var(--cs-shadow-rgb) / 0.45);
+    --cs-shadow-lg: 0 8px 24px -18px rgb(var(--cs-shadow-rgb) / 0.35),
+        0 40px 80px -48px rgb(var(--cs-shadow-rgb) / 0.55);
     --cs-ring: 0 0 0 1px color-mix(in srgb, var(--cs-ink) 6%, transparent);
 }
 
-.dark {
+/* ---- Noche (modo oscuro original) -------------------------------------- */
+.dark,
+[data-theme='noche'] {
     color-scheme: dark;
 
     --cs-teal: #2e9488;
@@ -66,11 +81,75 @@
     --cs-line: color-mix(in srgb, var(--cs-ink) 10%, transparent);
     --cs-line-strong: color-mix(in srgb, var(--cs-ink) 18%, transparent);
 
-    --cs-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --cs-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35),
-        0 8px 20px -14px rgba(0, 0, 0, 0.7);
-    --cs-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.3),
-        0 22px 48px -28px rgba(0, 0, 0, 0.85);
-    --cs-shadow-lg: 0 10px 28px -20px rgba(0, 0, 0, 0.7),
-        0 48px 96px -52px rgba(0, 0, 0, 0.95);
+    --cs-shadow-rgb: 0 0 0;
+    --cs-shadow-xs: 0 1px 2px rgb(var(--cs-shadow-rgb) / 0.4);
+    --cs-shadow-sm: 0 1px 2px rgb(var(--cs-shadow-rgb) / 0.35),
+        0 8px 20px -14px rgb(var(--cs-shadow-rgb) / 0.7);
+    --cs-shadow-md: 0 2px 4px rgb(var(--cs-shadow-rgb) / 0.3),
+        0 22px 48px -28px rgb(var(--cs-shadow-rgb) / 0.85);
+    --cs-shadow-lg: 0 10px 28px -20px rgb(var(--cs-shadow-rgb) / 0.7),
+        0 48px 96px -52px rgb(var(--cs-shadow-rgb) / 0.95);
+}
+
+/* ---- Mandioca ---------------------------------------------------------- */
+[data-theme='mandioca'] {
+    color-scheme: light;
+
+    --cs-teal: #8a5a2b;
+    --cs-teal-dark: #6b431c;
+    --cs-teal-light: #b07f43;
+    --cs-gold: #c08a2e;
+    --cs-gold-light: #ecd49a;
+    --cs-terra: #b8452a;
+    --cs-emerald: #5e7d3f;
+
+    --cs-paper: #f7f0e1;
+    --cs-paper-deep: #efe5d1;
+    --cs-paper-card: #fffdf6;
+    --cs-ink: #241a10;
+    --cs-ink-soft: #4a3827;
+
+    --cs-shadow-rgb: 46 32 16;
+}
+
+/* ---- Tereré ------------------------------------------------------------ */
+[data-theme='terere'] {
+    color-scheme: light;
+
+    --cs-teal: #35603f;
+    --cs-teal-dark: #264a2e;
+    --cs-teal-light: #5e9152;
+    --cs-gold: #9aa03a;
+    --cs-gold-light: #d5dc94;
+    --cs-terra: #b0522f;
+    --cs-emerald: #2c8b5c;
+
+    --cs-paper: #edf2e5;
+    --cs-paper-deep: #e1ebd5;
+    --cs-paper-card: #fbfdf6;
+    --cs-ink: #16241a;
+    --cs-ink-soft: #34483a;
+
+    --cs-shadow-rgb: 20 38 24;
+}
+
+/* ---- Verano paraguayo -------------------------------------------------- */
+[data-theme='verano'] {
+    color-scheme: light;
+
+    --cs-teal: #16697f;
+    --cs-teal-dark: #0e4c5e;
+    --cs-teal-light: #2f93a6;
+    --cs-gold: #d99a1f;
+    --cs-gold-light: #f3d787;
+    --cs-terra: #c94a24;
+    --cs-emerald: #1f9a6a;
+
+    --cs-paper: #fff6e7;
+    --cs-paper-deep: #fbeaca;
+    --cs-paper-card: #fffcf4;
+    --cs-ink: #2a1c10;
+    --cs-ink-soft: #4f3722;
+
+    --cs-shadow-rgb: 62 34 12;
 }

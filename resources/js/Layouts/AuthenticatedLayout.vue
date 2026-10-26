@@ -1,14 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
-import { Menu, Moon, Sun, X } from 'lucide-vue-next';
+import { Menu, X } from 'lucide-vue-next';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
-import { useDarkMode } from '@/Composables/useDarkMode';
+import ThemeSelector from '@/Components/ThemeSelector.vue';
 
 const showingNavigationDropdown = ref(false);
-const { isDark, toggle } = useDarkMode();
 
 const links = [
     { route: 'dashboard', label: 'Dashboard' },
@@ -45,16 +44,7 @@ const links = [
                     </div>
 
                     <div class="hidden shrink-0 items-center gap-1.5 lg:flex">
-                        <button
-                            type="button"
-                            @click="toggle"
-                            class="cs-icon-btn"
-                            :title="isDark ? 'Modo claro' : 'Modo oscuro'"
-                            :aria-label="isDark ? 'Activar modo claro' : 'Activar modo oscuro'"
-                        >
-                            <Sun v-if="isDark" class="h-[1.05rem] w-[1.05rem]" />
-                            <Moon v-else class="h-[1.05rem] w-[1.05rem]" />
-                        </button>
+                        <ThemeSelector compact />
 
                         <span class="mx-1 h-5 w-px" style="background: var(--cs-line);" aria-hidden="true" />
 
@@ -120,15 +110,7 @@ const links = [
                                 {{ $page.props.auth.user.email }}
                             </p>
                         </div>
-                        <button
-                            type="button"
-                            @click="toggle"
-                            class="cs-icon-btn shrink-0"
-                            :aria-label="isDark ? 'Activar modo claro' : 'Activar modo oscuro'"
-                        >
-                            <Sun v-if="isDark" class="h-4 w-4" />
-                            <Moon v-else class="h-4 w-4" />
-                        </button>
+                        <ThemeSelector class="shrink-0" />
                     </div>
 
                     <div class="mt-3 space-y-0.5">

@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 import { ArrowRight, ShieldCheck, Sparkles } from 'lucide-vue-next';
+import ThemeSelector from '@/Components/ThemeSelector.vue';
 
 defineProps({
     canLogin: Boolean,
@@ -73,6 +74,14 @@ const items = [
                             Crear cuenta
                         </Link>
                     </template>
+
+                    <span
+                        class="mx-0.5 hidden h-5 w-px sm:block"
+                        style="background: var(--cs-line);"
+                        aria-hidden="true"
+                    />
+
+                    <ThemeSelector />
                 </nav>
             </div>
         </header>
@@ -107,14 +116,16 @@ const items = [
                 </p>
 
                 <div class="cs-landing-ticker">
-                    <div>
-                        <p class="cs-landing-ticker-label">Balance de julio</p>
+                    <div class="cs-landing-ticker-copy">
+                        <div class="cs-landing-ticker-top">
+                            <p class="cs-landing-ticker-label">Balance de julio</p>
+                            <span class="cs-landing-chip">
+                                <Sparkles class="h-3 w-3" />
+                                Al día
+                            </span>
+                        </div>
                         <p class="cs-landing-ticker-amount">₲ {{ formatGs(montoAnimado) }}</p>
                     </div>
-                    <span class="cs-hero-chip">
-                        <Sparkles class="h-3 w-3" />
-                        Al día
-                    </span>
                 </div>
 
                 <div class="cs-landing-cta">
@@ -308,12 +319,36 @@ const items = [
     backdrop-filter: blur(8px);
 }
 
-.cs-landing-ticker-label {
+.cs-landing-ticker-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.cs-landing-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.24rem 0.6rem;
+    border: 1px solid color-mix(in srgb, var(--cs-emerald) 38%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--cs-emerald) 13%, transparent);
+    color: color-mix(in srgb, var(--cs-emerald) 72%, var(--cs-ink));
     font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.cs-landing-ticker-label {
+    font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--cs-faint);
+    color: var(--cs-muted-strong);
 }
 
 .cs-landing-ticker-amount {
@@ -462,6 +497,15 @@ const items = [
 }
 
 @media (max-width: 640px) {
+    .cs-landing-header-inner {
+        flex-wrap: wrap;
+        row-gap: 0.6rem;
+    }
+
+    .cs-landing-header-inner nav {
+        flex-wrap: wrap;
+    }
+
     .cs-landing-receipt-item {
         flex-wrap: wrap;
     }

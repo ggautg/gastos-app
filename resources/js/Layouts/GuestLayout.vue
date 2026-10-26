@@ -1,10 +1,15 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import ThemeSelector from '@/Components/ThemeSelector.vue';
 </script>
 
 <template>
     <div class="cs-guest">
         <div class="cs-guest-aura" aria-hidden="true"></div>
+
+        <div class="cs-guest-theme">
+            <ThemeSelector />
+        </div>
 
         <svg class="cs-guest-nandu" viewBox="0 0 400 400" aria-hidden="true">
             <defs>
@@ -64,6 +69,13 @@ import { Link } from '@inertiajs/vue3';
 
 .dark .cs-guest-nandu {
     opacity: 0.14;
+}
+
+.cs-guest-theme {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 2;
 }
 
 .cs-guest-logo {
