@@ -22,6 +22,15 @@ class DashboardController extends Controller
         $totalGastos = $transactions->where('type', 'gasto')->sum('amount_gs');
         $totalGanancias = $transactions->where('type', 'ganancia')->sum('amount_gs');
 
+        // Totales por día del mes actual, para la tarjeta de gasto diario.
+        $dias = $transactions
+            ->groupBy(fn ($transaction) => $transaction->date->format('Y-m-d'))
+            ->map(fn ($items) => [
+                'gastos' => (int) $items->where('type', 'gasto')->sum('amount_gs'),
+                'ganancias' => (int) $items->where('type', 'ganancia')->sum('amount_gs'),
+                'movimientos' => $items->count(),
+            ]);
+
         return Inertia::render('Dashboard', [
             'household' => $household,
             'resumen' => [
@@ -29,6 +38,10 @@ class DashboardController extends Controller
                 'ganancias' => $totalGanancias,
                 'balance' => $totalGanancias - $totalGastos,
                 'movimientos' => $transactions->count(),
+                'dias' => (object) $dias->toArray(),
+                'hoy' => now()->toDateString(),
+                'month' => now()->month,
+                'year' => now()->year,
             ],
         ]);
     }

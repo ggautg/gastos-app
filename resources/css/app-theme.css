@@ -6,6 +6,7 @@
    mandioca  · crema cálida, mandioca tostada y oliva
    terere    · verde yerba fresco, guampa y sol de invierno
    verano    · cielo paraguayo, sol pleno y tierra colorada
+   ueno      · parodia: negro profundo, verde flúor y crema
    ========================================================================== */
 
 :root,
@@ -152,4 +153,26 @@
     --cs-ink-soft: #4f3722;
 
     --cs-shadow-rgb: 62 34 12;
+}
+
+/* ---- Ueno (parodia) ---------------------------------------------------- */
+/* Homenaje/parodia del banco digital: negro profundo, verde flúor y crema. */
+[data-theme='ueno'] {
+    color-scheme: dark;
+
+    --cs-teal: #2bd98e;
+    --cs-teal-dark: #16a366;
+    --cs-teal-light: #7af5c0;
+    --cs-gold: #c9f24d;
+    --cs-gold-light: #fdfff2;
+    --cs-terra: #ff7a5c;
+    --cs-emerald: #2bd98e;
+
+    --cs-paper: #011612;
+    --cs-paper-deep: #020f0b;
+    --cs-paper-card: #071e17;
+    --cs-ink: #f2fff8;
+    --cs-ink-soft: #c3e2d1;
+
+    --cs-shadow-rgb: 0 0 0;
 }

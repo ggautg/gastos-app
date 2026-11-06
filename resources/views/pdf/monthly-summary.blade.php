@@ -22,7 +22,7 @@
     </style>
 </head>
 <body>
-    <h1>Resumen de {{ $nombreMes }} {{ $year }}</h1>
+    <h1>{{ $titulo ?? 'Resumen de '.$nombreMes.' '.$year }}</h1>
     <p class="subtitle">{{ $household->name }}</p>
 
     <div class="resumen">

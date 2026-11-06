@@ -26,7 +26,9 @@ class TransactionController extends Controller
             ->with('category')
             ->whereMonth('date', $month)
             ->whereYear('date', $year)
-            ->orderBy('date', 'desc')
+            // Mismo día: el último cargado queda arriba (comportamiento de pila).
+            ->orderByDesc('date')
+            ->orderByDesc('id')
             ->get();
 
         $totalGastos = $transactions->where('type', 'gasto')->sum('amount_gs');
@@ -157,11 +159,14 @@ class TransactionController extends Controller
         $household = auth()->user()->currentHousehold();
         $month = $request->integer('month', now()->month);
         $year = $request->integer('year', now()->year);
+        $day = $request->integer('day') ?: null;
 
-        $nombreArchivo = "movimientos_{$year}_{$month}.xlsx";
+        $nombreArchivo = $day
+            ? "movimientos_{$year}_{$month}_{$day}.xlsx"
+            : "movimientos_{$year}_{$month}.xlsx";
 
         return Excel::download(
-            new TransactionsExport($household, $month, $year),
+            new TransactionsExport($household, $month, $year, $day),
             $nombreArchivo
         );
     }
@@ -171,6 +176,7 @@ class TransactionController extends Controller
         $household = auth()->user()->currentHousehold();
         $month = $request->integer('month', now()->month);
         $year = $request->integer('year', now()->year);
+        $day = $request->integer('day') ?: null;
 
         $transactions = Transaction::whereHas('category', function ($q) use ($household) {
             $q->where('household_id', $household->id);
@@ -178,7 +184,9 @@ class TransactionController extends Controller
             ->with('category')
             ->whereMonth('date', $month)
             ->whereYear('date', $year)
+            ->when($day, fn ($query) => $query->whereDay('date', $day))
             ->orderBy('date')
+            ->orderBy('id')
             ->get();
 
         $nombresMeses = [
@@ -196,16 +204,26 @@ class TransactionController extends Controller
             'Diciembre',
         ];
 
+        $nombreMes = $nombresMeses[$month - 1];
+        $titulo = $day
+            ? "Resumen del {$day} de {$nombreMes} {$year}"
+            : "Resumen de {$nombreMes} {$year}";
+
         $pdf = Pdf::loadView('pdf.monthly-summary', [
             'household' => $household,
             'transactions' => $transactions,
             'month' => $month,
             'year' => $year,
-            'nombreMes' => $nombresMeses[$month - 1],
+            'nombreMes' => $nombreMes,
+            'titulo' => $titulo,
             'totalGastos' => $transactions->where('type', 'gasto')->sum('amount_gs'),
             'totalGanancias' => $transactions->where('type', 'ganancia')->sum('amount_gs'),
         ]);
 
-        return $pdf->download("resumen_{$year}_{$month}.pdf");
+        $nombreArchivo = $day
+            ? "resumen_{$year}_{$month}_{$day}.pdf"
+            : "resumen_{$year}_{$month}.pdf";
+
+        return $pdf->download($nombreArchivo);
     }
 }

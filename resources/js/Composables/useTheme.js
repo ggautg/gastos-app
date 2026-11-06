@@ -45,6 +45,14 @@ export const THEMES = [
         themeColor: '#16697F',
         dark: false,
     },
+    {
+        id: 'ueno',
+        name: 'Ueno (parodia)',
+        hint: 'Negro, verde flúor y aire de banco digital',
+        swatch: ['#011612', '#2bd98e', '#fdfff2'],
+        themeColor: '#011612',
+        dark: true,
+    },
 ];
 
 function leerGuardado() {
@@ -93,7 +101,9 @@ export function aplicarTema(id = theme.value) {
 aplicarTema(theme.value);
 
 export function useTheme() {
-    const isDark = computed(() => theme.value === 'noche');
+    const isDark = computed(
+        () => THEMES.find((preset) => preset.id === theme.value)?.dark ?? false,
+    );
 
     function setTheme(id) {
         if (!THEMES.some((preset) => preset.id === id)) {

@@ -1,5 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import DailySpendCard from '@/Components/DailySpendCard.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import {
     ArrowUpRight,
@@ -82,6 +83,13 @@ function formatGs(amount) {
                         </div>
                     </div>
                 </section>
+
+                <DailySpendCard
+                    :dias="resumen.dias"
+                    :hoy="resumen.hoy"
+                    :month="resumen.month"
+                    :year="resumen.year"
+                />
 
                 <section class="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <div class="cs-kpi cs-reveal cs-reveal-1">

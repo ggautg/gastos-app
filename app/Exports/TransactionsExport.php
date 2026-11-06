@@ -23,6 +23,7 @@ class TransactionsExport implements
         protected $household,
         protected int $month,
         protected int $year,
+        protected ?int $day = null,
     ) {}
 
     public function collection()
@@ -33,7 +34,9 @@ class TransactionsExport implements
             ->with('category')
             ->whereMonth('date', $this->month)
             ->whereYear('date', $this->year)
+            ->when($this->day, fn ($query) => $query->whereDay('date', $this->day))
             ->orderBy('date')
+            ->orderBy('id')
             ->get();
     }
 

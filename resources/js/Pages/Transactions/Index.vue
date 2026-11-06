@@ -57,6 +57,20 @@ const transaccionesFiltradas = computed(() => {
     }
 
     resultado = [...resultado].sort((a, b) => {
+        if (ordenarPor.value === 'date') {
+            const fechaA = String(a.date).slice(0, 10);
+            const fechaB = String(b.date).slice(0, 10);
+
+            if (fechaA !== fechaB) {
+                return ordenAscendente.value
+                    ? fechaA.localeCompare(fechaB)
+                    : fechaB.localeCompare(fechaA);
+            }
+
+            // Mismo día: el último movimiento cargado queda arriba (pila).
+            return ordenAscendente.value ? a.id - b.id : b.id - a.id;
+        }
+
         let valorA, valorB;
         if (ordenarPor.value === 'category') {
             valorA = a.category.name;
@@ -67,7 +81,7 @@ const transaccionesFiltradas = computed(() => {
         }
         if (valorA < valorB) return ordenAscendente.value ? -1 : 1;
         if (valorA > valorB) return ordenAscendente.value ? 1 : -1;
-        return 0;
+        return b.id - a.id;
     });
 
     return resultado;
