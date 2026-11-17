@@ -19,10 +19,10 @@ const meses = [
 
 <template>
     <div class="cs-toolbar w-fit">
-        <select v-model="month" @change="emit('change')" class="cs-input w-auto text-sm">
+        <select v-model="month" @change="emit('change')" aria-label="Mes" class="cs-input w-auto text-sm">
             <option v-for="(m, i) in meses" :key="i" :value="i + 1">{{ m }}</option>
         </select>
-        <select v-model="year" @change="emit('change')" class="cs-input w-auto text-sm">
+        <select v-model="year" @change="emit('change')" aria-label="Año" class="cs-input w-auto text-sm">
             <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
         </select>
     </div>

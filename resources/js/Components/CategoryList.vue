@@ -24,8 +24,8 @@ defineEmits(['editar', 'eliminar']);
                 <span
                     class="cs-badge"
                     :style="category.type === 'gasto'
-                        ? { background: 'color-mix(in srgb, var(--cs-terra) 13%, transparent)', color: 'var(--cs-terra)' }
-                        : { background: 'color-mix(in srgb, var(--cs-emerald) 13%, transparent)', color: 'var(--cs-emerald)' }"
+                        ? { background: 'color-mix(in srgb, var(--cs-terra) 13%, transparent)', color: 'color-mix(in srgb, var(--cs-terra) 72%, var(--cs-ink))' }
+                        : { background: 'color-mix(in srgb, var(--cs-emerald) 13%, transparent)', color: 'color-mix(in srgb, var(--cs-emerald) 72%, var(--cs-ink))' }"
                 >
                     {{ category.type === 'gasto' ? 'Gasto' : 'Ganancia' }}
                 </span>
@@ -38,7 +38,10 @@ defineEmits(['editar', 'eliminar']);
                 <button type="button" @click="$emit('editar', category)" class="cs-text-btn px-2 py-1">
                     Editar
                 </button>
-                <button type="button" @click="$emit('eliminar', category)" class="cs-text-btn cs-text-btn-danger px-2 py-1">
+                <span v-if="category.transactions_count > 0" class="text-xs cs-faint" title="Tiene movimientos: no se puede borrar">
+                    En uso
+                </span>
+                <button v-else type="button" @click="$emit('eliminar', category)" class="cs-text-btn cs-text-btn-danger px-2 py-1">
                     Borrar
                 </button>
             </div>

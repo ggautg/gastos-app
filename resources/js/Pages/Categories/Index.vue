@@ -44,6 +44,7 @@ function confirmarBorrado() {
             categoriaAEliminar.value = null;
             mostrarToast('Categoría eliminada', 'error');
         },
+        onError: (errors) => mostrarToast(errors.category ?? 'No se pudo borrar la categoría', 'error'),
         onFinish: () => (eliminando.value = false),
     });
 }

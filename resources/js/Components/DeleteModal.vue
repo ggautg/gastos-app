@@ -9,6 +9,10 @@ defineProps({
     },
     message: String,
     processing: Boolean,
+    confirmLabel: {
+        type: String,
+        default: 'Eliminar',
+    },
 });
 
 const emit = defineEmits(['cancel', 'confirm']);
@@ -39,7 +43,7 @@ const { onPointerDown, onClick: onBackdropClick } = useBackdropClose(() => emit(
                     :disabled="processing"
                     class="cs-btn cs-btn-danger"
                 >
-                    Eliminar
+                    {{ confirmLabel }}
                 </button>
             </div>
         </div>

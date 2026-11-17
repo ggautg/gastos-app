@@ -88,17 +88,20 @@ function submit() {
 
             <form @submit.prevent="submit" class="space-y-4">
                 <div>
-                    <label class="cs-label">Nombre</label>
-                    <input v-model="form.name" type="text" class="cs-input w-full" placeholder="Ej: Comida" />
+                    <label class="cs-label" for="category-name">Nombre</label>
+                    <input id="category-name" v-model="form.name" type="text" class="cs-input w-full" placeholder="Ej: Comida" />
                     <p v-if="form.errors.name" class="cs-error">{{ form.errors.name }}</p>
                 </div>
 
                 <div>
-                    <label class="cs-label">Tipo</label>
-                    <select v-model="form.type" class="cs-input w-full">
+                    <label class="cs-label" for="category-type">Tipo</label>
+                    <select id="category-type" v-model="form.type" class="cs-input w-full"
+                        :disabled="editingCategory?.transactions_count > 0"
+                        :title="editingCategory?.transactions_count > 0 ? 'No podés cambiar el tipo: la categoría ya tiene movimientos' : null">
                         <option value="gasto">Gasto</option>
                         <option value="ganancia">Ganancia</option>
                     </select>
+                    <p v-if="form.errors.type" class="cs-error">{{ form.errors.type }}</p>
                 </div>
 
                 <div>
@@ -107,14 +110,14 @@ function submit() {
                 </div>
 
                 <div>
-                    <label class="cs-label">Color</label>
-                    <input v-model="form.color" type="color" class="h-9 w-14 cursor-pointer rounded-lg border p-1"
+                    <label class="cs-label" for="category-color">Color</label>
+                    <input id="category-color" v-model="form.color" type="color" aria-label="Color de la categoría" class="h-9 w-14 cursor-pointer rounded-lg border p-1"
                         style="border-color: var(--cs-line-strong); background: var(--cs-paper-card);" />
                 </div>
 
                 <div v-if="form.type === 'gasto'">
-                    <label class="cs-label">Presupuesto mensual (₲) <span style="opacity: 0.6;">— opcional</span></label>
-                    <input v-model="budgetDisplay" type="text" inputmode="numeric" placeholder="Ej: 500.000" class="cs-input w-full" />
+                    <label class="cs-label" for="category-budget">Presupuesto mensual (₲) <span style="opacity: 0.6;">— opcional</span></label>
+                    <input id="category-budget" v-model="budgetDisplay" type="text" inputmode="numeric" placeholder="Ej: 500.000" class="cs-input w-full" />
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2">

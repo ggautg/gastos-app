@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
+    <meta name="description" content="CheSogue: llevá el control de tus gastos y ganancias, con presupuestos, resúmenes y cuentas compartidas en guaraníes.">
     <meta name="theme-color" content="#0E4F49">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#071310">
 
@@ -17,6 +18,7 @@
                     mandioca: { dark: false, color: '#8A5A2B' },
                     terere: { dark: false, color: '#35603F' },
                     verano: { dark: false, color: '#16697F' },
+                    ueno: { dark: true, color: '#011612' },
                 };
 
                 var guardado = localStorage.getItem('theme');

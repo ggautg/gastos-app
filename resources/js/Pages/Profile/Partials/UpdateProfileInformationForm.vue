@@ -28,8 +28,9 @@ const form = useForm({
             class="space-y-4"
         >
             <div>
-                <label class="cs-label">Nombre</label>
+                <label class="cs-label" for="profile-name">Nombre</label>
                 <input
+                    id="profile-name"
                     v-model="form.name"
                     type="text"
                     required
@@ -39,8 +40,9 @@ const form = useForm({
             </div>
 
             <div>
-                <label class="cs-label">Email</label>
+                <label class="cs-label" for="profile-email">Email</label>
                 <input
+                    id="profile-email"
                     v-model="form.email"
                     type="email"
                     required

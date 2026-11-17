@@ -109,8 +109,8 @@ function submit() {
                 </div>
 
                 <div>
-                    <label class="cs-label">Categoría</label>
-                    <select v-model="form.category_id" class="cs-input w-full">
+                    <label class="cs-label" for="transaction-category">Categoría</label>
+                    <select id="transaction-category" v-model="form.category_id" class="cs-input w-full">
                         <option value="" disabled>Elegí una categoría</option>
                         <option v-for="c in filteredCategories" :key="c.id" :value="c.id">
                             {{ c.icon ? c.icon + ' ' : '' }}{{ c.name }}
@@ -120,20 +120,20 @@ function submit() {
                 </div>
 
                 <div>
-                    <label class="cs-label">Monto (₲)</label>
-                    <input v-model="amountDisplay" type="text" inputmode="numeric" class="cs-input w-full"
+                    <label class="cs-label" for="transaction-amount">Monto (₲)</label>
+                    <input id="transaction-amount" v-model="amountDisplay" type="text" inputmode="numeric" class="cs-input w-full"
                         placeholder="Ej: 150.000" />
                     <p v-if="form.errors.amount" class="cs-error">{{ form.errors.amount }}</p>
                 </div>
                 <div>
-                    <label class="cs-label">Descripción (opcional)</label>
-                    <input v-model="form.description" type="text" class="cs-input w-full"
+                    <label class="cs-label" for="transaction-description">Descripción (opcional)</label>
+                    <input id="transaction-description" v-model="form.description" type="text" class="cs-input w-full"
                         placeholder="Ej: Supermercado" />
                 </div>
 
                 <div>
-                    <label class="cs-label">Fecha</label>
-                    <input v-model="form.date" type="date" class="cs-input w-full" />
+                    <label class="cs-label" for="transaction-date">Fecha</label>
+                    <input id="transaction-date" v-model="form.date" type="date" class="cs-input w-full" />
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2">

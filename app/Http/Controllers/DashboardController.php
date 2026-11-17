@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transaction;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $household = Auth::user()->currentHousehold();
+        $household = $this->currentHousehold();
 
         $transactions = Transaction::whereHas('category', function ($q) use ($household) {
                 $q->where('household_id', $household->id);
@@ -32,7 +31,7 @@ class DashboardController extends Controller
             ]);
 
         return Inertia::render('Dashboard', [
-            'household' => $household,
+            'household' => $household->only('id', 'name'),
             'resumen' => [
                 'gastos' => $totalGastos,
                 'ganancias' => $totalGanancias,

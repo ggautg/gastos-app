@@ -10,8 +10,8 @@ class YearlySummaryController extends Controller
 {
     public function index(Request $request)
     {
-        $household = auth()->user()->currentHousehold();
-        $year = $request->integer('year', now()->year);
+        $household = $this->currentHousehold();
+        $year = $this->year($request);
 
         $transacciones = Transaction::whereHas('category', function ($q) use ($household) {
             $q->where('household_id', $household->id);

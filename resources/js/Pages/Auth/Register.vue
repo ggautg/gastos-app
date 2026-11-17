@@ -25,8 +25,9 @@ const submit = () => {
 
         <form @submit.prevent="submit" class="cs-form">
             <div class="cs-field">
-                <label class="cs-label">Nombre</label>
+                <label class="cs-label" for="register-name">Nombre</label>
                 <input
+                    id="register-name"
                     v-model="form.name"
                     type="text"
                     required
@@ -38,8 +39,9 @@ const submit = () => {
             </div>
 
             <div class="cs-field">
-                <label class="cs-label">Email</label>
+                <label class="cs-label" for="register-email">Email</label>
                 <input
+                    id="register-email"
                     v-model="form.email"
                     type="email"
                     required
@@ -50,8 +52,9 @@ const submit = () => {
             </div>
 
             <div class="cs-field">
-                <label class="cs-label">Contraseña</label>
+                <label class="cs-label" for="register-password">Contraseña</label>
                 <input
+                    id="register-password"
                     v-model="form.password"
                     type="password"
                     required
@@ -62,8 +65,9 @@ const submit = () => {
             </div>
 
             <div class="cs-field">
-                <label class="cs-label">Confirmar contraseña</label>
+                <label class="cs-label" for="register-password-confirmation">Confirmar contraseña</label>
                 <input
+                    id="register-password-confirmation"
                     v-model="form.password_confirmation"
                     type="password"
                     required

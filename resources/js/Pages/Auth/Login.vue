@@ -32,8 +32,9 @@ const submit = () => {
 
         <form @submit.prevent="submit" class="cs-form">
             <div class="cs-field">
-                <label class="cs-label">Email</label>
+                <label class="cs-label" for="login-email">Email</label>
                 <input
+                    id="login-email"
                     v-model="form.email"
                     type="email"
                     required
@@ -45,8 +46,9 @@ const submit = () => {
             </div>
 
             <div class="cs-field">
-                <label class="cs-label">Contraseña</label>
+                <label class="cs-label" for="login-password">Contraseña</label>
                 <input
+                    id="login-password"
                     v-model="form.password"
                     type="password"
                     required

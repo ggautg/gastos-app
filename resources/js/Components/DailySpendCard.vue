@@ -86,9 +86,11 @@ function formatGs(amount) {
             </div>
 
             <div class="flex flex-col gap-2 sm:items-end">
-                <label class="flex items-center gap-2 text-xs cs-faint">
-                    <CalendarDays class="h-4 w-4 shrink-0" />
+                <label for="daily-spend-date" class="flex items-center gap-2 text-xs cs-faint">
+                    <CalendarDays class="h-4 w-4 shrink-0" aria-hidden="true" />
                     <input
+                        id="daily-spend-date"
+                        aria-label="Fecha del resumen"
                         v-model="selectedDate"
                         type="date"
                         :min="minDate"

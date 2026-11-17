@@ -39,7 +39,20 @@ class User extends Authenticatable
     }
 
     public function currentHousehold(): ?Household
-{
-    return $this->households()->first();
-}
+    {
+        if ($this->current_household_id) {
+            $actual = $this->households()->find($this->current_household_id);
+
+            if ($actual) {
+                return $actual;
+            }
+        }
+
+        return $this->households()->first();
+    }
+
+    public function useHousehold(Household $household): void
+    {
+        $this->forceFill(['current_household_id' => $household->id])->save();
+    }
 }

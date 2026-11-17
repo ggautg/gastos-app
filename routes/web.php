@@ -17,7 +17,7 @@ Route::get('/', function () {
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -32,6 +32,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/household', [HouseholdController::class, 'show'])->name('household.show');
     Route::post('/household/join', [HouseholdController::class, 'join'])->name('household.join');
+    Route::post('/household/switch', [HouseholdController::class, 'switch'])->name('household.switch');
+    Route::patch('/household', [HouseholdController::class, 'update'])->name('household.update');
+    Route::delete('/household', [HouseholdController::class, 'destroy'])->name('household.destroy');
+    Route::delete('/household/leave', [HouseholdController::class, 'leave'])->name('household.leave');
 
     Route::get('/transactions/export/excel', [TransactionController::class, 'exportExcel'])->name('transactions.export.excel');
 

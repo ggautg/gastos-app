@@ -57,14 +57,14 @@ function formatFecha(fecha) {
                         {{ t.type === 'gasto' ? '−' : '+' }}{{ formatGs(t.amount_gs) }}
                     </span>
                     <div v-if="role === 'owner'" class="flex gap-0.5">
-                        <button type="button" @click="emit('duplicar', t)" title="Duplicar" class="cs-icon-btn">
-                            <Copy class="h-4 w-4" />
+                        <button type="button" @click="emit('duplicar', t)" :aria-label="`Duplicar ${t.description || t.category.name}`" title="Duplicar" class="cs-icon-btn">
+                            <Copy class="h-4 w-4" aria-hidden="true" />
                         </button>
-                        <button type="button" @click="emit('editar', t)" title="Editar" class="cs-icon-btn">
-                            <Pencil class="h-4 w-4" />
+                        <button type="button" @click="emit('editar', t)" :aria-label="`Editar ${t.description || t.category.name}`" title="Editar" class="cs-icon-btn">
+                            <Pencil class="h-4 w-4" aria-hidden="true" />
                         </button>
-                        <button type="button" @click="emit('eliminar', t)" title="Eliminar" class="cs-icon-btn cs-icon-btn-danger">
-                            <Trash2 class="h-4 w-4" />
+                        <button type="button" @click="emit('eliminar', t)" :aria-label="`Eliminar ${t.description || t.category.name}`" title="Eliminar" class="cs-icon-btn cs-icon-btn-danger">
+                            <Trash2 class="h-4 w-4" aria-hidden="true" />
                         </button>
                     </div>
                 </div>
@@ -80,7 +80,7 @@ function formatFecha(fecha) {
                 <p style="color: var(--cs-faint);">
                     Página {{ paginaActual }} de {{ totalPaginas }} · {{ totalFiltradas }} movimientos
                 </p>
-                <select v-model="porPagina" class="cs-input w-auto py-1 text-xs">
+                <select v-model="porPagina" aria-label="Movimientos por página" class="cs-input w-auto py-1 text-xs">
                     <option :value="10">10 por página</option>
                     <option :value="25">25 por página</option>
                     <option :value="50">50 por página</option>

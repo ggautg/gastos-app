@@ -40,8 +40,9 @@ const updatePassword = () => {
 
         <form @submit.prevent="updatePassword" class="space-y-4">
             <div>
-                <label class="cs-label">Contraseña actual</label>
+                <label class="cs-label" for="profile-current-password">Contraseña actual</label>
                 <input
+                    id="profile-current-password"
                     ref="currentPasswordInput"
                     v-model="form.current_password"
                     type="password"
@@ -54,8 +55,9 @@ const updatePassword = () => {
             </div>
 
             <div>
-                <label class="cs-label">Nueva contraseña</label>
+                <label class="cs-label" for="profile-new-password">Nueva contraseña</label>
                 <input
+                    id="profile-new-password"
                     ref="passwordInput"
                     v-model="form.password"
                     type="password"
@@ -66,8 +68,9 @@ const updatePassword = () => {
             </div>
 
             <div>
-                <label class="cs-label">Confirmar nueva contraseña</label>
+                <label class="cs-label" for="profile-password-confirmation">Confirmar nueva contraseña</label>
                 <input
+                    id="profile-password-confirmation"
                     v-model="form.password_confirmation"
                     type="password"
                     autocomplete="new-password"

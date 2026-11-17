@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Transaction;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -50,6 +51,17 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+
+        Transaction::where('user_id', $user->id)->update(['user_id' => null]);
+
+        // Si el dueño se va y quedan integrantes, alguien tiene que poder seguir administrando.
+        foreach ($user->households()->wherePivot('role', 'owner')->get() as $household) {
+            $sucesor = $household->users()->whereKeyNot($user->id)->orderBy('users.id')->first();
+
+            if ($sucesor) {
+                $household->users()->updateExistingPivot($sucesor->id, ['role' => 'owner']);
+            }
+        }
 
         Auth::logout();
 

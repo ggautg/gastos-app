@@ -26,8 +26,9 @@ const submit = () => {
 
         <form @submit.prevent="submit" class="cs-form">
             <div class="cs-field">
-                <label class="cs-label">Email</label>
+                <label class="cs-label" for="forgot-email">Email</label>
                 <input
+                    id="forgot-email"
                     v-model="form.email"
                     type="email"
                     required

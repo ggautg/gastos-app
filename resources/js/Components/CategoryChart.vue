@@ -1,7 +1,9 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Pie } from 'vue-chartjs';
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale } from 'chart.js';
+import { theme } from '@/Composables/useTheme';
+import { useChartColors, colorLegible } from '@/Composables/useChartColors';
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale);
 
@@ -9,18 +11,24 @@ const props = defineProps({
     gastosPorCategoria: Array,
 });
 
-const mostrar = ref(false);
+const mostrar = ref(true);
+const chartKey = ref(0);
+const colors = useChartColors();
+
+watch(theme, () => chartKey.value++);
 
 const chartData = computed(() => ({
     labels: props.gastosPorCategoria.map(g => g.name),
     datasets: [{
         data: props.gastosPorCategoria.map(g => g.total),
-        backgroundColor: props.gastosPorCategoria.map(g => g.color),
+        backgroundColor: props.gastosPorCategoria.map(
+            g => colorLegible(g.color, colors.value.dark) ?? colors.value.emerald,
+        ),
         borderWidth: 0,
     }],
 }));
 
-const chartOptions = {
+const chartOptions = computed(() => ({
     responsive: true,
     plugins: {
         legend: {
@@ -29,16 +37,21 @@ const chartOptions = {
                 boxWidth: 12,
                 padding: 12,
                 font: { size: 11, family: "'Instrument Sans Variable', sans-serif" },
-                color: 'rgba(128, 140, 134, 0.9)',
+                color: colors.value.muted,
             },
         },
         tooltip: {
+            backgroundColor: colors.value.paper,
+            titleColor: colors.value.muted,
+            bodyColor: colors.value.muted,
+            borderColor: colors.value.grid,
+            borderWidth: 1,
             callbacks: {
                 label: (ctx) => `${ctx.label}: ₲ ${new Intl.NumberFormat('es-PY').format(ctx.raw)}`,
             },
         },
     },
-};
+}));
 </script>
 
 <template>
@@ -54,7 +67,7 @@ const chartOptions = {
             </span>
         </button>
         <div v-if="mostrar" class="mx-auto mt-4 max-w-[320px]">
-            <Pie :data="chartData" :options="chartOptions" />
+            <Pie :key="chartKey" :data="chartData" :options="chartOptions" />
         </div>
     </div>
 </template>

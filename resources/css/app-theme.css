@@ -17,10 +17,10 @@
     --cs-teal: #0e4f49;
     --cs-teal-dark: #083b37;
     --cs-teal-light: #1b7a70;
-    --cs-gold: #b5883f;
+    --cs-gold: #8a6428;
     --cs-gold-light: #e3c685;
     --cs-terra: #c0522d;
-    --cs-emerald: #0e8a62;
+    --cs-emerald: #0b6f50;
 
     /* ---- Superficies ---------------------------------------------------- */
     --cs-paper: #f1f4ee;
@@ -28,9 +28,9 @@
     --cs-paper-card: #fdfefb;
     --cs-ink: #0f1e19;
     --cs-ink-soft: #2a3a34;
-    --cs-muted: color-mix(in srgb, var(--cs-ink) 56%, transparent);
-    --cs-muted-strong: color-mix(in srgb, var(--cs-ink) 70%, transparent);
-    --cs-faint: color-mix(in srgb, var(--cs-ink) 38%, transparent);
+    --cs-muted: color-mix(in srgb, var(--cs-ink) 78%, transparent);
+    --cs-muted-strong: color-mix(in srgb, var(--cs-ink) 88%, transparent);
+    --cs-faint: color-mix(in srgb, var(--cs-ink) 72%, transparent);
     --cs-line: color-mix(in srgb, var(--cs-ink) 9%, transparent);
     --cs-line-strong: color-mix(in srgb, var(--cs-ink) 16%, transparent);
 
@@ -99,10 +99,10 @@
     --cs-teal: #8a5a2b;
     --cs-teal-dark: #6b431c;
     --cs-teal-light: #b07f43;
-    --cs-gold: #c08a2e;
+    --cs-gold: #8a5f1c;
     --cs-gold-light: #ecd49a;
     --cs-terra: #b8452a;
-    --cs-emerald: #5e7d3f;
+    --cs-emerald: #4d6832;
 
     --cs-paper: #f7f0e1;
     --cs-paper-deep: #efe5d1;
@@ -120,10 +120,10 @@
     --cs-teal: #35603f;
     --cs-teal-dark: #264a2e;
     --cs-teal-light: #5e9152;
-    --cs-gold: #9aa03a;
+    --cs-gold: #6f7425;
     --cs-gold-light: #d5dc94;
     --cs-terra: #b0522f;
-    --cs-emerald: #2c8b5c;
+    --cs-emerald: #23734b;
 
     --cs-paper: #edf2e5;
     --cs-paper-deep: #e1ebd5;
@@ -141,10 +141,10 @@
     --cs-teal: #16697f;
     --cs-teal-dark: #0e4c5e;
     --cs-teal-light: #2f93a6;
-    --cs-gold: #d99a1f;
+    --cs-gold: #9c6b0c;
     --cs-gold-light: #f3d787;
     --cs-terra: #c94a24;
-    --cs-emerald: #1f9a6a;
+    --cs-emerald: #157a54;
 
     --cs-paper: #fff6e7;
     --cs-paper-deep: #fbeaca;

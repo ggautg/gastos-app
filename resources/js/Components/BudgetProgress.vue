@@ -18,7 +18,7 @@ function colorBarra(porcentaje) {
     <div v-if="presupuestos.length > 0" class="cs-card space-y-4 p-5">
         <div class="flex items-center justify-between gap-3">
             <p class="cs-section-title">Presupuestos del mes</p>
-            <span class="cs-badge" style="background: color-mix(in srgb, var(--cs-gold) 14%, transparent); color: var(--cs-gold);">
+            <span class="cs-badge" style="background: color-mix(in srgb, var(--cs-gold) 14%, transparent); color: color-mix(in srgb, var(--cs-gold) 72%, var(--cs-ink));">
                 {{ presupuestos.length }} activos
             </span>
         </div>
@@ -37,9 +37,10 @@ function colorBarra(porcentaje) {
                 ></div>
             </div>
             <div class="mt-1 flex items-center justify-between gap-3 text-xs">
-                <p v-if="p.porcentaje >= 100" style="color: var(--cs-terra);">
-                    Te pasaste ₲{{ new Intl.NumberFormat('es-PY').format(p.gastado - p.budget) }}
+                <p v-if="p.gastado > p.budget" style="color: var(--cs-terra);">
+                    Te pasaste por ₲{{ new Intl.NumberFormat('es-PY').format(p.gastado - p.budget) }}
                 </p>
+                <p v-else-if="p.porcentaje >= 100" style="color: var(--cs-gold);">Llegaste al límite</p>
                 <p v-else class="cs-faint">Disponible ₲{{ new Intl.NumberFormat('es-PY').format(p.budget - p.gastado) }}</p>
                 <span class="cs-amount" :style="{ color: colorBarra(p.porcentaje) }">{{ p.porcentaje }}%</span>
             </div>

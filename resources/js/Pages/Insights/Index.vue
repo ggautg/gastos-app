@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import MonthYearSelector from '@/Components/MonthYearSelector.vue';
 
 const props = defineProps({
@@ -68,6 +68,9 @@ const masBajo = props.comparaciones.find(c => c.porcentaje < 0);
                         Todavía no tenés suficiente historial para comparar este mes con el anterior.
                         Volvé a mirar acá el próximo mes.
                     </p>
+                    <Link :href="route('transactions.index')" class="cs-btn cs-btn-primary mt-4">
+                        Cargar movimientos
+                    </Link>
                 </div>
 
                 <template v-else>
@@ -95,6 +98,9 @@ const masBajo = props.comparaciones.find(c => c.porcentaje < 0);
                         <p class="cs-empty">
                             No hay categorías con gasto en ambos meses para comparar en detalle.
                         </p>
+                        <Link :href="route('transactions.index')" class="cs-btn cs-btn-ghost cs-btn-sm mt-4">
+                            Ver movimientos
+                        </Link>
                     </div>
 
                     <div v-else class="space-y-3">

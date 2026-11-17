@@ -51,11 +51,13 @@ class RegisteredUserController extends Controller
             ]
         );
 
-        $household_user = HouseholdUser::create([
+        HouseholdUser::create([
             'household_id' => $household->id,
             'user_id' => $user->id,
             'role' => 'owner',
         ]);
+
+        $user->useHousehold($household);
 
         event(new Registered($user));
 

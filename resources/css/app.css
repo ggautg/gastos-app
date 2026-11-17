@@ -1257,43 +1257,6 @@
         font-weight: 600;
     }
 
-    /* ---- Tablas / export ------------------------------------------------- */
-    .cs-table-wrap {
-        overflow-x: auto;
-        border: 1px solid var(--cs-line);
-        border-radius: var(--cs-radius-lg);
-        background: var(--cs-paper-card);
-        box-shadow: var(--cs-shadow-sm);
-    }
-
-    .cs-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.85rem;
-    }
-
-    .cs-table thead th {
-        padding: 0.7rem 1rem;
-        background: color-mix(in srgb, var(--cs-ink) 3%, transparent);
-        font-size: 0.68rem;
-        font-weight: 600;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        text-align: left;
-        color: var(--cs-faint);
-        border-bottom: 1px solid var(--cs-line);
-    }
-
-    .cs-table tbody td {
-        padding: 0.7rem 1rem;
-        border-bottom: 1px solid var(--cs-line);
-        color: var(--cs-ink-soft);
-    }
-
-    .cs-table tbody tr:last-child td {
-        border-bottom: 0;
-    }
-
     /* ---- Animaciones ---------------------------------------------------- */
     .cs-reveal {
         animation: cs-rise 0.55s var(--cs-ease) both;
@@ -1387,12 +1350,3 @@
     }
 }
 
-@keyframes cs-shimmer {
-    from {
-        transform: translateX(-120%);
-    }
-
-    to {
-        transform: translateX(220%);
-    }
-}

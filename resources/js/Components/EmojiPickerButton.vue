@@ -22,6 +22,7 @@ function seleccionar(emoji) {
         <button
             type="button"
             @click="showPicker = !showPicker"
+            :aria-label="modelValue ? 'Cambiar emoji de la categoría' : 'Elegir emoji para la categoría'"
             class="cs-input flex w-full cursor-pointer items-center gap-2 text-left text-sm"
         >
             <span v-if="modelValue" class="text-lg">{{ modelValue }}</span>

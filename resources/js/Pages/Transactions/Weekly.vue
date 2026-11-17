@@ -1,6 +1,6 @@
 <script setup>
-import { ref } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
+import { router, Link } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import MonthYearSelector from '@/Components/MonthYearSelector.vue';
@@ -22,6 +22,8 @@ function goToMonth() {
         year: selectedYear.value,
     }, { preserveState: true });
 }
+
+const sinDatos = computed(() => props.bloques.every(b => b.total === 0));
 </script>
 
 <template>
@@ -44,7 +46,14 @@ function goToMonth() {
                     @change="goToMonth"
                 />
 
-                <div class="space-y-3">
+                <div v-if="sinDatos" class="cs-card p-8 text-center">
+                    <p class="cs-empty">Todavía no hay gastos cargados en este mes.</p>
+                    <Link :href="route('transactions.index')" class="cs-btn cs-btn-primary mt-4">
+                        Cargar movimientos
+                    </Link>
+                </div>
+
+                <div v-else class="space-y-3">
                     <WeeklyBlockCard
                         v-for="(bloque, i) in bloques"
                         :key="i"

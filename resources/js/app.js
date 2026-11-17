@@ -28,8 +28,10 @@ createInertiaApp({
     },
 });
 
+// El service worker viejo quedó registrado en navegadores que ya visitaron la app.
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js');
-    });
+    navigator.serviceWorker
+        .getRegistrations()
+        .then((registrations) => registrations.forEach((registration) => registration.unregister()))
+        .catch(() => {});
 }

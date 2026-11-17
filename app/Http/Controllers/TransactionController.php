@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Exports\TransactionsExport;
 use App\Models\Transaction;
-use App\Services\ExchangeRateService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -15,10 +16,10 @@ class TransactionController extends Controller
 {
     public function index(Request $request)
     {
-        $household = auth()->user()->currentHousehold();
+        $household = $this->currentHousehold();
 
-        $month = $request->integer('month', now()->month);
-        $year = $request->integer('year', now()->year);
+        $month = $this->month($request);
+        $year = $this->year($request);
 
         $transactions = Transaction::whereHas('category', function ($q) use ($household) {
             $q->where('household_id', $household->id);
@@ -45,8 +46,8 @@ class TransactionController extends Controller
                 ];
             })
             ->values();
-        $categoriasGasto = $household->categories()->where('type', 'gasto')->get();
-        $categoriasConPresupuesto = $categoriasGasto->filter(fn($cat) => $cat->budget !== null);
+        $categorias = $household->categories()->orderBy('name')->get();
+        $categoriasConPresupuesto = $categorias->where('type', 'gasto')->filter(fn($cat) => $cat->budget !== null);
         $presupuestos = $categoriasConPresupuesto->map(function ($cat) use ($transactions) {
             $gastado = $transactions
                 ->where('type', 'gasto')
@@ -77,7 +78,7 @@ class TransactionController extends Controller
 
         return Inertia::render('Transactions/Index', [
             'transactions' => $transactions,
-            'categories' => $household->categories()->orderBy('name')->get(),
+            'categories' => $categorias,
             'filters' => ['month' => $month, 'year' => $year],
             'summary' => [
                 'gastos' => $totalGastos,
@@ -90,21 +91,24 @@ class TransactionController extends Controller
                 'gastos_anterior' => $gastosMesAnterior,
                 'ganancias_anterior' => $gananciasMesAnterior,
             ],
-            'role' => auth()->user()->households()->first()->pivot->role,
+            'role' => $this->roleIn($household),
         ]);
     }
 
     public function store(Request $request)
     {
-        $this->authorizeViewerCannotEdit();
+        $household = $this->currentHousehold();
+        $this->authorizeViewerCannotEdit($household);
 
         $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => ['required', Rule::in($household->categories()->pluck('id'))],
             'type' => 'required|in:gasto,ganancia',
             'amount' => 'required|integer|min:1',
             'description' => 'nullable|string|max:255',
             'date' => 'required|date',
         ]);
+
+        $this->assertCategoriaDelTipo($household, $validated);
 
         $validated['currency'] = 'PYG';
         $validated['exchange_rate'] = null;
@@ -118,15 +122,19 @@ class TransactionController extends Controller
 
     public function update(Request $request, Transaction $transaction)
     {
-        $this->authorizeViewerCannotEdit();
+        $household = $this->currentHousehold();
+        $this->authorizeViewerCannotEdit($household);
+        abort_unless($transaction->category->household_id === $household->id, 404);
 
         $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => ['required', Rule::in($household->categories()->pluck('id'))],
             'type' => 'required|in:gasto,ganancia',
             'amount' => 'required|integer|min:1',
             'description' => 'nullable|string|max:255',
             'date' => 'required|date',
         ]);
+
+        $this->assertCategoriaDelTipo($household, $validated);
 
         $validated['currency'] = 'PYG';
         $validated['exchange_rate'] = null;
@@ -138,28 +146,21 @@ class TransactionController extends Controller
     }
     public function destroy(Transaction $transaction)
     {
-        $this->authorizeViewerCannotEdit();
+        $household = $this->currentHousehold();
+        $this->authorizeViewerCannotEdit($household);
+        abort_unless($transaction->category->household_id === $household->id, 404);
 
         $transaction->delete();
 
         return redirect()->back();
     }
 
-    private function authorizeViewerCannotEdit(): void
-    {
-        $role = auth()->user()->households()->first()->pivot->role;
-
-        if ($role === 'viewer') {
-            abort(403, 'No tenés permiso para modificar datos en este household.');
-        }
-    }
-
     public function exportExcel(Request $request)
     {
-        $household = auth()->user()->currentHousehold();
-        $month = $request->integer('month', now()->month);
-        $year = $request->integer('year', now()->year);
-        $day = $request->integer('day') ?: null;
+        $household = $this->currentHousehold();
+        $month = $this->month($request);
+        $year = $this->year($request);
+        $day = $this->day($request);
 
         $nombreArchivo = $day
             ? "movimientos_{$year}_{$month}_{$day}.xlsx"
@@ -173,10 +174,10 @@ class TransactionController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $household = auth()->user()->currentHousehold();
-        $month = $request->integer('month', now()->month);
-        $year = $request->integer('year', now()->year);
-        $day = $request->integer('day') ?: null;
+        $household = $this->currentHousehold();
+        $month = $this->month($request);
+        $year = $this->year($request);
+        $day = $this->day($request);
 
         $transactions = Transaction::whereHas('category', function ($q) use ($household) {
             $q->where('household_id', $household->id);
@@ -225,5 +226,16 @@ class TransactionController extends Controller
             : "resumen_{$year}_{$month}.pdf";
 
         return $pdf->download($nombreArchivo);
+    }
+
+    private function assertCategoriaDelTipo($household, array $validated): void
+    {
+        $categoria = $household->categories()->findOrFail($validated['category_id']);
+
+        if ($categoria->type !== $validated['type']) {
+            throw ValidationException::withMessages([
+                'category_id' => 'La categoría no corresponde al tipo de movimiento.',
+            ]);
+        }
     }
 }

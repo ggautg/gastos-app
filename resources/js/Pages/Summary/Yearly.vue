@@ -1,6 +1,8 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { theme } from '@/Composables/useTheme';
+import { useChartColors } from '@/Composables/useChartColors';
 import { Bar } from 'vue-chartjs';
 import {
     Chart as ChartJS,
@@ -21,6 +23,11 @@ const props = defineProps({
     meses: Array,
 });
 
+const chartKey = ref(0);
+const colors = useChartColors();
+
+watch(theme, () => chartKey.value++);
+
 const nombresMeses = [
     'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
     'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic',
@@ -40,19 +47,19 @@ const chartData = computed(() => ({
         {
             label: 'Ganancias',
             data: props.meses.map(m => m.ganancias),
-            backgroundColor: '#2e9488',
+            backgroundColor: colors.value.emerald,
             borderRadius: 6,
         },
         {
             label: 'Gastos',
             data: props.meses.map(m => m.gastos),
-            backgroundColor: '#c0522d',
+            backgroundColor: colors.value.terra,
             borderRadius: 6,
         },
     ],
 }));
 
-const chartOptions = {
+const chartOptions = computed(() => ({
     responsive: true,
     plugins: {
         legend: {
@@ -62,10 +69,15 @@ const chartOptions = {
                 boxHeight: 10,
                 usePointStyle: true,
                 font: { size: 11, family: "'Instrument Sans Variable', sans-serif" },
-                color: 'rgba(128, 140, 134, 0.95)',
+                color: colors.value.muted,
             },
         },
         tooltip: {
+            backgroundColor: colors.value.paper,
+            titleColor: colors.value.muted,
+            bodyColor: colors.value.muted,
+            borderColor: colors.value.grid,
+            borderWidth: 1,
             callbacks: {
                 label: (ctx) =>
                     `${ctx.dataset.label}: ₲ ${new Intl.NumberFormat('es-PY').format(ctx.raw)}`,
@@ -77,20 +89,20 @@ const chartOptions = {
             grid: { display: false },
             ticks: {
                 font: { size: 10, family: "'Instrument Sans Variable', sans-serif" },
-                color: 'rgba(128, 140, 134, 0.9)',
+                color: colors.value.muted,
             },
         },
         y: {
-            grid: { color: 'rgba(128, 140, 134, 0.14)' },
+            grid: { color: colors.value.grid },
             border: { display: false },
             ticks: {
                 font: { size: 10, family: "'JetBrains Mono Variable', monospace" },
-                color: 'rgba(128, 140, 134, 0.9)',
+                color: colors.value.muted,
                 callback: (value) => new Intl.NumberFormat('es-PY', { notation: 'compact' }).format(value),
             },
         },
     },
-};
+}));
 
 const totalAnual = computed(() => ({
     ganancias: props.meses.reduce((acc, m) => acc + m.ganancias, 0),
@@ -149,7 +161,7 @@ const totalAnual = computed(() => ({
                 </div>
 
                 <div class="cs-card p-5">
-                    <Bar :data="chartData" :options="chartOptions" />
+                    <Bar :key="chartKey" :data="chartData" :options="chartOptions" />
                 </div>
             </div>
         </div>

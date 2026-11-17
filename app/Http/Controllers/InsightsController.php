@@ -11,9 +11,9 @@ class InsightsController extends Controller
 {
     public function index(Request $request)
     {
-        $household = auth()->user()->currentHousehold();
-        $month = $request->integer('month', now()->month);
-        $year = $request->integer('year', now()->year);
+        $household = $this->currentHousehold();
+        $month = $this->month($request);
+        $year = $this->year($request);
 
         $fechaAnterior = Carbon::createFromDate($year, $month, 1)->subMonth();
 
