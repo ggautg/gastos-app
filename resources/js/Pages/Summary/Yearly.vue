@@ -3,7 +3,9 @@ import { computed, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { theme } from '@/Composables/useTheme';
 import { useChartColors } from '@/Composables/useChartColors';
+import { formatGs, formatCompacto } from '@/Composables/useFormat';
 import { Bar } from 'vue-chartjs';
+import PageHeader from '@/Components/PageHeader.vue';
 import {
     Chart as ChartJS,
     Title,
@@ -35,10 +37,6 @@ const nombresMeses = [
 
 function irAAnio(nuevoAnio) {
     router.get(route('summary.yearly'), { year: nuevoAnio }, { preserveState: true });
-}
-
-function formatGs(amount) {
-    return '₲ ' + new Intl.NumberFormat('es-PY').format(amount);
 }
 
 const chartData = computed(() => ({
@@ -79,8 +77,7 @@ const chartOptions = computed(() => ({
             borderColor: colors.value.grid,
             borderWidth: 1,
             callbacks: {
-                label: (ctx) =>
-                    `${ctx.dataset.label}: ₲ ${new Intl.NumberFormat('es-PY').format(ctx.raw)}`,
+                label: (ctx) => `${ctx.dataset.label}: ${formatGs(ctx.raw)}`,
             },
         },
     },
@@ -98,7 +95,7 @@ const chartOptions = computed(() => ({
             ticks: {
                 font: { size: 10, family: "'JetBrains Mono Variable', monospace" },
                 color: colors.value.muted,
-                callback: (value) => new Intl.NumberFormat('es-PY', { notation: 'compact' }).format(value),
+                callback: (value) => formatCompacto(value),
             },
         },
     },
@@ -115,10 +112,7 @@ const totalAnual = computed(() => ({
 
     <AuthenticatedLayout>
         <template #header>
-            <div class="space-y-1.5">
-                <p class="cs-eyebrow">Balance</p>
-                <h2 class="cs-page-title">Resumen anual</h2>
-            </div>
+            <PageHeader eyebrow="Balance" title="Resumen anual" />
         </template>
 
         <div class="py-8">

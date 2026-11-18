@@ -39,7 +39,7 @@ const submit = () => {
             </div>
 
             <div class="cs-field">
-                <label class="cs-label" for="register-email">Email</label>
+                <label class="cs-label" for="register-email">Correo electrónico</label>
                 <input
                     id="register-email"
                     v-model="form.email"

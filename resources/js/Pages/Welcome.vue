@@ -3,6 +3,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 import { ArrowRight, ShieldCheck, Sparkles } from 'lucide-vue-next';
 import ThemeSelector from '@/Components/ThemeSelector.vue';
+import { formatNumero } from '@/Composables/useFormat';
 
 defineProps({
     canLogin: Boolean,
@@ -11,10 +12,6 @@ defineProps({
 
 const montoAnimado = ref(0);
 const montoObjetivo = 1480000;
-
-function formatGs(amount) {
-    return new Intl.NumberFormat('es-PY').format(Math.round(amount));
-}
 
 onMounted(() => {
     const prefiereMenosMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -40,7 +37,7 @@ onMounted(() => {
 const items = [
     { label: 'Movimientos ilimitados', detalle: 'Gastos y ganancias, sin límite mensual' },
     { label: 'Presupuesto por categoría', detalle: 'Alertas cuando te acercás al tope' },
-    { label: 'Cuenta compartida', detalle: 'Invitá a quien quieras, con roles' },
+    { label: 'Hogares compartidos', detalle: 'Invitá a quien quieras, con roles' },
 ];
 </script>
 
@@ -124,7 +121,7 @@ const items = [
                                 Al día
                             </span>
                         </div>
-                        <p class="cs-landing-ticker-amount">₲ {{ formatGs(montoAnimado) }}</p>
+                        <p class="cs-landing-ticker-amount">₲ {{ formatNumero(Math.round(montoAnimado)) }}</p>
                     </div>
                 </div>
 

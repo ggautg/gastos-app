@@ -1,4 +1,6 @@
 <script setup>
+import { formatGs } from '@/Composables/useFormat';
+
 defineProps({
     gastosPorCategoria: Array,
     categoriaFiltro: [String, Number],
@@ -6,9 +8,6 @@ defineProps({
 
 const emit = defineEmits(['toggle']);
 
-function formatGs(amount) {
-    return '₲ ' + new Intl.NumberFormat('es-PY').format(amount);
-}
 </script>
 
 <template>

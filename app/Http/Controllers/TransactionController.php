@@ -12,8 +12,14 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 
+/**
+ * Carga, edición, borrado y exportación de los movimientos del hogar activo.
+ */
 class TransactionController extends Controller
 {
+    /**
+     * Lista los movimientos del mes y año elegidos con resumen, presupuestos, comparativa y rol.
+     */
     public function index(Request $request)
     {
         $household = $this->currentHousehold();
@@ -95,6 +101,9 @@ class TransactionController extends Controller
         ]);
     }
 
+    /**
+     * Carga un movimiento en PYG; requiere dueño y que la categoría coincida con el tipo elegido.
+     */
     public function store(Request $request)
     {
         $household = $this->currentHousehold();
@@ -120,6 +129,9 @@ class TransactionController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * Edita un movimiento del hogar; requiere dueño, categoría del hogar y tipo coherente.
+     */
     public function update(Request $request, Transaction $transaction)
     {
         $household = $this->currentHousehold();
@@ -144,6 +156,9 @@ class TransactionController extends Controller
 
         return redirect()->back();
     }
+    /**
+     * Borra un movimiento del hogar; requiere permiso de dueño y que pertenezca al hogar activo.
+     */
     public function destroy(Transaction $transaction)
     {
         $household = $this->currentHousehold();
@@ -155,6 +170,9 @@ class TransactionController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * Descarga en XLSX los movimientos del mes y año elegidos, con filtro de día opcional.
+     */
     public function exportExcel(Request $request)
     {
         $household = $this->currentHousehold();
@@ -172,6 +190,9 @@ class TransactionController extends Controller
         );
     }
 
+    /**
+     * Genera y descarga un PDF con el resumen de gastos y ganancias del período elegido.
+     */
     public function exportPdf(Request $request)
     {
         $household = $this->currentHousehold();
@@ -207,7 +228,7 @@ class TransactionController extends Controller
 
         $nombreMes = $nombresMeses[$month - 1];
         $titulo = $day
-            ? "Resumen del {$day} de {$nombreMes} {$year}"
+            ? "Resumen del {$day} de {$nombreMes} de {$year}"
             : "Resumen de {$nombreMes} {$year}";
 
         $pdf = Pdf::loadView('pdf.monthly-summary', [
@@ -228,13 +249,16 @@ class TransactionController extends Controller
         return $pdf->download($nombreArchivo);
     }
 
+    /**
+     * Valida que la categoría elegida sea del mismo tipo (gasto o ganancia) que el movimiento.
+     */
     private function assertCategoriaDelTipo($household, array $validated): void
     {
         $categoria = $household->categories()->findOrFail($validated['category_id']);
 
         if ($categoria->type !== $validated['type']) {
             throw ValidationException::withMessages([
-                'category_id' => 'La categoría no corresponde al tipo de movimiento.',
+                'category_id' => 'La categoría elegida no coincide con el tipo. Elegí una categoría de Gasto o de Ganancia según corresponda.',
             ]);
         }
     }

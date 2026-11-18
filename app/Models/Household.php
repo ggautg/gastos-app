@@ -7,10 +7,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
+/**
+ * Hogar: grupo de usuarios que comparte categorías y movimientos.
+ */
 class Household extends Model
 {
     protected $fillable = ['name', 'invite_code'];
 
+    /**
+     * Genera un código de invitación aleatorio al crear el hogar si no se indicó uno.
+     */
     protected static function boot()
     {
         parent::boot();
@@ -22,6 +28,9 @@ class Household extends Model
         });
     }
 
+    /**
+     * Muchos integrantes del hogar, con su rol en la tabla pivote.
+     */
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
@@ -29,6 +38,9 @@ class Household extends Model
             ->withTimestamps();
     }
 
+    /**
+     * Muchas categorías del hogar.
+     */
     public function categories(): HasMany
     {
         return $this->hasMany(Category::class);

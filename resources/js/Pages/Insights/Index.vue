@@ -4,6 +4,9 @@ import { router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import MonthYearSelector from '@/Components/MonthYearSelector.vue';
+import PageHeader from '@/Components/PageHeader.vue';
+import EmptyState from '@/Components/EmptyState.vue';
+import { formatGs } from '@/Composables/useFormat';
 
 const props = defineProps({
     month: Number,
@@ -21,10 +24,6 @@ function goToMonth() {
         month: selectedMonth.value,
         year: selectedYear.value,
     }, { preserveState: true });
-}
-
-function formatGs(amount) {
-    return '₲ ' + new Intl.NumberFormat('es-PY').format(amount);
 }
 
 function fraseCategoria(c) {
@@ -45,10 +44,7 @@ const masBajo = props.comparaciones.find(c => c.porcentaje < 0);
 
     <AuthenticatedLayout>
         <template #header>
-            <div class="space-y-1.5">
-                <p class="cs-eyebrow">Análisis</p>
-                <h2 class="cs-page-title">Resumen</h2>
-            </div>
+            <PageHeader eyebrow="Análisis" title="Resumen" />
         </template>
 
         <div class="py-8">
@@ -60,17 +56,13 @@ const masBajo = props.comparaciones.find(c => c.porcentaje < 0);
                     @change="goToMonth"
                 />
 
-                <div
-                    v-if="totalAnterior === 0"
-                    class="cs-card p-8 text-center"
-                >
-                    <p class="cs-empty">
-                        Todavía no tenés suficiente historial para comparar este mes con el anterior.
-                        Volvé a mirar acá el próximo mes.
-                    </p>
-                    <Link :href="route('transactions.index')" class="cs-btn cs-btn-primary mt-4">
-                        Cargar movimientos
-                    </Link>
+                <div v-if="totalAnterior === 0" class="cs-card p-8">
+                    <EmptyState message="Todavía no hay historial para comparar."
+                        detail="Cargá movimientos de este mes y del anterior para ver la evolución.">
+                        <Link :href="route('transactions.index')" class="cs-btn cs-btn-primary">
+                            Cargar movimientos
+                        </Link>
+                    </EmptyState>
                 </div>
 
                 <template v-else>
@@ -94,13 +86,13 @@ const masBajo = props.comparaciones.find(c => c.porcentaje < 0);
                         </p>
                     </div>
 
-                    <div v-if="comparaciones.length === 0" class="cs-card p-8 text-center">
-                        <p class="cs-empty">
-                            No hay categorías con gasto en ambos meses para comparar en detalle.
-                        </p>
-                        <Link :href="route('transactions.index')" class="cs-btn cs-btn-ghost cs-btn-sm mt-4">
-                            Ver movimientos
-                        </Link>
+                    <div v-if="comparaciones.length === 0" class="cs-card p-8">
+                        <EmptyState message="No hay categorías para comparar todavía."
+                            detail="Necesitás gastos en la misma categoría en ambos meses.">
+                            <Link :href="route('transactions.index')" class="cs-btn cs-btn-ghost cs-btn-sm">
+                                Ver movimientos
+                            </Link>
+                        </EmptyState>
                     </div>
 
                     <div v-else class="space-y-3">

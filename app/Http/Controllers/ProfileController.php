@@ -12,10 +12,13 @@ use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * Edición y eliminación del perfil del usuario.
+ */
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Muestra el formulario de edición del perfil con el estado de verificación del correo.
      */
     public function edit(Request $request): Response
     {
@@ -26,7 +29,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's profile information.
+     * Guarda los datos del perfil y desmarca la verificación si se cambió el correo.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
@@ -42,7 +45,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Delete the user's account.
+     * Valida la contraseña, desvincula movimientos, cede hogares propios, cierra la sesión y borra la cuenta.
      */
     public function destroy(Request $request): RedirectResponse
     {

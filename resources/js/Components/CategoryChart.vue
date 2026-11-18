@@ -4,6 +4,7 @@ import { Pie } from 'vue-chartjs';
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale } from 'chart.js';
 import { theme } from '@/Composables/useTheme';
 import { useChartColors, colorLegible } from '@/Composables/useChartColors';
+import { formatGs } from '@/Composables/useFormat';
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale);
 
@@ -47,7 +48,7 @@ const chartOptions = computed(() => ({
             borderColor: colors.value.grid,
             borderWidth: 1,
             callbacks: {
-                label: (ctx) => `${ctx.label}: ₲ ${new Intl.NumberFormat('es-PY').format(ctx.raw)}`,
+                label: (ctx) => `${ctx.label}: ${formatGs(ctx.raw)}`,
             },
         },
     },

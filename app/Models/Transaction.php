@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Movimiento (gasto o ganancia) cargado por un usuario dentro de una categoría.
+ */
 class Transaction extends Model
 {
     protected $fillable = [
@@ -20,11 +23,17 @@ class Transaction extends Model
         'amount_gs' => 'integer',
     ];
 
+    /**
+     * La categoría a la que pertenece el movimiento.
+     */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
+    /**
+     * El usuario que cargó el movimiento.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

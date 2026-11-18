@@ -1,11 +1,9 @@
 <script setup>
+import { formatGs, formatNumero } from '@/Composables/useFormat';
+
 defineProps({
     presupuestos: Array,
 });
-
-function formatGs(amount) {
-    return '₲ ' + new Intl.NumberFormat('es-PY').format(amount);
-}
 
 function colorBarra(porcentaje) {
     if (porcentaje >= 100) return 'var(--cs-terra)';
@@ -38,10 +36,10 @@ function colorBarra(porcentaje) {
             </div>
             <div class="mt-1 flex items-center justify-between gap-3 text-xs">
                 <p v-if="p.gastado > p.budget" style="color: var(--cs-terra);">
-                    Te pasaste por ₲{{ new Intl.NumberFormat('es-PY').format(p.gastado - p.budget) }}
+                    Te pasaste por ₲{{ formatNumero(p.gastado - p.budget) }}
                 </p>
                 <p v-else-if="p.porcentaje >= 100" style="color: var(--cs-gold);">Llegaste al límite</p>
-                <p v-else class="cs-faint">Disponible ₲{{ new Intl.NumberFormat('es-PY').format(p.budget - p.gastado) }}</p>
+                <p v-else class="cs-faint">Disponible ₲{{ formatNumero(p.budget - p.gastado) }}</p>
                 <span class="cs-amount" :style="{ color: colorBarra(p.porcentaje) }">{{ p.porcentaje }}%</span>
             </div>
         </div>

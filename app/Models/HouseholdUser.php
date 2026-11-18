@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Tabla pivote entre usuarios y hogares que guarda el rol de cada integrante.
+ */
 class HouseholdUser extends Model
 {
 

@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import DeleteUserForm from './Partials/DeleteUserForm.vue';
+import PageHeader from '@/Components/PageHeader.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
 import { Head } from '@inertiajs/vue3';
@@ -16,10 +17,7 @@ defineProps({
 
     <AuthenticatedLayout>
         <template #header>
-            <div class="space-y-1.5">
-                <p class="cs-eyebrow">Cuenta</p>
-                <h2 class="cs-page-title">Mi perfil</h2>
-            </div>
+            <PageHeader eyebrow="Cuenta" title="Mi perfil" />
         </template>
 
         <div class="py-8">

@@ -8,10 +8,13 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * Aviso para verificar la dirección de correo electrónico.
+ */
 class EmailVerificationPromptController extends Controller
 {
     /**
-     * Display the email verification prompt.
+     * Redirige al panel si el correo ya está verificado; si no, muestra la pantalla de verificación.
      */
     public function __invoke(Request $request): RedirectResponse|Response
     {

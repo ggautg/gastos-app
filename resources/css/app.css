@@ -148,7 +148,7 @@
                 transparent 55%
             ),
             linear-gradient(145deg, var(--cs-teal-light), var(--cs-teal-dark));
-        color: #fff;
+        color: var(--cs-on-teal);
         font-family: var(--cs-font-mono);
         font-size: 1.05rem;
         font-weight: 600;
@@ -233,7 +233,7 @@
     }
 
     .cs-icon-btn-danger:hover {
-        color: #fff;
+        color: var(--cs-on-terra);
         background: var(--cs-terra);
     }
 
@@ -570,7 +570,7 @@
         overflow: hidden;
         border-radius: var(--cs-radius-xl);
         padding: clamp(1.4rem, 3.5vw, 2.25rem);
-        color: #f2f7f2;
+        color: var(--cs-on-teal);
         background:
             radial-gradient(
                 120% 150% at 100% 0%,
@@ -625,7 +625,7 @@
         font-weight: 600;
         letter-spacing: 0.2em;
         text-transform: uppercase;
-        color: color-mix(in srgb, var(--cs-gold-light) 92%, transparent);
+        color: color-mix(in srgb, var(--cs-on-teal) 88%, transparent);
     }
 
     .cs-hero-amount {
@@ -635,7 +635,7 @@
         font-weight: 500;
         letter-spacing: -0.045em;
         line-height: 1.1;
-        color: #fbfdfb;
+        color: var(--cs-on-teal);
         text-shadow: 0 2px 20px rgba(0, 0, 0, 0.18);
     }
 
@@ -644,7 +644,7 @@
         align-items: center;
         gap: 0.55rem;
         font-size: 0.82rem;
-        color: rgba(242, 247, 242, 0.68);
+        color: color-mix(in srgb, var(--cs-on-teal) 72%, transparent);
     }
 
     .cs-hero-chip {
@@ -653,13 +653,13 @@
         gap: 0.35rem;
         padding: 0.25rem 0.6rem;
         border-radius: 999px;
-        border: 1px solid color-mix(in srgb, var(--cs-gold-light) 32%, transparent);
-        background: rgba(8, 30, 26, 0.28);
+        border: 1px solid color-mix(in srgb, var(--cs-on-teal) 28%, transparent);
+        background: color-mix(in srgb, var(--cs-on-teal) 12%, transparent);
         font-size: 0.68rem;
         font-weight: 600;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: var(--cs-gold-light);
+        color: var(--cs-on-teal);
     }
 
     /* ---- Indicadores --------------------------------------------------- */
@@ -879,7 +879,7 @@
                 transparent 55%
             ),
             linear-gradient(180deg, var(--cs-teal), var(--cs-teal-dark));
-        color: #fff;
+        color: var(--cs-on-teal);
         font-family: var(--cs-font-sans);
         font-weight: 600;
         letter-spacing: 0.005em;
@@ -923,7 +923,7 @@
     .cs-btn-gold {
         border: 1px solid color-mix(in srgb, #000 14%, var(--cs-gold));
         background: linear-gradient(180deg, var(--cs-gold-light), var(--cs-gold));
-        color: #2a1c06;
+        color: var(--cs-on-gold);
         box-shadow:
             0 1px 0 color-mix(in srgb, white 40%, transparent) inset,
             0 12px 26px -18px color-mix(in srgb, var(--cs-gold) 90%, transparent);
@@ -943,7 +943,7 @@
                 transparent 55%
             ),
             linear-gradient(180deg, var(--cs-terra), color-mix(in srgb, var(--cs-terra) 78%, #000));
-        color: #fff;
+        color: var(--cs-on-terra);
         box-shadow:
             0 1px 0 color-mix(in srgb, white 22%, transparent) inset,
             0 10px 24px -16px color-mix(in srgb, var(--cs-terra) 90%, transparent);
@@ -1197,7 +1197,7 @@
                 transparent 55%
             ),
             linear-gradient(180deg, var(--cs-teal), var(--cs-teal-dark));
-        color: #fff;
+        color: var(--cs-on-teal);
         font-size: 0.85rem;
         font-weight: 600;
         letter-spacing: 0.005em;
@@ -1222,11 +1222,11 @@
                 color-mix(in srgb, white 16%, transparent),
                 transparent 55%
             ),
-            linear-gradient(180deg, var(--cs-terra), #a53f21);
+            linear-gradient(180deg, var(--cs-terra), color-mix(in srgb, var(--cs-terra) 78%, #000));
     }
 
     .cs-toast-error::before {
-        background: #fff;
+        background: var(--cs-on-terra);
         box-shadow: 0 0 0 4px color-mix(in srgb, white 22%, transparent);
     }
 

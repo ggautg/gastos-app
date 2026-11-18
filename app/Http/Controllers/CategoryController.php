@@ -7,8 +7,14 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
+/**
+ * Altas, edición y borrado de las categorías del hogar activo.
+ */
 class CategoryController extends Controller
 {
+    /**
+     * Lista las categorías del hogar con su cantidad de movimientos y el rol del usuario.
+     */
     public function index()
     {
         $household = $this->currentHousehold();
@@ -22,6 +28,9 @@ class CategoryController extends Controller
         ]);
     }
 
+    /**
+     * Crea una categoría en el hogar activo; requiere permiso de dueño (un viewer no puede).
+     */
     public function store(Request $request)
     {
         $household = $this->currentHousehold();
@@ -40,6 +49,9 @@ class CategoryController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * Edita una categoría del hogar; requiere dueño y no permite cambiar el tipo si ya tiene movimientos.
+     */
     public function update(Request $request, Category $category)
     {
         $household = $this->currentHousehold();
@@ -56,7 +68,7 @@ class CategoryController extends Controller
 
         if ($category->type !== $validated['type'] && $category->transactions()->exists()) {
             throw ValidationException::withMessages([
-                'type' => 'No podés cambiar el tipo: la categoría ya tiene movimientos.',
+                'type' => 'No podés cambiar el tipo de una categoría con movimientos. Creá otra categoría con el tipo nuevo.',
             ]);
         }
 
@@ -65,6 +77,9 @@ class CategoryController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * Borra la categoría solo si está vacía; requiere permiso de dueño y que no tenga movimientos.
+     */
     public function destroy(Category $category)
     {
         $household = $this->currentHousehold();
@@ -73,7 +88,7 @@ class CategoryController extends Controller
 
         if ($category->transactions()->exists()) {
             throw ValidationException::withMessages([
-                'category' => 'No podés borrar una categoría con movimientos.',
+                'category' => 'No podés eliminar una categoría que tiene movimientos. Cambiá esos movimientos a otra categoría y volvé a intentar.',
             ]);
         }
 

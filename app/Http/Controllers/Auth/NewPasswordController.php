@@ -14,10 +14,13 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * Carga de una contraseña nueva a partir del token de restablecimiento.
+ */
 class NewPasswordController extends Controller
 {
     /**
-     * Display the password reset view.
+     * Muestra el formulario para ingresar la contraseña nueva con el token del enlace.
      */
     public function create(Request $request): Response
     {
@@ -28,7 +31,7 @@ class NewPasswordController extends Controller
     }
 
     /**
-     * Handle an incoming new password request.
+     * Restablece la contraseña validando el token e informa el resultado por estado o por error.
      *
      * @throws ValidationException
      */
@@ -40,9 +43,8 @@ class NewPasswordController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
+        // Si el token es válido, actualizamos la contraseña y renovamos el token
+        // de «recordarme». Si no, devolvemos el error para mostrarlo en el formulario.
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user) use ($request) {
@@ -55,9 +57,7 @@ class NewPasswordController extends Controller
             }
         );
 
-        // If the password was successfully reset, we will redirect the user back to
-        // the application's home authenticated view. If there is an error we can
-        // redirect them back to where they came from with their error message.
+        // Con el cambio aplicado, volvemos al inicio de sesión; si no, devolvemos el error.
         if ($status == Password::PASSWORD_RESET) {
             return redirect()->route('login')->with('status', __($status));
         }

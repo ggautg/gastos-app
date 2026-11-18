@@ -10,10 +10,13 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * Solicitud y envío del enlace para restablecer la contraseña.
+ */
 class PasswordResetLinkController extends Controller
 {
     /**
-     * Display the password reset link request view.
+     * Muestra el formulario para pedir el enlace de restablecimiento.
      */
     public function create(): Response
     {
@@ -23,7 +26,7 @@ class PasswordResetLinkController extends Controller
     }
 
     /**
-     * Handle an incoming password reset link request.
+     * Envía el enlace de restablecimiento por correo o informa el error si no se pudo enviar.
      *
      * @throws ValidationException
      */
@@ -33,9 +36,8 @@ class PasswordResetLinkController extends Controller
             'email' => 'required|email',
         ]);
 
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
+        // Enviamos el enlace y, según la respuesta de Laravel, mostramos el mensaje
+        // correspondiente al usuario o informamos el error en el formulario.
         $status = Password::sendResetLink(
             $request->only('email')
         );

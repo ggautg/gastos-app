@@ -10,7 +10,7 @@ use Illuminate\Validation\Rule;
 class ProfileUpdateRequest extends FormRequest
 {
     /**
-     * Get the validation rules that apply to the request.
+     * Reglas de validación del formulario de perfil: el correo debe ser único, salvo el del propio usuario.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */

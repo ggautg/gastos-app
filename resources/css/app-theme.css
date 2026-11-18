@@ -1,7 +1,7 @@
 /* ==========================================================================
-   Temas — un preset por cada "data-theme" del <html>
+   Temas — una combinación por cada "data-theme" del <html>
    --------------------------------------------------------------------------
-   bosque    · preset original (por defecto)
+   bosque    · tema original (por defecto)
    noche     · modo oscuro original (también responde a la clase .dark)
    mandioca  · crema cálida, mandioca tostada y oliva
    terere    · verde yerba fresco, guampa y sol de invierno
@@ -21,6 +21,12 @@
     --cs-gold-light: #e3c685;
     --cs-terra: #c0522d;
     --cs-emerald: #0b6f50;
+
+    /* Texto encima de cada acento. Los temas oscuros usan tinta oscura. */
+    --cs-on-teal: #ffffff;
+    --cs-on-terra: #ffffff;
+    --cs-on-gold: #2a1c06;
+    --cs-progress: var(--cs-teal);
 
     /* ---- Superficies ---------------------------------------------------- */
     --cs-paper: #f1f4ee;
@@ -74,11 +80,20 @@
     --cs-terra: #e07a54;
     --cs-emerald: #37b98c;
 
+    --cs-on-teal: #04120f;
+    --cs-on-terra: #1a0805;
+    --cs-on-gold: #1a1206;
+    --cs-progress: var(--cs-teal-light);
+
     --cs-paper: #071310;
     --cs-paper-deep: #0a1a16;
     --cs-paper-card: #0e1f1a;
     --cs-ink: #e9f1ec;
     --cs-ink-soft: #cbd9d2;
+    --cs-muted: color-mix(in srgb, var(--cs-ink) 78%, transparent);
+    --cs-muted-strong: color-mix(in srgb, var(--cs-ink) 88%, transparent);
+    --cs-faint: color-mix(in srgb, var(--cs-ink) 72%, transparent);
+    --cs-ring: 0 0 0 1px color-mix(in srgb, var(--cs-ink) 12%, transparent);
     --cs-line: color-mix(in srgb, var(--cs-ink) 10%, transparent);
     --cs-line-strong: color-mix(in srgb, var(--cs-ink) 18%, transparent);
 
@@ -104,11 +119,22 @@
     --cs-terra: #b8452a;
     --cs-emerald: #4d6832;
 
+    --cs-on-teal: #ffffff;
+    --cs-on-terra: #ffffff;
+    --cs-on-gold: #2a1c06;
+    --cs-progress: var(--cs-teal);
+
     --cs-paper: #f7f0e1;
     --cs-paper-deep: #efe5d1;
     --cs-paper-card: #fffdf6;
     --cs-ink: #241a10;
     --cs-ink-soft: #4a3827;
+    --cs-muted: color-mix(in srgb, var(--cs-ink) 78%, transparent);
+    --cs-muted-strong: color-mix(in srgb, var(--cs-ink) 88%, transparent);
+    --cs-faint: color-mix(in srgb, var(--cs-ink) 72%, transparent);
+    --cs-line: color-mix(in srgb, var(--cs-ink) 9%, transparent);
+    --cs-line-strong: color-mix(in srgb, var(--cs-ink) 16%, transparent);
+    --cs-ring: 0 0 0 1px color-mix(in srgb, var(--cs-ink) 6%, transparent);
 
     --cs-shadow-rgb: 46 32 16;
 }
@@ -125,11 +151,22 @@
     --cs-terra: #b0522f;
     --cs-emerald: #23734b;
 
+    --cs-on-teal: #ffffff;
+    --cs-on-terra: #ffffff;
+    --cs-on-gold: #2a1c06;
+    --cs-progress: var(--cs-teal);
+
     --cs-paper: #edf2e5;
     --cs-paper-deep: #e1ebd5;
     --cs-paper-card: #fbfdf6;
     --cs-ink: #16241a;
     --cs-ink-soft: #34483a;
+    --cs-muted: color-mix(in srgb, var(--cs-ink) 78%, transparent);
+    --cs-muted-strong: color-mix(in srgb, var(--cs-ink) 88%, transparent);
+    --cs-faint: color-mix(in srgb, var(--cs-ink) 72%, transparent);
+    --cs-line: color-mix(in srgb, var(--cs-ink) 9%, transparent);
+    --cs-line-strong: color-mix(in srgb, var(--cs-ink) 16%, transparent);
+    --cs-ring: 0 0 0 1px color-mix(in srgb, var(--cs-ink) 6%, transparent);
 
     --cs-shadow-rgb: 20 38 24;
 }
@@ -146,11 +183,22 @@
     --cs-terra: #c94a24;
     --cs-emerald: #157a54;
 
+    --cs-on-teal: #ffffff;
+    --cs-on-terra: #ffffff;
+    --cs-on-gold: #2a1c06;
+    --cs-progress: var(--cs-teal);
+
     --cs-paper: #fff6e7;
     --cs-paper-deep: #fbeaca;
     --cs-paper-card: #fffcf4;
     --cs-ink: #2a1c10;
     --cs-ink-soft: #4f3722;
+    --cs-muted: color-mix(in srgb, var(--cs-ink) 78%, transparent);
+    --cs-muted-strong: color-mix(in srgb, var(--cs-ink) 88%, transparent);
+    --cs-faint: color-mix(in srgb, var(--cs-ink) 72%, transparent);
+    --cs-line: color-mix(in srgb, var(--cs-ink) 9%, transparent);
+    --cs-line-strong: color-mix(in srgb, var(--cs-ink) 16%, transparent);
+    --cs-ring: 0 0 0 1px color-mix(in srgb, var(--cs-ink) 6%, transparent);
 
     --cs-shadow-rgb: 62 34 12;
 }
@@ -168,11 +216,22 @@
     --cs-terra: #ff7a5c;
     --cs-emerald: #2bd98e;
 
+    --cs-on-teal: #011612;
+    --cs-on-terra: #1a0503;
+    --cs-on-gold: #101405;
+    --cs-progress: var(--cs-teal-light);
+
     --cs-paper: #011612;
     --cs-paper-deep: #020f0b;
     --cs-paper-card: #071e17;
     --cs-ink: #f2fff8;
     --cs-ink-soft: #c3e2d1;
+    --cs-muted: color-mix(in srgb, var(--cs-ink) 78%, transparent);
+    --cs-muted-strong: color-mix(in srgb, var(--cs-ink) 88%, transparent);
+    --cs-faint: color-mix(in srgb, var(--cs-ink) 72%, transparent);
+    --cs-line: color-mix(in srgb, var(--cs-ink) 10%, transparent);
+    --cs-line-strong: color-mix(in srgb, var(--cs-ink) 18%, transparent);
+    --cs-ring: 0 0 0 1px color-mix(in srgb, var(--cs-ink) 12%, transparent);
 
     --cs-shadow-rgb: 0 0 0;
 }

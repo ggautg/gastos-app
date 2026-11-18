@@ -40,7 +40,7 @@ const form = useForm({
             </div>
 
             <div>
-                <label class="cs-label" for="profile-email">Email</label>
+                <label class="cs-label" for="profile-email">Correo electrónico</label>
                 <input
                     id="profile-email"
                     v-model="form.email"
@@ -53,18 +53,18 @@ const form = useForm({
 
             <div v-if="mustVerifyEmail && user.email_verified_at === null">
                 <p class="text-sm" style="color: var(--cs-gold);">
-                    Tu email todavía no está verificado.
+                    Tu correo electrónico todavía no está verificado.
                     <Link
                         :href="route('verification.send')"
                         method="post"
                         as="button"
                         class="cs-link underline hover:no-underline"
                     >
-                        Reenviar email de verificación
+                        Reenviar verificación
                     </Link>
                 </p>
                 <p v-if="status === 'verification-link-sent'" class="mt-2 text-sm" style="color: var(--cs-emerald);">
-                    Te mandamos un nuevo link de verificación.
+                    Te enviamos un nuevo enlace de verificación.
                 </p>
             </div>
 

@@ -1,14 +1,11 @@
 <script setup>
 import { ArrowDownRight, ArrowUpRight } from 'lucide-vue-next';
+import { formatGs } from '@/Composables/useFormat';
 
 defineProps({
     summary: Object,
     comparativa: Object,
 });
-
-function formatGs(amount) {
-    return '₲ ' + new Intl.NumberFormat('es-PY').format(amount);
-}
 
 function diferencia(actual, anterior) {
     if (anterior <= 0) return null;

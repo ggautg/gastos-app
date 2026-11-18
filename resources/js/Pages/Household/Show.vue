@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import DeleteModal from '@/Components/DeleteModal.vue';
+import PageHeader from '@/Components/PageHeader.vue';
 import { Head } from '@inertiajs/vue3';
 
 const props = defineProps({
@@ -64,7 +65,7 @@ function eliminarHogar() {
 }
 
 const mensajeEliminacion = computed(() =>
-    `Se van a borrar ${props.stats.categories} categorías y ${props.stats.transactions} movimientos de “${props.household.name}”. No se puede deshacer.`
+    `Se van a eliminar ${props.stats.categories} categorías y ${props.stats.transactions} movimientos de “${props.household.name}”. No se puede deshacer.`
 );
 
 const hogarASalir = ref(null);
@@ -94,20 +95,17 @@ const mensajeSalida = computed(() =>
 </script>
 
 <template>
-    <Head title="Cuenta compartida" />
+    <Head title="Mi hogar" />
 
     <AuthenticatedLayout>
         <template #header>
-            <div class="space-y-1.5">
-                <p class="cs-eyebrow">Hogar</p>
-                <h2 class="cs-page-title">Cuenta compartida</h2>
-            </div>
+            <PageHeader eyebrow="Hogar" title="Mi hogar" />
         </template>
 
         <div class="py-8">
             <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 space-y-6">
 
-                <!-- Info del household actual -->
+                <!-- Info del hogar actual -->
                 <div class="cs-card p-5">
                     <div class="flex items-start justify-between gap-3">
                         <div>
@@ -227,7 +225,7 @@ const mensajeSalida = computed(() =>
                     </ul>
                 </div>
 
-                <!-- Unirse a otro household -->
+                <!-- Unirse a otro hogar -->
                 <div class="cs-card p-5">
                     <h3 class="cs-section-title mb-1">¿Te invitaron?</h3>
                     <p class="mb-3 text-sm leading-relaxed" style="color: var(--cs-muted);">

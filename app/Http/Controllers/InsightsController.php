@@ -7,8 +7,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 
+/**
+ * Análisis de la variación de gastos por categoría frente al mes anterior.
+ */
 class InsightsController extends Controller
 {
+    /**
+     * Muestra el total del mes y la variación por categoría contra el mes anterior, ordenada por cambio.
+     */
     public function index(Request $request)
     {
         $household = $this->currentHousehold();

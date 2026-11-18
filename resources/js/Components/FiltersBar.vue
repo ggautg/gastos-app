@@ -1,7 +1,5 @@
 <script setup>
-defineProps({
-    categories: Array,
-});
+import { useYears } from '@/Composables/useYears';
 
 const selectedMonth = defineModel('month');
 const selectedYear = defineModel('year');
@@ -10,6 +8,8 @@ const ordenarPor = defineModel('ordenarPor');
 const ordenAscendente = defineModel('ordenAscendente');
 
 const emit = defineEmits(['changeMonth']);
+
+const anios = useYears(selectedYear);
 
 const meses = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -23,7 +23,7 @@ const meses = [
             <option v-for="(m, i) in meses" :key="i" :value="i + 1">{{ m }}</option>
         </select>
         <select v-model="selectedYear" @change="emit('changeMonth')" aria-label="Año" class="cs-input w-auto text-sm">
-            <option v-for="y in [2024, 2025, 2026, 2027]" :key="y" :value="y">{{ y }}</option>
+            <option v-for="a in anios" :key="a" :value="a">{{ a }}</option>
         </select>
         <input
             v-model="busqueda"

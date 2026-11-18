@@ -8,7 +8,7 @@ use Illuminate\Support\ServiceProvider;
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Registro de servicios de la aplicación (sin servicios propios por ahora).
      */
     public function register(): void
     {
@@ -16,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap any application services.
+     * Inicialización de servicios: activa el prefetch limitado de assets con Vite.
      */
     public function boot(): void
     {

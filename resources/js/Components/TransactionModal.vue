@@ -1,7 +1,8 @@
 <script setup>
 import { computed, watch } from 'vue';
 import { useForm } from '@inertiajs/vue3';
-import { useBackdropClose } from '@/Composables/useBackdropClose';
+import AppModal from './AppModal.vue';
+import { formatNumero } from '@/Composables/useFormat';
 
 const props = defineProps({
     show: Boolean,
@@ -10,8 +11,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close', 'saved']);
-
-const { onPointerDown, onClick: onBackdropClick } = useBackdropClose(() => emit('close'));
 
 function hoyLocal() {
     const d = new Date();
@@ -54,16 +53,11 @@ const filteredCategories = computed(() =>
     props.categories.filter(c => c.type === form.type)
 );
 
-function formatMilesManual(numStr) {
-    const [parteEntera, parteDecimal] = String(numStr).split('.');
-    const enteraFormateada = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    return parteDecimal !== undefined ? `${enteraFormateada}.${parteDecimal}` : enteraFormateada;
-}
-
+// El input muestra miles, pero el formulario guarda solo dígitos.
 const amountDisplay = computed({
     get() {
         if (form.amount === '' || form.amount === null) return '';
-        return new Intl.NumberFormat('es-PY').format(form.amount);
+        return formatNumero(form.amount);
     },
     set(valor) {
         const limpio = valor.replace(/\D/g, '');
@@ -85,67 +79,57 @@ function submit() {
 </script>
 
 <template>
-    <div v-if="show" class="cs-overlay fixed inset-0 z-50 flex items-center justify-center px-4"
-        @pointerdown="onPointerDown" @click="onBackdropClick">
-        <div class="cs-panel w-full max-w-sm p-6">
-            <h3 class="cs-panel-title mb-5">
-                {{ editingTransaction ? 'Editar movimiento' : 'Nuevo movimiento' }}
-            </h3>
+    <AppModal :show="show" :title="editingTransaction ? 'Editar movimiento' : 'Nuevo movimiento'" @close="emit('close')">
+        <form @submit.prevent="submit" class="space-y-4">
+            <div class="cs-segment">
+                <button type="button" @click="form.type = 'gasto'; form.category_id = ''"
+                    class="cs-segment-btn" :class="{ 'is-active': form.type === 'gasto' }"
+                    style="--seg-accent: var(--cs-terra);">
+                    Gasto
+                </button>
+                <button type="button" @click="form.type = 'ganancia'; form.category_id = ''"
+                    class="cs-segment-btn" :class="{ 'is-active': form.type === 'ganancia' }"
+                    style="--seg-accent: var(--cs-emerald);">
+                    Ganancia
+                </button>
+            </div>
 
-            <form @submit.prevent="submit" class="space-y-4">
-                <div class="cs-segment">
-                    <button type="button" @click="form.type = 'gasto'; form.category_id = ''"
-                        class="cs-segment-btn"
-                        :class="{ 'is-active': form.type === 'gasto' }"
-                        style="--seg-accent: var(--cs-terra);">
-                        Gasto
-                    </button>
-                    <button type="button" @click="form.type = 'ganancia'; form.category_id = ''"
-                        class="cs-segment-btn"
-                        :class="{ 'is-active': form.type === 'ganancia' }"
-                        style="--seg-accent: var(--cs-emerald);">
-                        Ganancia
-                    </button>
-                </div>
+            <div>
+                <label class="cs-label" for="transaction-category">Categoría</label>
+                <select id="transaction-category" v-model="form.category_id" class="cs-input w-full">
+                    <option value="" disabled>Elegí una categoría</option>
+                    <option v-for="c in filteredCategories" :key="c.id" :value="c.id">
+                        {{ c.icon ? c.icon + ' ' : '' }}{{ c.name }}
+                    </option>
+                </select>
+                <p v-if="form.errors.category_id" class="cs-error">{{ form.errors.category_id }}</p>
+            </div>
 
-                <div>
-                    <label class="cs-label" for="transaction-category">Categoría</label>
-                    <select id="transaction-category" v-model="form.category_id" class="cs-input w-full">
-                        <option value="" disabled>Elegí una categoría</option>
-                        <option v-for="c in filteredCategories" :key="c.id" :value="c.id">
-                            {{ c.icon ? c.icon + ' ' : '' }}{{ c.name }}
-                        </option>
-                    </select>
-                    <p v-if="form.errors.category_id" class="cs-error">{{ form.errors.category_id }}</p>
-                </div>
+            <div>
+                <label class="cs-label" for="transaction-amount">Monto (₲)</label>
+                <input id="transaction-amount" v-model="amountDisplay" type="text" inputmode="numeric"
+                    class="cs-input w-full" placeholder="Ej: 150.000" />
+                <p v-if="form.errors.amount" class="cs-error">{{ form.errors.amount }}</p>
+            </div>
 
-                <div>
-                    <label class="cs-label" for="transaction-amount">Monto (₲)</label>
-                    <input id="transaction-amount" v-model="amountDisplay" type="text" inputmode="numeric" class="cs-input w-full"
-                        placeholder="Ej: 150.000" />
-                    <p v-if="form.errors.amount" class="cs-error">{{ form.errors.amount }}</p>
-                </div>
-                <div>
-                    <label class="cs-label" for="transaction-description">Descripción (opcional)</label>
-                    <input id="transaction-description" v-model="form.description" type="text" class="cs-input w-full"
-                        placeholder="Ej: Supermercado" />
-                </div>
+            <div>
+                <label class="cs-label" for="transaction-description">Descripción (opcional)</label>
+                <input id="transaction-description" v-model="form.description" type="text" class="cs-input w-full"
+                    placeholder="Ej: Supermercado" />
+            </div>
 
-                <div>
-                    <label class="cs-label" for="transaction-date">Fecha</label>
-                    <input id="transaction-date" v-model="form.date" type="date" class="cs-input w-full" />
-                </div>
+            <div>
+                <label class="cs-label" for="transaction-date">Fecha</label>
+                <input id="transaction-date" v-model="form.date" type="date" class="cs-input w-full" />
+            </div>
 
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" @click="emit('close')" class="cs-btn cs-btn-ghost">
-                        Cancelar
-                    </button>
-                    <button type="submit" :disabled="form.processing" class="cs-submit"
-                        style="width: auto; padding: 0.62rem 1.15rem;">
-                        Guardar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button" @click="emit('close')" class="cs-btn cs-btn-ghost">Cancelar</button>
+                <button type="submit" :disabled="form.processing" class="cs-submit"
+                    style="width: auto; padding: 0.62rem 1.15rem;">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </AppModal>
 </template>

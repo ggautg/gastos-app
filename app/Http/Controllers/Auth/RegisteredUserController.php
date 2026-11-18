@@ -16,10 +16,13 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * Registro de usuarios nuevos, con creación de su hogar inicial.
+ */
 class RegisteredUserController extends Controller
 {
     /**
-     * Display the registration view.
+     * Muestra el formulario de registro.
      */
     public function create(): Response
     {
@@ -27,7 +30,7 @@ class RegisteredUserController extends Controller
     }
 
     /**
-     * Handle an incoming registration request.
+     * Crea el usuario, su hogar inicial como dueño, lo loguea y dispara el evento de registro.
      *
      * @throws ValidationException
      */

@@ -20,13 +20,13 @@ const submit = () => {
 
     <GuestLayout>
         <h1 class="cs-form-title">¿Olvidaste tu contraseña?</h1>
-        <p class="cs-form-subtitle">Ingresá tu email y te mandamos un link para crear una nueva.</p>
+        <p class="cs-form-subtitle">Ingresá tu correo electrónico y te enviamos un enlace para crear una nueva.</p>
 
         <div v-if="status" class="cs-status">{{ status }}</div>
 
         <form @submit.prevent="submit" class="cs-form">
             <div class="cs-field">
-                <label class="cs-label" for="forgot-email">Email</label>
+                <label class="cs-label" for="forgot-email">Correo electrónico</label>
                 <input
                     id="forgot-email"
                     v-model="form.email"
@@ -39,7 +39,7 @@ const submit = () => {
             </div>
 
             <button type="submit" :disabled="form.processing" class="cs-submit">
-                Enviar link de recuperación
+                Enviar enlace de recuperación
             </button>
         </form>
     </GuestLayout>

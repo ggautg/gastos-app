@@ -10,13 +10,13 @@ import ThemeSelector from '@/Components/ThemeSelector.vue';
 const showingNavigationDropdown = ref(false);
 
 const links = [
-    { route: 'dashboard', label: 'Dashboard' },
+    { route: 'dashboard', label: 'Panel' },
     { route: 'categories.index', label: 'Categorías' },
     { route: 'transactions.index', label: 'Movimientos' },
     { route: 'insights.index', label: 'Resumen' },
     { route: 'transactions.weekly', label: 'Semanal' },
     { route: 'summary.yearly', label: 'Resumen anual' },
-    { route: 'household.show', label: 'Cuenta compartida' },
+    { route: 'household.show', label: 'Mi hogar' },
 ];
 </script>
 

@@ -5,6 +5,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 
 import FiltersBar from '@/Components/FiltersBar.vue';
+import PageHeader from '@/Components/PageHeader.vue';
 import SummaryCards from '@/Components/SummaryCards.vue';
 import CategoryChart from '@/Components/CategoryChart.vue';
 import BudgetProgress from '@/Components/BudgetProgress.vue';
@@ -12,6 +13,8 @@ import CategoryTotals from '@/Components/CategoryTotals.vue';
 import TransactionList from '@/Components/TransactionList.vue';
 import TransactionModal from '@/Components/TransactionModal.vue';
 import DeleteModal from '@/Components/DeleteModal.vue';
+import ToastHost from '@/Components/ToastHost.vue';
+import { useToast } from '@/Composables/useToast';
 
 const props = defineProps({
     transactions: Array,
@@ -139,38 +142,22 @@ function confirmarBorrado() {
     router.delete(route('transactions.destroy', transaccionAEliminar.value.id), {
         onSuccess: () => {
             transaccionAEliminar.value = null;
-            mostrarToast('Movimiento eliminado', 'error');
+            mostrarToast('Movimiento eliminado');
         },
         onFinish: () => (eliminando.value = false),
     });
 }
 
-// --- Toast ---
-const toast = ref(null);
-
-function mostrarToast(mensaje, tipo = 'success') {
-    toast.value = { mensaje, tipo };
-    setTimeout(() => (toast.value = null), 3000);
-}
+// --- Toast global ---
+const { mostrarToast } = useToast();
 
 // --- Atajos de teclado ---
 function manejarAtajos(e) {
-    const enCampoDeTexto = ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName);
-
-    if (e.key === 'Escape') {
-        if (transaccionAEliminar.value) {
-            transaccionAEliminar.value = null;
-            return;
-        }
-        if (showForm.value) {
-            showForm.value = false;
-            return;
-        }
-    }
-
-    if (enCampoDeTexto) return;
-
-    if (e.key === 'n' || e.key === 'N') openCreate();
+    // Escape lo maneja AppModal; acá solo el atajo para cargar.
+    if (e.key !== 'n' && e.key !== 'N') return;
+    if (showForm.value || transaccionAEliminar.value) return;
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
+    openCreate();
 }
 
 onMounted(() => window.addEventListener('keydown', manejarAtajos));
@@ -183,10 +170,7 @@ onUnmounted(() => window.removeEventListener('keydown', manejarAtajos));
 
     <AuthenticatedLayout>
         <template #header>
-            <div class="space-y-1.5">
-                <p class="cs-eyebrow">Registro</p>
-                <h2 class="cs-page-title">Gastos y ganancias</h2>
-            </div>
+            <PageHeader eyebrow="Registro" title="Gastos y ganancias" />
         </template>
 
         <div class="py-8">
@@ -203,7 +187,7 @@ onUnmounted(() => window.removeEventListener('keydown', manejarAtajos));
 
                 <FiltersBar v-model:month="selectedMonth" v-model:year="selectedYear" v-model:busqueda="busqueda"
                     v-model:categoriaFiltro="categoriaFiltro" v-model:ordenarPor="ordenarPor"
-                    v-model:ordenAscendente="ordenAscendente" :categories="categories" @change-month="goToMonth" />
+                    v-model:ordenAscendente="ordenAscendente" @change-month="goToMonth" />
                 <div class="flex flex-wrap items-center justify-end gap-2">
                     <button v-if="role === 'owner'" type="button" @click="openCreate" class="cs-btn cs-btn-primary">
                         + Nuevo movimiento
@@ -229,17 +213,9 @@ onUnmounted(() => window.removeEventListener('keydown', manejarAtajos));
             @close="showForm = false" @saved="onSaved" />
 
         <DeleteModal :show="!!transaccionAEliminar" title="¿Eliminar movimiento?"
-            :message="transaccionAEliminar ? `Vas a borrar &quot;${transaccionAEliminar.description || transaccionAEliminar.category.name}&quot;. Esta acción no se puede deshacer.` : ''"
+            :message="transaccionAEliminar ? `Vas a eliminar &quot;${transaccionAEliminar.description || transaccionAEliminar.category.name}&quot;. Esta acción no se puede deshacer.` : ''"
             :processing="eliminando" @cancel="transaccionAEliminar = null" @confirm="confirmarBorrado" />
 
-        <Transition enter-active-class="transition ease-out duration-300" enter-from-class="opacity-0 translate-y-2"
-            enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-200"
-            leave-from-class="opacity-100" leave-to-class="opacity-0">
-            <div v-if="toast"
-                class="cs-toast"
-                :class="toast.tipo === 'success' ? '' : 'cs-toast-error'">
-                {{ toast.mensaje }}
-            </div>
-        </Transition>
+        <ToastHost />
     </AuthenticatedLayout>
 </template>

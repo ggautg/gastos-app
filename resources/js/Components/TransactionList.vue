@@ -1,6 +1,8 @@
 <script setup>
 import { computed } from 'vue';
 import { Copy, Pencil, Trash2 } from 'lucide-vue-next';
+import { formatGs, formatFecha } from '@/Composables/useFormat';
+import EmptyState from './EmptyState.vue';
 
 const props = defineProps({
     transacciones: Array,
@@ -16,14 +18,7 @@ const emit = defineEmits(['duplicar', 'editar', 'eliminar']);
 
 const totalPaginas = computed(() => Math.ceil(props.totalFiltradas / porPagina.value));
 
-function formatGs(amount) {
-    return '₲ ' + new Intl.NumberFormat('es-PY').format(amount);
-}
 
-function formatFecha(fecha) {
-    const [year, month, day] = fecha.split('T')[0].split('-');
-    return `${day}/${month}/${year}`;
-}
 </script>
 
 <template>
@@ -39,7 +34,10 @@ function formatFecha(fecha) {
                         <p class="cs-list-meta">
                             <span
                                 class="cs-badge"
-                                :style="{ backgroundColor: t.category.color + '18', color: t.category.color }"
+                                :style="{
+                                    backgroundColor: t.category.color + '18',
+                                    color: `color-mix(in srgb, ${t.category.color} 72%, var(--cs-ink))`
+                                }"
                             >
                                 {{ t.category.name }}
                             </span>
@@ -70,9 +68,9 @@ function formatFecha(fecha) {
                 </div>
             </div>
 
-            <p v-if="transacciones.length === 0" class="cs-empty">
-                {{ hayFiltroActivo ? 'No se encontraron movimientos con ese criterio.' : 'No hay movimientos cargados en este mes.' }}
-            </p>
+            <EmptyState v-if="transacciones.length === 0"
+                :message="hayFiltroActivo ? 'No se encontraron movimientos con ese criterio.' : 'No hay movimientos cargados en este mes.'"
+                :detail="hayFiltroActivo ? 'Probá con otra búsqueda o cambiá el mes.' : 'Cargá el primero desde «+ Nuevo movimiento».'" />
         </div>
 
         <div v-if="totalPaginas > 1" class="mt-4 flex flex-wrap items-center justify-between gap-2 text-sm">

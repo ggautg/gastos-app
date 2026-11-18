@@ -1,4 +1,7 @@
 <script setup>
+import { formatNumero } from '@/Composables/useFormat';
+import EmptyState from './EmptyState.vue';
+
 defineProps({
     categories: Array,
     role: String,
@@ -30,7 +33,7 @@ defineEmits(['editar', 'eliminar']);
                     {{ category.type === 'gasto' ? 'Gasto' : 'Ganancia' }}
                 </span>
                 <span v-if="category.budget" class="cs-amount hidden text-xs sm:inline" style="color: var(--cs-faint); font-weight: 500;">
-                    tope ₲{{ new Intl.NumberFormat('es-PY').format(category.budget) }}
+                    tope ₲{{ formatNumero(category.budget) }}
                 </span>
             </div>
 
@@ -38,17 +41,16 @@ defineEmits(['editar', 'eliminar']);
                 <button type="button" @click="$emit('editar', category)" class="cs-text-btn px-2 py-1">
                     Editar
                 </button>
-                <span v-if="category.transactions_count > 0" class="text-xs cs-faint" title="Tiene movimientos: no se puede borrar">
+                <span v-if="category.transactions_count > 0" class="text-xs cs-faint" title="Tiene movimientos: no se puede eliminar">
                     En uso
                 </span>
                 <button v-else type="button" @click="$emit('eliminar', category)" class="cs-text-btn cs-text-btn-danger px-2 py-1">
-                    Borrar
+                    Eliminar
                 </button>
             </div>
         </div>
 
-        <p v-if="categories.length === 0" class="cs-empty">
-            Todavía no creaste ninguna categoría.
-        </p>
+        <EmptyState v-if="categories.length === 0" message="Todavía no creaste ninguna categoría."
+            detail="Creá una para agrupar tus gastos y ganancias." />
     </div>
 </template>

@@ -23,10 +23,10 @@ const verificationLinkSent = computed(
 
 <template>
     <GuestLayout>
-        <Head title="Verificar email" />
+        <Head title="Verificar correo electrónico" />
 
         <div class="mb-4 text-sm" style="color: var(--cs-muted-strong);">
-            ¡Gracias por registrarte! Antes de empezar, verificá tu email con el link que te enviamos.
+            ¡Gracias por registrarte! Antes de empezar, verificá tu correo electrónico con el enlace que te enviamos.
             Si no te llegó, te mandamos otro.
         </div>
 
@@ -35,7 +35,7 @@ const verificationLinkSent = computed(
             style="color: var(--cs-emerald);"
             v-if="verificationLinkSent"
         >
-            Te enviamos un nuevo link de verificación al email que usaste al registrarte.
+            Te enviamos un nuevo enlace de verificación al correo electrónico que usaste al registrarte.
         </div>
 
         <form @submit.prevent="submit">

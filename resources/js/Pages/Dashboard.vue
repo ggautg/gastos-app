@@ -1,6 +1,8 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import DailySpendCard from '@/Components/DailySpendCard.vue';
+import PageHeader from '@/Components/PageHeader.vue';
+import { formatGs } from '@/Composables/useFormat';
 import { Head, Link } from '@inertiajs/vue3';
 import {
     ArrowUpRight,
@@ -37,27 +39,22 @@ const accesos = [
     },
     {
         route: 'household.show',
-        title: 'Cuenta compartida',
+        title: 'Mi hogar',
         text: 'Invitá a alguien a ver tus finanzas.',
         icon: Users,
     },
 ];
 
-function formatGs(amount) {
-    return '₲ ' + new Intl.NumberFormat('es-PY').format(amount);
-}
+
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head title="Panel" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="flex flex-wrap items-end justify-between gap-3">
-                <div class="space-y-1.5">
-                    <p class="cs-eyebrow">Panorama</p>
-                    <h2 class="cs-page-title">Dashboard</h2>
-                </div>
+                <PageHeader eyebrow="Panorama" title="Panel" />
                 <p class="text-sm cs-muted">{{ household.name }}</p>
             </div>
         </template>
@@ -77,7 +74,7 @@ function formatGs(amount) {
 
                         <div
                             class="hidden h-14 w-14 shrink-0 items-center justify-center rounded-full border sm:flex"
-                            style="border-color: rgba(227, 198, 133, 0.28); background: rgba(8, 30, 26, 0.3);"
+                            style="border-color: color-mix(in srgb, var(--cs-gold-light) 32%, transparent); background: color-mix(in srgb, var(--cs-on-teal) 12%, transparent);"
                         >
                             <Wallet class="h-6 w-6" style="color: var(--cs-gold-light);" />
                         </div>

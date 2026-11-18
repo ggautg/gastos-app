@@ -32,7 +32,7 @@ const submit = () => {
 
         <form @submit.prevent="submit" class="cs-form">
             <div class="cs-field">
-                <label class="cs-label" for="login-email">Email</label>
+                <label class="cs-label" for="login-email">Correo electrónico</label>
                 <input
                     id="login-email"
                     v-model="form.email"

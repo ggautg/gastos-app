@@ -6,8 +6,14 @@ use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
+/**
+ * Resumen anual de ganancias y gastos del hogar, mes por mes.
+ */
 class YearlySummaryController extends Controller
 {
+    /**
+     * Muestra, para cada mes del año elegido, el total de ganancias y gastos del hogar.
+     */
     public function index(Request $request)
     {
         $household = $this->currentHousehold();

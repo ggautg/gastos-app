@@ -8,7 +8,7 @@ export const THEMES = [
     {
         id: 'bosque',
         name: 'Bosque',
-        hint: 'El preset de siempre',
+        hint: 'El tema de siempre',
         swatch: ['#f1f4ee', '#0e4f49', '#b5883f'],
         themeColor: '#0E4F49',
         dark: false,

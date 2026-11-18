@@ -5,8 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Transaction;
 use Inertia\Inertia;
 
+/**
+ * Panel principal con el resumen del hogar activo del mes corriente.
+ */
 class DashboardController extends Controller
 {
+    /**
+     * Muestra gastos, ganancias, balance y totales por día del mes actual del hogar.
+     */
     public function index()
     {
         $household = $this->currentHousehold();

@@ -1,35 +1,30 @@
 <script setup>
-import { nextTick, ref } from 'vue';
+import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
-import { useBackdropClose } from '@/Composables/useBackdropClose';
+import AppModal from '@/Components/AppModal.vue';
 
 const confirmingUserDeletion = ref(false);
 const passwordInput = ref(null);
 
-const form = useForm({
-    password: '',
-});
+const form = useForm({ password: '' });
 
-const confirmUserDeletion = () => {
+function confirmUserDeletion() {
     confirmingUserDeletion.value = true;
-    nextTick(() => passwordInput.value?.focus());
-};
+}
 
-const deleteUser = () => {
+function deleteUser() {
     form.delete(route('profile.destroy'), {
         preserveScroll: true,
         onSuccess: () => closeModal(),
         onError: () => passwordInput.value?.focus(),
         onFinish: () => form.reset(),
     });
-};
+}
 
-const closeModal = () => {
+function closeModal() {
     confirmingUserDeletion.value = false;
     form.reset();
-};
-
-const { onPointerDown, onClick: onBackdropClick } = useBackdropClose(closeModal);
+}
 </script>
 
 <template>
@@ -41,55 +36,28 @@ const { onPointerDown, onClick: onBackdropClick } = useBackdropClose(closeModal)
             </p>
         </header>
 
-        <button
-            type="button"
-            @click="confirmUserDeletion"
-            class="cs-btn cs-btn-danger"
-        >
+        <button type="button" @click="confirmUserDeletion" class="cs-btn cs-btn-danger">
             Eliminar cuenta
         </button>
 
-        <div
-            v-if="confirmingUserDeletion"
-            class="cs-overlay fixed inset-0 z-50 flex items-center justify-center px-4"
-            @pointerdown="onPointerDown" @click="onBackdropClick"
-        >
-            <div class="cs-panel w-full max-w-md p-6">
-                <h3 class="cs-panel-title mb-2">
-                    ¿Seguro que querés eliminar tu cuenta?
-                </h3>
-                <p class="mb-4 text-sm leading-relaxed" style="color: var(--cs-muted);">
-                    Esta acción no se puede deshacer. Ingresá tu contraseña para confirmar.
-                </p>
+        <AppModal :show="confirmingUserDeletion" size="md" title="¿Seguro que querés eliminar tu cuenta?"
+            @close="closeModal">
+            <p class="mb-4 text-sm leading-relaxed" style="color: var(--cs-muted);">
+                Esta acción no se puede deshacer. Ingresá tu contraseña para confirmar.
+            </p>
 
-                <form @submit.prevent="deleteUser">
-                    <input
-                        ref="passwordInput"
-                        v-model="form.password"
-                        type="password"
-                        placeholder="Contraseña"
-                        class="cs-input"
-                    />
-                    <p v-if="form.errors.password" class="cs-error">{{ form.errors.password }}</p>
+            <form @submit.prevent="deleteUser">
+                <input ref="passwordInput" v-model="form.password" type="password" placeholder="Contraseña"
+                    aria-label="Contraseña" class="cs-input" />
+                <p v-if="form.errors.password" class="cs-error">{{ form.errors.password }}</p>
 
-                    <div class="mt-5 flex justify-end gap-2">
-                        <button
-                            type="button"
-                            @click="closeModal"
-                            class="cs-btn cs-btn-ghost"
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                            type="submit"
-                            :disabled="form.processing"
-                            class="cs-btn cs-btn-danger"
-                        >
-                            Eliminar cuenta
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                <div class="mt-5 flex justify-end gap-2">
+                    <button type="button" @click="closeModal" class="cs-btn cs-btn-ghost">Cancelar</button>
+                    <button type="submit" :disabled="form.processing" class="cs-btn cs-btn-danger">
+                        Eliminar cuenta
+                    </button>
+                </div>
+            </form>
+        </AppModal>
     </section>
 </template>

@@ -273,6 +273,29 @@ class HouseholdIsolationTest extends TestCase
         $this->assertNotNull($viewer->fresh()->currentHousehold());
     }
 
+    public function test_eliminar_hogar_con_movimientos_no_falla_y_limpia_todo(): void
+    {
+        [$owner, $hogar] = $this->usuarioConHogar('uno@example.test');
+        $category = $hogar->categories()->create(['name' => 'Comida', 'type' => 'gasto']);
+        $movimiento = Transaction::create([
+            'user_id' => $owner->id,
+            'category_id' => $category->id,
+            'type' => 'gasto',
+            'amount' => 5000,
+            'amount_gs' => 5000,
+            'currency' => 'PYG',
+            'date' => now()->toDateString(),
+        ]);
+
+        $this->actingAs($owner)->delete('/household', ['confirm' => 1])
+            ->assertRedirect(route('household.show'));
+
+        $this->assertDatabaseMissing('transactions', ['id' => $movimiento->id]);
+        $this->assertDatabaseMissing('categories', ['id' => $category->id]);
+        $this->assertDatabaseMissing('households', ['id' => $hogar->id]);
+        $this->assertNotNull($owner->fresh()->currentHousehold());
+    }
+
     public function test_viewer_no_puede_eliminar_hogar(): void
     {
         [$owner, $hogar] = $this->usuarioConHogar('uno@example.test');

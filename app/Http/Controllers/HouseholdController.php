@@ -8,8 +8,14 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
+/**
+ * Gestión del hogar activo: integrantes, invitaciones, cambio, renombrado y borrado.
+ */
 class HouseholdController extends Controller
 {
+    /**
+     * Muestra los datos del hogar, sus integrantes, estadísticas y los hogares del usuario.
+     */
     public function show()
     {
         $household = $this->currentHousehold();
@@ -41,6 +47,9 @@ class HouseholdController extends Controller
         ]);
     }
 
+    /**
+     * Suma al usuario a un hogar por código de invitación como viewer y lo deja como activo.
+     */
     public function join(Request $request)
     {
         $validated = $request->validate([
@@ -50,13 +59,13 @@ class HouseholdController extends Controller
         $household = Household::where('invite_code', strtoupper($validated['invite_code']))->first();
 
         if (! $household) {
-            return back()->withErrors(['invite_code' => 'Código inválido.']);
+            return back()->withErrors(['invite_code' => 'El código de invitación no es válido. Revisalo e intentá de nuevo.']);
         }
 
         $user = auth()->user();
 
         if ($household->users()->whereKey($user->id)->exists()) {
-            return back()->withErrors(['invite_code' => 'Ya pertenecés a este household.']);
+            return back()->withErrors(['invite_code' => 'Ya pertenecés a este hogar.']);
         }
 
         $household->users()->attach($user->id, ['role' => 'viewer']);
@@ -65,6 +74,9 @@ class HouseholdController extends Controller
         return redirect()->route('household.show');
     }
 
+    /**
+     * Cambia el hogar activo del usuario a uno al que ya pertenezca.
+     */
     public function switch(Request $request)
     {
         $validated = $request->validate([
@@ -76,10 +88,13 @@ class HouseholdController extends Controller
         return redirect()->route('household.show');
     }
 
+    /**
+     * Renombra el hogar activo; requiere permiso de dueño (un viewer recibe 403).
+     */
     public function update(Request $request)
     {
         $household = $this->currentHousehold();
-        abort_unless($this->roleIn($household) === 'owner', 403, 'Solo el dueño puede renombrar el hogar.');
+        abort_unless($this->roleIn($household) === 'owner', 403, 'Solo el dueño puede cambiar el nombre del hogar.');
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:80'],
@@ -90,6 +105,9 @@ class HouseholdController extends Controller
         return redirect()->route('household.show');
     }
 
+    /**
+     * Borra el hogar con sus categorías y movimientos tras reubicar a los integrantes; requiere dueño.
+     */
     public function destroy(Request $request)
     {
         $request->validate([
@@ -101,6 +119,10 @@ class HouseholdController extends Controller
 
         $this->reubicarMiembros($household);
 
+        // La FK de movimientos es RESTRICT en MySQL: primero se borran los movimientos.
+        Transaction::whereHas('category', function ($q) use ($household) {
+            $q->where('household_id', $household->id);
+        })->delete();
         $household->categories()->delete();
         $household->users()->detach();
         $household->delete();
@@ -108,6 +130,9 @@ class HouseholdController extends Controller
         return redirect()->route('household.show');
     }
 
+    /**
+     * Saca al usuario del hogar, cediendo el rol de dueño si hace falta; no permite salir del único hogar.
+     */
     public function leave(Request $request)
     {
         $validated = $request->validate([
@@ -135,6 +160,9 @@ class HouseholdController extends Controller
     }
 
     // Nadie puede quedarse sin hogar: si no tiene otro, se crea uno propio.
+    /**
+     * Asegura que cada integrante tenga otro hogar (o le crea uno) antes de borrar el actual.
+     */
     private function reubicarMiembros(Household $household): void
     {
         foreach ($household->users()->get() as $miembro) {

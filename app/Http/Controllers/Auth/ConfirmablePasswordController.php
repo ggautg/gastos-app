@@ -10,10 +10,13 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * Confirmación de contraseña para operaciones que requieren verificar la identidad.
+ */
 class ConfirmablePasswordController extends Controller
 {
     /**
-     * Show the confirm password view.
+     * Muestra el formulario para volver a ingresar la contraseña.
      */
     public function show(): Response
     {
@@ -21,7 +24,7 @@ class ConfirmablePasswordController extends Controller
     }
 
     /**
-     * Confirm the user's password.
+     * Valida la contraseña y registra la hora de confirmación en la sesión.
      */
     public function store(Request $request): RedirectResponse
     {

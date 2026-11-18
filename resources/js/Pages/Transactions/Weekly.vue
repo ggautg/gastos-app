@@ -5,6 +5,8 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import MonthYearSelector from '@/Components/MonthYearSelector.vue';
 import WeeklyBlockCard from '@/Components/WeeklyBlockCard.vue';
+import PageHeader from '@/Components/PageHeader.vue';
+import EmptyState from '@/Components/EmptyState.vue';
 
 const props = defineProps({
     month: Number,
@@ -31,10 +33,7 @@ const sinDatos = computed(() => props.bloques.every(b => b.total === 0));
 
     <AuthenticatedLayout>
         <template #header>
-            <div class="space-y-1.5">
-                <p class="cs-eyebrow">Comparativa</p>
-                <h2 class="cs-page-title">Semanal</h2>
-            </div>
+            <PageHeader eyebrow="Comparativa" title="Semanal" />
         </template>
 
         <div class="py-8">
@@ -46,11 +45,13 @@ const sinDatos = computed(() => props.bloques.every(b => b.total === 0));
                     @change="goToMonth"
                 />
 
-                <div v-if="sinDatos" class="cs-card p-8 text-center">
-                    <p class="cs-empty">Todavía no hay gastos cargados en este mes.</p>
-                    <Link :href="route('transactions.index')" class="cs-btn cs-btn-primary mt-4">
-                        Cargar movimientos
-                    </Link>
+                <div v-if="sinDatos" class="cs-card p-8">
+                    <EmptyState message="Todavía no hay gastos cargados en este mes."
+                        detail="Cargá movimientos para ver la comparativa semana por semana.">
+                        <Link :href="route('transactions.index')" class="cs-btn cs-btn-primary">
+                            Cargar movimientos
+                        </Link>
+                    </EmptyState>
                 </div>
 
                 <div v-else class="space-y-3">

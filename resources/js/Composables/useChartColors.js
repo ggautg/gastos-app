@@ -40,7 +40,7 @@ export function colorLegible(color, oscuro) {
 
 export function useChartColors() {
     return computed(() => {
-        theme.value; // fuerza recalcular cuando cambia el preset
+        theme.value; // fuerza recalcular cuando cambia el tema
         const oscuro = THEMES.find((preset) => preset.id === theme.value)?.dark ?? false;
 
         return {

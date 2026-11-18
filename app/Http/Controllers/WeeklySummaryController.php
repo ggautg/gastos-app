@@ -8,8 +8,14 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
 
+/**
+ * Resumen de los gastos del hogar agrupados en bloques semanales.
+ */
 class WeeklySummaryController extends Controller
 {
+    /**
+     * Muestra los bloques de siete días del mes con su variación contra el anterior y el mes pasado.
+     */
     public function index(Request $request)
     {
         $household = $this->currentHousehold();
@@ -39,6 +45,9 @@ class WeeklySummaryController extends Controller
         ]);
     }
 
+    /**
+     * Arma los bloques de siete días con el total de gastos y la diferencia y porcentaje contra el bloque anterior.
+     */
     private function calcularBloques(int $householdId, int $month, int $year): Collection
     {
         $transacciones = Transaction::whereHas('category', function ($q) use ($householdId) {

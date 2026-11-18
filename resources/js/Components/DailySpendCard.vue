@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { CalendarDays, Download } from 'lucide-vue-next';
+import { formatGs } from '@/Composables/useFormat';
 
 const props = defineProps({
     dias: {
@@ -55,9 +56,7 @@ function irAHoy() {
     selectedDate.value = props.hoy;
 }
 
-function formatGs(amount) {
-    return '₲ ' + new Intl.NumberFormat('es-PY').format(amount);
-}
+
 </script>
 
 <template>

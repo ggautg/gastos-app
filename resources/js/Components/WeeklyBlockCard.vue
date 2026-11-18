@@ -1,12 +1,10 @@
 <script setup>
+import { formatGs } from '@/Composables/useFormat';
+
 defineProps({
     bloque: Object,
     bloqueMesAnterior: Object,
 });
-
-function formatGs(amount) {
-    return '₲ ' + new Intl.NumberFormat('es-PY').format(amount);
-}
 
 function colorDiferencia(porcentaje) {
     if (porcentaje === null) return 'var(--cs-faint)';
